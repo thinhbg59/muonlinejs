@@ -4,8 +4,10 @@ import { Store, UIState } from './store';
 import { LoginPage } from './ui/pages/loginPage';
 import { CharactersPage } from './ui/pages/charactersPage';
 import { WorldPage } from './ui/pages/worldPage';
+import { Notification } from './ui/components/notification';
+import { useEventBus } from './hooks/useEventBus';
 
-export const App = observer(() => {
+const CurrentPage = observer(() => {
   const state = Store.uiState;
 
   switch (state) {
@@ -21,4 +23,17 @@ export const App = observer(() => {
     default:
       return <div>No Page</div>;
   }
+});
+
+export const App = observer(() => {
+  useEventBus('wsError', () => {
+    Store.addNotification('WebSocket connection error', 'error');
+  });
+
+  return (
+    <div className="app">
+      <CurrentPage />
+      <Notification />
+    </div>
+  );
 });

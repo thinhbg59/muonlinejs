@@ -1,12 +1,35 @@
-import { CharacterClassNumber, SimpleModulusEncryptor, Xor32Encryptor, Xor3Byte } from "../common";
-import { CreateCharacterPacket, FocusCharacterPacket, LoginShortPasswordPacket, RequestCharacterListPacket, SelectCharacterPacket } from "../common/packets/ClientToServerPackets";
-import { ConnectionInfoRequestPacket, ServerListRequestPacket, ServerListResponsePacket } from "../common/packets/ConnectServerPackets";
-import { CharacterListPacket } from "../common/packets/ServerToClientPackets";
-import { stringToBytes } from "../common/utils";
-import { CLIENT_VERSION, CS_HOST, CS_PORT, MAX_PASSWORD_LENGTH, MAX_USERNAME_LENGTH, WS_HOST, WS_PORT } from "./consts";
-import { LocalStorage } from "./libs/localStorage";
-import { createSocket } from "./libs/sockets/createSocket";
-import { action, makeObservable, observable } from 'mobx';
+import {
+  CharacterClassNumber,
+  SimpleModulusEncryptor,
+  Xor32Encryptor,
+  Xor3Byte,
+} from '../common';
+import {
+  CreateCharacterPacket,
+  FocusCharacterPacket,
+  LoginShortPasswordPacket,
+  RequestCharacterListPacket,
+  SelectCharacterPacket,
+} from '../common/packets/ClientToServerPackets';
+import {
+  ConnectionInfoRequestPacket,
+  ServerListRequestPacket,
+  ServerListResponsePacket,
+} from '../common/packets/ConnectServerPackets';
+import { CharacterListPacket } from '../common/packets/ServerToClientPackets';
+import { stringToBytes } from '../common/utils';
+import {
+  CLIENT_VERSION,
+  CS_HOST,
+  CS_PORT,
+  MAX_PASSWORD_LENGTH,
+  MAX_USERNAME_LENGTH,
+  WS_HOST,
+  WS_PORT,
+} from './consts';
+import { LocalStorage } from './libs/localStorage';
+import { createSocket } from './libs/sockets/createSocket';
+import { makeObservable, observable, action, remove } from 'mobx';
 
 const CONFIG_KEY = '_mu_key';
 
@@ -42,6 +65,13 @@ class PlayerData {
   }
 }
 
+export type NotificationType = 'info' | 'error';
+
+export type Notification = {
+  text: string;
+  type: NotificationType;
+};
+
 export const Store = new (class _Store {
   csSocket?: WebSocket;
   gsSocket?: WebSocket;
@@ -72,6 +102,8 @@ export const Store = new (class _Store {
     wsPort: WS_PORT,
   };
 
+  notifications: Notification[] = [];
+
   constructor() {
     makeObservable(this, {
       username: observable,
@@ -87,12 +119,15 @@ export const Store = new (class _Store {
       newCharClass: observable,
       focusedChar: observable,
       playerData: observable,
+      notifications: observable,
     });
     this.loadConfig();
   }
 
   private loadConfig(): void {
-    const data = JSON.parse(LocalStorage.load(CONFIG_KEY) ?? '{}') as ConfigType;
+    const data = JSON.parse(
+      LocalStorage.load(CONFIG_KEY) ?? '{}'
+    ) as ConfigType;
     if (data) {
       Object.assign(this.config, data);
     }
@@ -112,6 +147,22 @@ export const Store = new (class _Store {
     this.saveConfig();
   }
 
+  addNotification(text: string, type: NotificationType = 'info', delay = 3000) {
+    const newNotification: Notification = { text, type };
+
+    this.notifications.push(newNotification);
+
+    setTimeout(
+      action(() =>
+        remove(
+          this.notifications,
+          this.notifications.indexOf(newNotification) as any
+        )
+      ),
+      delay
+    );
+  }
+
   sendToCS(buffer: DataView) {
     this.csSocket?.send(buffer);
   }
@@ -121,7 +172,7 @@ export const Store = new (class _Store {
 
     const header = packet[0];
     xor32.Encrypt(packet);
-    if (this.encryptor && header >= 0xC3) {
+    if (this.encryptor && header >= 0xc3) {
       packet = this.encryptor.Encrypt(packet);
     }
 
@@ -134,7 +185,7 @@ export const Store = new (class _Store {
     const { socket } = createSocket({
       wsAddress: `${config.wsHost ?? WS_HOST}:${config.wsPort ?? WS_PORT}`,
       tcpIP: config.csIp ?? CS_HOST,
-      tcpPort: config.csPort ?? CS_PORT
+      tcpPort: config.csPort ?? CS_PORT,
     });
 
     this.csSocket = socket;
@@ -151,7 +202,7 @@ export const Store = new (class _Store {
     const { socket } = createSocket({
       wsAddress: `${config.wsHost ?? WS_HOST}:${config.wsPort ?? WS_PORT}`,
       tcpIP: ip,
-      tcpPort: port
+      tcpPort: port,
     });
 
     this.gsSocket = socket;
@@ -222,4 +273,4 @@ export const Store = new (class _Store {
 
     this.sendToGS(packet.buffer);
   }
-});
+})();

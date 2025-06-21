@@ -53,8 +53,6 @@ window.addEventListener(
   { passive: false }
 );
 
-Store.connectToConnectServer();
-
 const scene = new TestScene(engine);
 (window as any).__scene = scene;
 loadMapIntoScene(scene);
@@ -75,3 +73,5 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
     <App />
   </React.StrictMode>
 );
+
+Store.connectToConnectServer();

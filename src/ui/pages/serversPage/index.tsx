@@ -8,6 +8,7 @@ import {
 } from '../../../../common/packets/ConnectServerPackets';
 import { useEventBus } from '../../../hooks/useEventBus';
 import { CS_HOST } from '../../../consts';
+import { ServerItem } from './ServerItem';
 
 export const ServersPage = observer(() => {
   const hasAnyServer = Store.serverList.length > 0;
@@ -40,15 +41,14 @@ export const ServersPage = observer(() => {
         <span>Loading...</span>
       ) : (
         <div className="list">
-          {Store.serverList.map(s => {
-            return (
-              <div key={s.ServerId}>
-                <button onClick={() => onConnectClick(s.ServerId)}>
-                  Server {s.ServerId}
-                </button>
-              </div>
-            );
-          })}
+          {Store.serverList.map(s => (
+            <ServerItem
+              key={s.ServerId}
+              name={`Server ${s.ServerId}`}
+              load={s.LoadPercentage}
+              onClick={() => onConnectClick(s.ServerId)}
+            />
+          ))}
         </div>
       )}
     </div>
