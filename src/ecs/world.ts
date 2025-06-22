@@ -12,6 +12,7 @@ import type {
 import type { MUAttributeSystem } from '../libs/attributeSystem';
 import { TransformNode } from '@babylonjs/core/Meshes/transformNode';
 import { CustomGroundMesh } from '../libs/mu/customGroundMesh';
+import { createPathfinding } from '../libs/pathfinding';
 
 export type ISystemFactory = (world: World) => {
   update?: (deltaTime: number) => void;
@@ -20,6 +21,7 @@ export type ISystemFactory = (world: World) => {
 export type Entity = Partial<{
   netId: number;
   modelId: number;
+  modelFilePath: string;
   npcType: number;
   localPlayer: true;
   transform: {
@@ -78,6 +80,11 @@ export class World extends ECSWorld<Entity> {
   }
 
   terrain: CustomGroundMesh | null = null;
+
+  readonly pathfinder = createPathfinding({
+    width: 256,
+    height: 256,
+  });
 
   constructor(readonly scene: Scene) {
     super();

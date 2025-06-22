@@ -30,7 +30,7 @@ import {
 } from './consts';
 import { LocalStorage } from './libs/localStorage';
 import { createSocket } from './libs/sockets/createSocket';
-import { makeObservable, observable, action, remove } from 'mobx';
+import { makeObservable, observable, action, remove, runInAction } from 'mobx';
 import { World } from './ecs/world';
 
 const CONFIG_KEY = '_mu_key';
@@ -63,6 +63,13 @@ class PlayerData {
       money: observable,
       x: observable,
       y: observable,
+    });
+  }
+
+  setPosition(x: number, y: number) {
+    runInAction(() => {
+      this.x = x;
+      this.y = y;
     });
   }
 }
@@ -110,6 +117,9 @@ export const Store = new (class _Store {
 
   readonly isOffline = location.href.includes('offline');
 
+  debugPathfinding = false;
+  showTerrainAttributes = false;
+
   constructor() {
     makeObservable(this, {
       username: observable,
@@ -127,6 +137,8 @@ export const Store = new (class _Store {
       playerData: observable,
       notifications: observable,
       world: observable,
+      debugPathfinding: observable,
+      showTerrainAttributes: observable,
     });
     this.loadConfig();
   }
@@ -286,8 +298,32 @@ export const Store = new (class _Store {
     packet.SourceX = x;
     packet.SourceY = y;
     packet.StepCount = dirs.length;
-    packet.setDirections(dirs, dirs.length);
+
+    function SetStepData(steps: number[], stepsSize: number) {
+      if (stepsSize === 0) return;
+
+      const result = new Array<number>(stepsSize);
+
+      result[0] = ((steps[0] << 4) | stepsSize) & 0xff;
+      for (let i = 0; i < stepsSize - 1; i += 2) {
+        const index = 1 + i / 2;
+        const firstStep = steps[i];
+        const secondStep = steps.length > i + 1 ? steps[i + 1] : 0;
+        result[index] = ((firstStep << 4) | secondStep) & 0xff;
+      }
+
+      return result;
+    }
+
+    const newDirs = SetStepData(dirs, dirs.length);
+    if (!newDirs) return;
+
+    packet.setDirections(newDirs, newDirs.length);
 
     this.sendToGS(packet.buffer);
+
+    console.log(
+      `send walk path from [${x}, ${y}] steps: ${newDirs.join('->')}`
+    );
   }
 })();

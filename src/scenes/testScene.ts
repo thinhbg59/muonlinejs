@@ -33,7 +33,7 @@ export class TestScene extends Scene {
     camera.rotation.y = -Math.PI / 4;
     camera.rotation.x = Math.PI / 4;
 
-        // camera.rotation.y = -Math.PI / 4;
+    // camera.rotation.y = -Math.PI / 4;
     // camera.rotation.x = 0;
 
     camera.speed = 0.2;
@@ -115,8 +115,6 @@ export class TestScene extends Scene {
             // }
             point.y = 256 - point.y;
 
-            point.x = Math.round(point.x);
-            point.y = Math.round(point.y);
             EventBus.emit('groundPointClicked', { point });
           }
         }

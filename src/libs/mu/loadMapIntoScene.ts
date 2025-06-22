@@ -6,6 +6,20 @@ import { ModelObject } from '../../../common/modelObject';
 import type { World } from '../../ecs/world';
 import { spawnPlayer } from '../../logic';
 import { Store } from '../../store';
+import {
+  MODEL_BRIDGE,
+  MODEL_WATERSPOUT,
+  MODEL_WELL01,
+  MODEL_WELL02,
+  MODEL_STAIR,
+  MODEL_HANGING,
+  MODEL_WELL03,
+  MODEL_WELL04,
+  MODEL_HOUSE01,
+  MODEL_HOUSE_WALL01,
+  MODEL_HOUSE_WALL02,
+  MODEL_HOUSE_WALL03,
+} from '../../../common/objects/enum';
 
 export async function loadMapIntoScene(world: World, map: ENUM_WORLD) {
   const scene = world.scene;
@@ -47,25 +61,25 @@ export async function loadMapIntoScene(world: World, map: ENUM_WORLD) {
 
   if (Store.isOffline) {
     const testPlayer = spawnPlayer(world);
-    testPlayer.transform.pos.x = 127;
-    testPlayer.transform.pos.y = 129.5;
+    testPlayer.transform.pos.x = 135;
+    testPlayer.transform.pos.y = 131;
     testPlayer.transform.pos.z = 1.7;
     world.addComponent(testPlayer, 'localPlayer', true);
   }
 
   const TYPES = [
-    //   MODEL_BRIDGE,
-    //   MODEL_WATERSPOUT,
-    //   MODEL_WELL01,
-    //   MODEL_WELL02,
-    //   MODEL_STAIR,
-    //   MODEL_HANGING,
-    //   MODEL_WELL03,
-    //   MODEL_WELL04,
-    //   MODEL_HOUSE01,
-    //   MODEL_HOUSE_WALL01,
-    //   MODEL_HOUSE_WALL02,
-    //   MODEL_HOUSE_WALL03,
+    MODEL_BRIDGE,
+    MODEL_WATERSPOUT,
+    MODEL_WELL01,
+    MODEL_WELL02,
+    MODEL_STAIR,
+    MODEL_HANGING,
+    MODEL_WELL03,
+    MODEL_WELL04,
+    MODEL_HOUSE01,
+    MODEL_HOUSE_WALL01,
+    MODEL_HOUSE_WALL02,
+    MODEL_HOUSE_WALL03,
   ];
 
   const filteredObjects = objects.filter(o => TYPES.includes(o.id));
@@ -82,6 +96,9 @@ export async function loadMapIntoScene(world: World, map: ENUM_WORLD) {
       data.pos.y / world.terrainScale,
       data.pos.z / world.terrainScale
     );
+
+    pos.x -= 0.5;
+    pos.y -= 0.5;
 
     world.add({
       transform: {

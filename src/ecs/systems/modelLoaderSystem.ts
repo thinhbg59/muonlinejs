@@ -1,4 +1,5 @@
-import { getModel, ObjectRegistry } from '../../../common/modelLoader';
+import { MapPlayerNetClassToModelClass } from '../../../common/mapPlayerNetClassToModelClass';
+import { getModel, loadBMD, ObjectRegistry } from '../../../common/modelLoader';
 import { ModelObject } from '../../../common/modelObject';
 import {
   MODEL_BEER01,
@@ -44,6 +45,7 @@ import {
   MODEL_WATERSPOUT,
   MODEL_WELL01,
 } from '../../../common/objects/enum';
+import { PlayerObject } from '../../../common/playerObject';
 import { ISystemFactory } from '../world';
 
 function registerObjects() {
@@ -330,11 +332,30 @@ export const ModelLoaderSystem: ISystemFactory = world => {
 
           const modelObject = entity.modelObject as any as ModelObject;
 
+          if (
+            entity.modelFactory === PlayerObject &&
+            entity.attributeSystem?.hasAttribute('playerNetClass')
+          ) {
+            (modelObject as PlayerObject).playerClass =
+              MapPlayerNetClassToModelClass(
+                entity.attributeSystem.getValue('playerNetClass')
+              );
+          }
+
           modelObject.init().then(() => {
             const modelId = entity.modelId;
+            const modelFilePath = entity.modelFilePath;
 
             if (modelId != null) {
               getModel(modelId).then(bmd => {
+                if (entity.modelObject) {
+                  entity.modelObject.load(bmd);
+                  // console.log(`Model loaded: ${entity.modelId} - ${bmd.Name}`);
+                }
+              });
+            } else if (modelFilePath) {
+              const dir = modelFilePath.split('/').slice(0, -1).join('/');
+              loadBMD(modelFilePath, dir + '/').then(bmd => {
                 if (entity.modelObject) {
                   entity.modelObject.load(bmd);
                   // console.log(`Model loaded: ${entity.modelId} - ${bmd.Name}`);

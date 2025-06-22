@@ -91,6 +91,12 @@ export const AnimationSystem: ISystemFactory = world => {
         movement,
         attributeSystem,
       } of playersQuery) {
+        if (
+          playerAnimation.action === PlayerAction.PLAYER_ATTACK_FIST ||
+          playerAnimation.action === PlayerAction.PLAYER_DIE1
+        ) {
+          continue;
+        }
         playerAnimation.action = calculateAnimation(
           attributeSystem,
           movement.velocity
@@ -123,9 +129,13 @@ export const AnimationSystem: ISystemFactory = world => {
         modelObject,
       } of monsterAnimatableQuery) {
         const isMoving = movement.velocity.x !== 0 || movement.velocity.y !== 0;
-        monsterAnimation.action = isMoving
-          ? MonsterActionType.Walk
-          : MonsterActionType.Stop1;
+
+        if (isMoving) {
+          monsterAnimation.action = MonsterActionType.Walk;
+        }
+        // monsterAnimation.action = isMoving
+        //   ? MonsterActionType.Walk
+        //   : MonsterActionType.Stop1;
 
         modelObject.CurrentAction = monsterAnimation.action;
       }

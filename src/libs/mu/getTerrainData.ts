@@ -1,4 +1,5 @@
 import {
+  CreatePlane,
   RawTexture,
   Scene,
   StandardMaterial,
@@ -26,6 +27,7 @@ import {
   TWFlags,
 } from '../../../common/terrain/consts';
 import { parseTerrainObjects } from '../../../common/terrain/parseTerrainObjects';
+import { Store } from '../../store';
 
 function createTexturesAtlasFromRects(
   scene: Scene,
@@ -201,20 +203,59 @@ export async function getTerrainData(scene: Scene, map: ENUM_WORLD) {
   );
 
   //TODO why?
-  terrain.position.x -= 4;
-  terrain.position.y = 256;
+  terrain.position.x -= 4.5;
+  terrain.position.y = 256.5;
   terrain.rotationQuaternion = null;
   terrain.rotation.x = toRadians(90);
+
+  if (Store.showTerrainAttributes) {
+    const plane = CreatePlane('_terrainPlane', { size: 256 }, scene);
+    plane.isPickable = false;
+    plane.position.set(128 + 0.5, 128 - 0.5, 1.68);
+    plane.rotationQuaternion = null;
+    plane.rotation.y = Math.PI;
+    const planeMat = new StandardMaterial('_terrainPlaneMat', scene);
+    planeMat.disableLighting = true;
+    planeMat.specularColor.set(0, 0, 0);
+    plane.material = planeMat;
+    const pixels = new Uint8Array(256 * 256 * 4);
+    for (let i = 0; i < TERRAIN_SIZE; i++) {
+      for (let j = 0; j < TERRAIN_SIZE; j++) {
+        const ind = i * TERRAIN_SIZE + j;
+
+        const index =
+          ((TERRAIN_SIZE - i) * TERRAIN_SIZE + (TERRAIN_SIZE - j)) * 4;
+
+        const attr = terrainAttrs[ind];
+        pixels[index + 0] = attr & TWFlags.NoMove ? 255 : 0;
+        pixels[index + 1] = attr & TWFlags.SafeZone ? 255 : 0; // Layer2
+        // pixels[index + 2] = (attr & TWFlags.Water) ? 255 : 0; // Layer3
+        // pixels[index + 3] = (attr & TWFlags.Layer4) ? 255 : 0; // Layer4
+      }
+    }
+
+    planeMat.transparencyMode = 2;
+    planeMat.alpha = 0.5;
+    planeMat.emissiveTexture = RawTexture.CreateRGBATexture(
+      pixels,
+      256,
+      256,
+      scene,
+      false,
+      false,
+      Texture.NEAREST_NEAREST
+    );
+  }
 
   function RequestTerrainFlag(xf: number, yf: number) {
     // xf += 4;
 
     if (xf < 0 || yf < 0) return 0;
 
-    const xi = ~~xf;
-    const yi = ~~yf;
+    const xi = ~~(xf);
+    const yi = ~~(yf);
 
-    return terrainAttrs[GetTerrainIndex(xi,256- yi)];
+    return terrainAttrs[GetTerrainIndex(xi, 256 - yi)];
   }
 
   function RequestTerrainHeight(xf: number, yf: number) {

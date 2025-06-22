@@ -79,13 +79,13 @@ function getMaterial(
   const textureFilePath = bmd.Dir + textureName;
 
   if (textureName.toLowerCase().endsWith('.tga')) {
-    const t = new Texture(textureFilePath, scene, false, false);
-    // t.hasAlpha = true;
+    const t = new Texture(textureFilePath, scene, true, false);
+    t.hasAlpha = true;
     m.diffuseTexture = t;
-    // m.transparencyMode = 2;
-    // m.useAlphaFromDiffuseTexture = true;
+    m.transparencyMode = 2;
+    m.useAlphaFromDiffuseTexture = true;
   } else {
-    const t = new Texture(textureFilePath, scene, false, false);
+    const t = new Texture(textureFilePath, scene, true, false);
     m.diffuseTexture = t;
   }
 

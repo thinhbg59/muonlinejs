@@ -5,24 +5,24 @@ import { Store } from '../../store';
 // Function returning CLIENT CODE (0-7) according to MU Online documentation
 // W=0, SW=1, S=2, SE=3, E=4, NE=5, N=6, NW=7
 
-
 function GetClientDirectionCode(from: IVector2Like, to: IVector2Like): number {
   const dx = ~~(to.x - from.x); // Horizontal (X): left / right – works correctly
   const dy = ~~(to.y - from.y); // Vertical (Y): up / down – correction here
 
-  if (dx === -1 && dy === 0) return 0; // West
-  if (dx === -1 && dy === 1) return 1; // South-West
-  if (dx === 0 && dy === 1) return 2; // South
-  if (dx === 1 && dy === 1) return 3; // South-East
-  if (dx === 1 && dy === 0) return 4; // East
-  if (dx === 1 && dy === -1) return 5; // North-East
-  if (dx === 0 && dy === -1) return 6; // North
-  if (dx === -1 && dy === -1) return 7; // North-West
+  if (dx === -1 && dy === -1) return 0; // West
+  if (dx === 0 && dy === -1) return 1; // South-West
+  if (dx === 1 && dy === -1) return 2; // South
+  if (dx === 1 && dy === 0) return 3; // South-East
+  if (dx === 1 && dy === 1) return 4; // East
+  if (dx === 0 && dy === 1) return 5; // North-East
+  if (dx === -1 && dy === 1) return 6; // North
+  if (dx === -1 && dy === 0) return 7; // North-West
   return 0xff; // Invalid direction
 }
 
 function mapToServerDirectionCode(clientDir: number): number {
-  return 7 - clientDir;
+  return clientDir;
+  // return 7 - clientDir;
 }
 
 // stackalloc: no GC pressure for  ≤15-step MU packet
@@ -30,6 +30,8 @@ const clientDirs = new Array<number>(15);
 
 function sendWalkPathToServer(path: IVector2Like[]) {
   if (path.length == 0) return;
+
+  // console.log(JSON.stringify(path, null, 2));
 
   const startX = ~~path[0].x;
   const startY = ~~path[0].y;
@@ -39,7 +41,13 @@ function sendWalkPathToServer(path: IVector2Like[]) {
   for (let i = 1; i < path.length; i++) {
     const step = path[i];
     const dirCode = GetClientDirectionCode(currentPos, step);
-    if (dirCode > 7) break;
+    if (dirCode > 7) {
+      console.error(
+        `Invalid direction code: ${dirCode} at step ${i} from [${currentPos.x}, ${currentPos.y}] to [${step.x}, ${step.y}]`
+      );
+      // If
+      break;
+    }
     clientDirs[dirLen++] = dirCode;
     currentPos = step;
     if (dirLen == 15) break;

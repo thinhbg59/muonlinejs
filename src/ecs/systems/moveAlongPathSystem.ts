@@ -1,4 +1,5 @@
 import { Scalar } from '../../libs/babylon/exports';
+import { Store } from '../../store';
 import type { ISystemFactory } from '../world';
 
 export const MoveAlongPathSystem: ISystemFactory = world => {
@@ -6,7 +7,14 @@ export const MoveAlongPathSystem: ISystemFactory = world => {
 
   return {
     update: (deltaTime: number) => {
-      for (const { pathfinding, transform, movement } of query) {
+      for (const { pathfinding, transform, movement, localPlayer } of query) {
+        if (localPlayer) {
+          Store.playerData.setPosition(
+            Math.round(transform.pos.x),
+            Math.round(transform.pos.y)
+          );
+        }
+
         const speed = 4;
         let deltaSpeed = speed * deltaTime;
 

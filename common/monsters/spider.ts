@@ -16,9 +16,7 @@ export class Spider extends MonsterObject {
 
     super.load(bmd);
 
-    const action = this.Model?.Actions[MonsterActionType.Walk];
-    if (action) {
-      action.PlaySpeed = 1.2;
-    }
+    this.setActionSpeed(MonsterActionType.Walk, 1.2);
+    this.setActionSpeed(MonsterActionType.Attack1, 1.2);
   }
 }

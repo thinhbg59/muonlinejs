@@ -7,6 +7,19 @@ import { WorldPage } from './ui/pages/worldPage';
 import { Notification } from './ui/components/notification';
 import { useEventBus } from './hooks/useEventBus';
 
+const Debug = observer(() => {
+  const playerData = Store.playerData;
+
+  return (
+    <div className="debug">
+      <span className="money">Zen: {playerData.money}</span>
+      <span className="coords">
+        XY: {playerData.x} {playerData.y}
+      </span>
+    </div>
+  );
+});
+
 const CurrentPage = observer(() => {
   const state = Store.uiState;
 
@@ -34,6 +47,7 @@ export const App = observer(() => {
     <div className="app">
       {!Store.isOffline && <CurrentPage />}
       <Notification />
+      <Debug />
     </div>
   );
 });
