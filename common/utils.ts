@@ -1,13 +1,13 @@
-import { type Scene } from "@babylonjs/core";
-import { Texture } from "@babylonjs/core/Materials/Textures/texture";
+import { type Scene } from '@babylonjs/core';
+import { Texture } from '@babylonjs/core/Materials/Textures/texture';
 
 // like 'C1 04 00 01'
 export function stringifyPacket(buffer: Buffer) {
-  return Array.from(new Uint8Array(buffer)).map(byteToString).join(" ");
+  return Array.from(new Uint8Array(buffer)).map(byteToString).join(' ');
 }
 
 export function byteToString(i: number) {
-  return i.toString(16).padStart(2, "0").toUpperCase();
+  return i.toString(16).padStart(2, '0').toUpperCase();
 }
 
 export function getSizeOfPacketType(packetType: number) {
@@ -31,12 +31,12 @@ export function getPacketHeaderSize(packet: Uint8Array) {
 
 export function getPacketSize(packet: Uint8Array) {
   switch (packet[0]) {
-    case 0xC1:
-    case 0xC3:
+    case 0xc1:
+    case 0xc3:
       return packet[1];
-    case 0xC2:
-    case 0xC4:
-      return packet[1] << 8 | packet[2];
+    case 0xc2:
+    case 0xc4:
+      return (packet[1] << 8) | packet[2];
     default:
       return 0;
   }
@@ -45,14 +45,14 @@ export function getPacketSize(packet: Uint8Array) {
 export function setPacketSize(packet: Uint8Array) {
   const size = packet.byteLength;
   switch (packet[0]) {
-    case 0xC1:
-    case 0xC3:
+    case 0xc1:
+    case 0xc3:
       packet[1] = castToByte(size);
       break;
-    case 0xC2:
-    case 0xC4:
-      packet[1] = castToByte((size & 0xFF00) >> 8);
-      packet[2] = castToByte(size & 0x00FF);
+    case 0xc2:
+    case 0xc4:
+      packet[1] = castToByte((size & 0xff00) >> 8);
+      packet[2] = castToByte(size & 0x00ff);
       break;
     default:
       throw new Error(`Unknown packet type 0x${byteToString(packet[0])}`);
@@ -67,17 +67,16 @@ export function stringToBytes(str: string, count = str.length) {
   return bytes;
 }
 
-
 export function castToByte(n: number): Byte {
-  return n & 0xFF;
+  return n & 0xff;
 }
 
 export function castToUInt(n: number): UInt {
-  return n;//TODO
+  return n; //TODO
 }
 
 export function castToUShort(n: number): UShort {
-  return n;//TODO
+  return n; //TODO
 }
 
 export function integerDevision(n: number) {
@@ -91,13 +90,18 @@ export function GetByteValue(byte: Byte, bits: Int, leftShifted: Int): Byte {
   return numericalValue;
 }
 
-export function SetByteValue(oldValue: Byte, value: Byte, bits: Int, leftShifted: Int): Byte {
+export function SetByteValue(
+  oldValue: Byte,
+  value: Byte,
+  bits: Int,
+  leftShifted: Int
+): Byte {
   const bitMask = castToByte(Math.pow(2, bits) - 1) << leftShifted;
-  const clearMask = castToByte(0xFF - bitMask);
+  const clearMask = castToByte(0xff - bitMask);
 
   oldValue &= clearMask;
 
-  const numericalValue = castToByte(value);//Convert.ToByte check?
+  const numericalValue = castToByte(value); //Convert.ToByte check?
   oldValue |= castToByte((numericalValue << leftShifted) & bitMask);
 
   return oldValue;
@@ -107,9 +111,13 @@ export function GetBoolean(byte: Byte, leftShifted: Int): boolean {
   return ((byte >> leftShifted) & 1) === 1;
 }
 
-export function SetBoolean(oldValue: Byte, value: Boolean, leftShifted: Int): Byte {
+export function SetBoolean(
+  oldValue: Byte,
+  value: Boolean,
+  leftShifted: Int
+): Byte {
   const mask = castToByte(1 << leftShifted);
-  const clearMask = castToByte(0xFF - (1 << leftShifted));
+  const clearMask = castToByte(0xff - (1 << leftShifted));
   oldValue &= clearMask;
   if (value) {
     oldValue |= mask;
@@ -128,7 +136,13 @@ export function SetBoolean(oldValue: Byte, value: Boolean, leftShifted: Int): By
 //   return oldValue;
 // }
 
-export function ArrayCopy<TArray extends Uint8Array | Uint16Array>(buffer: TArray, srcOffset: Int, dst: TArray, dstOffset: Int, count: Int): void {
+export function ArrayCopy<TArray extends Uint8Array | Uint16Array>(
+  buffer: TArray,
+  srcOffset: Int,
+  dst: TArray,
+  dstOffset: Int,
+  count: Int
+): void {
   for (let i = 0; i < count; i++) {
     dst[dstOffset + i] = buffer[srcOffset + i];
   }
@@ -143,7 +157,11 @@ export async function downloadBytesBuffer(url: string) {
 }
 
 // TODO we only need bytes buffer? Try to omit bjs dependency...
-export async function readOJZBufferAsJPEGBuffer(scene: Scene, filename: string, ozjBuffer: Uint8Array) {
+export async function readOJZBufferAsJPEGBuffer(
+  scene: Scene,
+  filename: string,
+  ozjBuffer: Uint8Array
+) {
   const fileSize = ozjBuffer.length;
   if (fileSize < 24) {
     throw new Error(`The file ${filename} is too small to be as a OZJ`);
@@ -156,9 +174,19 @@ export async function readOJZBufferAsJPEGBuffer(scene: Scene, filename: string, 
   // let jpegColorspace = TJCS_RGB;
 
   const fName = filename.split('/').at(-1)?.split('.')[0];
-  const texture = new Texture(`data:${fName}.jpg`, scene.getEngine()!, true, false, Texture.NEAREST_NEAREST, null, null, ozjBuffer.slice(24), true);
+  const texture = new Texture(
+    `data:${fName}.jpg`,
+    scene.getEngine()!,
+    true,
+    false,
+    Texture.NEAREST_NEAREST,
+    null,
+    null,
+    ozjBuffer.slice(24),
+    true
+  );
 
-  return new Promise<{ BufferFloat: Float32Array; Texture: Texture; }>(r => {
+  return new Promise<{ BufferFloat: Float32Array; Texture: Texture }>(r => {
     texture.onLoadObservable.addOnce(async () => {
       const size = texture.getSize();
       let jpegWidth = size.width;
@@ -186,3 +214,21 @@ export async function readOJZBufferAsJPEGBuffer(scene: Scene, filename: string, 
 export function toRadians(angle: number) {
   return angle * (Math.PI / 180);
 }
+
+type Bitmask = number;
+
+export const createBinaryMask = (...flags: number[]) =>
+  flags.reduce((mask, flag) => mask | flag, 0);
+
+export const isFlagInBinaryMask = (mask: Bitmask, flag: number) =>
+  (mask & flag) === flag;
+
+export const isMasksIntersect = (maskA: Bitmask, maskB: Bitmask) =>
+  (maskA & maskB) !== 0;
+
+export const addFlagToMask = (mask: Bitmask, flag: number) => mask | flag;
+
+export const removeFlagFromMask = (mask: Bitmask, flag: number) =>
+  mask - (mask & flag);
+
+export const toggleFlagInMask = (mask: Bitmask, flag: number) => mask ^ flag;

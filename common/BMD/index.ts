@@ -1,11 +1,7 @@
-import {
-  Quaternion,
-  Vector3,
-  Matrix as BJSMatrix,
-  Matrix,
-} from '@babylonjs/core/Maths/math.vector';
-import { BaseReader } from '../baseReader';
+import { Quaternion, Vector3 } from '@babylonjs/core/Maths/math.vector';
 import { MathUtils } from '../mathUtils';
+import { decryptMapFile } from '../terrain/mapFileEncryption';
+import { ArrayCopy } from '../utils';
 
 const log = (...args: any[]) => console.log(`[BMD]`, ...args);
 
@@ -58,6 +54,7 @@ class BMDTextureAction {
   NumAnimationKeys: Int = 0;
   LockPositions: boolean = false;
   Positions: Vector3[] = [];
+  PlaySpeed: number = 1;
 }
 
 export class BMDTextureBone {
@@ -108,6 +105,7 @@ export class BMD {
   Meshes: BMDTextureMesh[] = [];
   Bones: BMDTextureBone[] = [];
   Actions: BMDTextureAction[] = [];
+  Dir: string = '';
 }
 
 function _readString(buffer: DataView, from: number, to: number): string {
@@ -123,45 +121,64 @@ function _readString(buffer: DataView, from: number, to: number): string {
   return val;
 }
 
-export class BMDReader extends BaseReader<BMD> {
-  read(buffer: Uint8Array): BMD {
-    if (buffer.byteLength < 8) throw new Error('Invalid size.');
+const EXPECTED_FILE_TYPE = 'BMD';
+const MINIMAL_BUFFER_SIZE = 8;
+const STRING_LENGTH = 32;
 
-    const dv = new DataView(buffer.buffer);
+function ValidateBuffer(buffer: Uint8Array) {
+  if (buffer.byteLength < MINIMAL_BUFFER_SIZE) throw new Error('Invalid size.');
+
+  const dv = new DataView(buffer.buffer);
+
+  const fileType = _readString(dv, 0, 3);
+  if (fileType !== EXPECTED_FILE_TYPE)
+    throw new Error(
+      `Invalid file type. Expected ${EXPECTED_FILE_TYPE} and Received ${fileType}.`
+    );
+}
+
+function DecryptBufferIfNeeded(buffer: Uint8Array, version: number) {
+  if (version !== 12 && version !== 15) return buffer;
+
+  const dv = new DataView(buffer.buffer);
+  const size = dv.getInt32(0, true);
+  const enc = buffer.slice(8); // Extract the encrypted data starting from index 8
+
+  // var size = BitConverter.ToInt32(buffer, 4);
+  // var enc = new byte[size];
+  // Array.Copy(buffer, 8, enc, 0, size);
+
+  if (version === 12) {
+    const dec = new Uint8Array(enc.byteLength);
+    decryptMapFile(dec, enc, enc.byteLength);
+
+    const newBuffer = new Uint8Array(4 + dec.byteLength);
+    ArrayCopy(buffer, 0, newBuffer, 0, 4); // Copy the first 4 bytes (type + version)
+    ArrayCopy(dec, 0, newBuffer, 4, dec.byteLength);
+    return newBuffer;
+  }
+
+  throw new Error(
+    `Unsupported version: ${version}. Only version 12 is supported.`
+  );
+
+  // Array.Copy(dec, 0, buffer, 4, size);
+}
+
+export class BMDReader {
+  read(buffer: Uint8Array, Dir: string): BMD {
+    if (buffer.byteLength < 8) throw new Error('Invalid size.');
 
     let Size;
     let DataPtr = 3;
 
-    const fileType = _readString(dv, 0, 3);
-
-    if (fileType != 'BMD')
-      throw new Error(
-        `Invalid file type. Expected BMD and Received ${fileType}.`
-      );
+    ValidateBuffer(buffer);
 
     const version = buffer[3];
 
-    log(`fileType: ${fileType}, version: ${version}`);
+    buffer = DecryptBufferIfNeeded(buffer, version);
 
-    // if (version == 12)
-    // {
-    //     var size = BitConverter.ToInt32(buffer, 4);
-    //     var enc = new byte[size];
-    //     Array.Copy(buffer, 8, enc, 0, size);
-    //     var dec = FileCryptor.Decrypt(enc);
-    //     Array.Copy(dec, 0, buffer, 4, size);
-    // }
-    // else if (version == 15)
-    // {
-    //     var size = BitConverter.ToInt32(buffer, 4);
-    //     var enc = new byte[size];
-    //     Array.Copy(buffer, 8, enc, 0, size);
-    //     var dec = LEACrypto.Decrypt(enc);
-    //     Array.Copy(dec, 0, buffer, 4, size);
-    // }
-
-    // using var ms = new MemoryStream(buffer);
-    // using var br = new BinaryReader(ms);
+    const dv = new DataView(buffer.buffer);
 
     // ms.Seek(4, SeekOrigin.Begin);
     DataPtr = 4;
@@ -419,6 +436,9 @@ export class BMDReader extends BaseReader<BMD> {
     bmd.Meshes = meshes;
     bmd.Bones = bones;
     bmd.Actions = actions;
+    bmd.Dir = Dir;
+
+    console.log(bmd);
 
     return bmd;
   }

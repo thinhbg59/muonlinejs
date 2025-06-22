@@ -1,18 +1,20 @@
 import { UniversalCamera } from '@babylonjs/core/Cameras/universalCamera';
 import {
-  ArcRotateCamera,
   Color3,
   Color4,
-  CreateBox,
   DirectionalLight,
   Engine,
   HemisphericLight,
+  PointerEventTypes,
   Scene,
   TransformNode,
   Vector3,
 } from '../libs/babylon/exports';
 import { addInspectorForScene } from '../libs/babylon/utils';
 import { toRadians } from '../../common/utils';
+import { EventBus } from '../libs/eventBus';
+
+const CLICK_TO_MOVE_MAX_TIME_DELTA = 150;
 
 export class TestScene extends Scene {
   defaultCamera: UniversalCamera;
@@ -28,13 +30,17 @@ export class TestScene extends Scene {
       this
     );
 
-    camera.rotation.y = -Math.PI / 2;
+    camera.rotation.y = -Math.PI / 4;
     camera.rotation.x = Math.PI / 4;
+
+        // camera.rotation.y = -Math.PI / 4;
+    // camera.rotation.x = 0;
+
     camera.speed = 0.2;
     camera.angularSensibility = 4000;
     camera.minZ = 0.1;
-    camera.maxZ = 50;
-    camera.position.set(135, 15, 130);
+    camera.maxZ = 5000;
+    camera.position.set(135, 10, 130);
     // camera.upVector.set(0, 0, 1);
 
     // camera.position.set(165, 15, 110); // hanging
@@ -77,5 +83,44 @@ export class TestScene extends Scene {
 
     const light3 = new HemisphericLight('light', new Vector3(0, 1, 0), this);
     light3.intensity = 1;
+
+    let time = 0;
+
+    this.onPointerObservable.add(ev => {
+      if (ev.type === PointerEventTypes.POINTERDOWN) {
+        time = Date.now();
+      }
+      if (ev.type === PointerEventTypes.POINTERUP) {
+        const diff = Date.now() - time;
+
+        if (ev.pickInfo) {
+          const point = ev.pickInfo.pickedPoint;
+
+          if (
+            point &&
+            ev.pickInfo.pickedMesh?.metadata?.terrain &&
+            diff < CLICK_TO_MOVE_MAX_TIME_DELTA
+          ) {
+            // const mouseInput = world.with('mouseInput').entities[0];
+            // if (mouseInput) {
+            //   const delta = mouseInput.mouseInput.delta;
+
+            //   if (delta) {
+            //     const magnitude = Math.abs(delta.x) + Math.abs(delta.y);
+
+            //     if (magnitude > 3) {
+            //       return;
+            //     }
+            //   }
+            // }
+            point.y = 256 - point.y;
+
+            point.x = Math.round(point.x);
+            point.y = Math.round(point.y);
+            EventBus.emit('groundPointClicked', { point });
+          }
+        }
+      }
+    });
   }
 }

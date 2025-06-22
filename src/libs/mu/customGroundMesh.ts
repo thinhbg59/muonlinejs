@@ -1,9 +1,13 @@
-import { TERRAIN_SCALE, TERRAIN_SIZE } from "../../../common/terrain/consts";
-import { TERRAIN_INDEX } from "../../../common/terrain/utils";
-import { GroundMesh, type Scene, VertexData, Vector3 } from "../babylon/exports";
+import { TERRAIN_SCALE, TERRAIN_SIZE } from '../../../common/terrain/consts';
+import { TERRAIN_INDEX } from '../../../common/terrain/utils';
+import {
+  GroundMesh,
+  type Scene,
+  VertexData,
+  Vector3,
+} from '../babylon/exports';
 
 export class CustomGroundMesh extends GroundMesh {
-
   constructor(name: string, scene: Scene) {
     super(name, scene);
   }
@@ -27,12 +31,15 @@ function CreateGroundFromHeightMapVertexData(buffer: Float32Array): VertexData {
   for (y = 0; y <= sub; y++) {
     for (x = 0; x <= sub; x++) {
       const position = new Vector3(
-        (x) * TERRAIN_SCALE,
+        x * TERRAIN_SCALE,
         0,
         (sub - y) * TERRAIN_SCALE
       );
 
-      const pos = TERRAIN_INDEX(x >= TERRAIN_SIZE ? TERRAIN_SIZE - 1 : x, (sub - y) >= TERRAIN_SIZE ? TERRAIN_SIZE - 1 : sub - y);
+      const pos = TERRAIN_INDEX(
+        x >= TERRAIN_SIZE ? TERRAIN_SIZE - 1 : x,
+        sub - y >= TERRAIN_SIZE ? TERRAIN_SIZE - 1 : sub - y
+      );
 
       const r = buffer[pos];
 
@@ -41,7 +48,7 @@ function CreateGroundFromHeightMapVertexData(buffer: Float32Array): VertexData {
       // Add  vertex
       positions.push(position.x, position.y, position.z);
       normals.push(0, 0, 0);
-      uvs.push((x - 4) / (sub), 1 - y / sub);
+      uvs.push((x - 4) / sub, 1 - y / sub);
       ids.push(x, y);
     }
   }
@@ -61,7 +68,6 @@ function CreateGroundFromHeightMapVertexData(buffer: Float32Array): VertexData {
       // const idx2 = x + 1 + (TERRAIN_SIZE - y - 1) * s;
       // const idx3 = x + (TERRAIN_SIZE - y - 1) * s;
       // const idx4 = x + ((TERRAIN_SIZE - y - 1) + 1) * s;
-
 
       // if ((y) % 2 !== (x) % 2) {
 
@@ -112,23 +118,21 @@ export function CreateGroundFromHeightMap(
   } = {},
   scene: Scene
 ): CustomGroundMesh {
-
   const subdivisions = options.subdivisions || 1 | 0;
-  const minHeight = options.minHeight || 0.0;
-  const maxHeight = options.maxHeight || 1.0;
+  // const minHeight = options.minHeight || 0.0;
+  // const maxHeight = options.maxHeight || 1.0;
 
   const ground = new CustomGroundMesh(name, scene);
   ground._subdivisionsX = subdivisions;
   ground._subdivisionsY = subdivisions;
   ground._width = TERRAIN_SIZE;
   ground._height = TERRAIN_SIZE;
-  ground._maxX = ground._width / 2.0;
-  ground._maxZ = ground._height / 2.0;
-  ground._minX = -ground._maxX;
-  ground._minZ = -ground._maxZ;
+  ground._maxX = 128;
+  ground._maxZ = 128;
+  ground._minX = -128;
+  ground._minZ = -128;
 
   ground._setReady(false);
-
 
   const vertexData = CreateGroundFromHeightMapVertexData(heights);
 

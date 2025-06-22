@@ -10,6 +10,7 @@ import {
   LoginShortPasswordPacket,
   RequestCharacterListPacket,
   SelectCharacterPacket,
+  WalkRequestPacket,
 } from '../common/packets/ClientToServerPackets';
 import {
   ConnectionInfoRequestPacket,
@@ -30,6 +31,7 @@ import {
 import { LocalStorage } from './libs/localStorage';
 import { createSocket } from './libs/sockets/createSocket';
 import { makeObservable, observable, action, remove } from 'mobx';
+import { World } from './ecs/world';
 
 const CONFIG_KEY = '_mu_key';
 
@@ -104,6 +106,10 @@ export const Store = new (class _Store {
 
   notifications: Notification[] = [];
 
+  world: World | null = null;
+
+  readonly isOffline = location.href.includes('offline');
+
   constructor() {
     makeObservable(this, {
       username: observable,
@@ -120,6 +126,7 @@ export const Store = new (class _Store {
       focusedChar: observable,
       playerData: observable,
       notifications: observable,
+      world: observable,
     });
     this.loadConfig();
   }
@@ -270,6 +277,16 @@ export const Store = new (class _Store {
     const packet = CreateCharacterPacket.createPacket();
     packet.setName(name);
     packet.Class = charClass;
+
+    this.sendToGS(packet.buffer);
+  }
+
+  sendWalkPath(x: number, y: number, dirs: number[]): void {
+    const packet = WalkRequestPacket.createPacket(6 + dirs.length);
+    packet.SourceX = x;
+    packet.SourceY = y;
+    packet.StepCount = dirs.length;
+    packet.setDirections(dirs, dirs.length);
 
     this.sendToGS(packet.buffer);
   }

@@ -1,0 +1,27 @@
+import { getModel } from '../modelLoader';
+import { MODEL_PLAYER, PlayerAction } from '../objects/enum';
+import { PlayerObject } from '../playerObject';
+
+// [NpcInfo(257, "Elf Soldier")]
+export class ElfSoldier extends PlayerObject {
+  async init() {
+    const bmd = await getModel(MODEL_PLAYER);
+
+    this.load(bmd);
+
+    this.setBodyPartsAsync(
+      './data/Player/',
+      'HelmElf',
+      'ArmorElf',
+      'PantElf',
+      'GloveElf',
+      'BootElf',
+      5
+    );
+
+    await this.loadPartAsync('./data/Item/', this.Wings, `Wing04.bmd`);
+
+    this.CurrentAction = PlayerAction.PLAYER_STOP_FLY;
+  }
+  // protected override void HandleClick() { }
+}

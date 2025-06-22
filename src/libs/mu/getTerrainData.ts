@@ -10,6 +10,7 @@ import { createTerrainMaterial } from './terrainMaterial';
 import { ENUM_WORLD } from '../../../common';
 import {
   downloadBytesBuffer,
+  isFlagInBinaryMask,
   readOJZBufferAsJPEGBuffer,
   toRadians,
 } from '../../../common/utils';
@@ -18,10 +19,13 @@ import { parseTerrainHeight } from '../../../common/terrain/parseTerrainHeight';
 import { parseTerrainMapping } from '../../../common/terrain/parseTerrainMapping';
 import { parseTerrainLight } from '../../../common/terrain/parseTerrainLight';
 import { getTilesList } from '../../../common/terrain/getTilesList';
-import { TERRAIN_SIZE } from '../../../common/terrain/consts';
+import {
+  SpecialHeight,
+  TERRAIN_SIZE,
+  TERRAIN_SIZE_MASK,
+  TWFlags,
+} from '../../../common/terrain/consts';
 import { parseTerrainObjects } from '../../../common/terrain/parseTerrainObjects';
-import { ENUM_OBJECTS } from '../../../common/objects/enum';
-import { CMapManager_Load } from '../../../common/zzzMapManagerLoad';
 
 function createTexturesAtlasFromRects(
   scene: Scene,
@@ -90,6 +94,10 @@ function createAlphaMapTexture(
   return rectsTexture;
 }
 
+function GetTerrainIndex(x: number, y: number) {
+  return ~~(~~y * TERRAIN_SIZE + ~~x);
+}
+
 export async function getTerrainData(scene: Scene, map: ENUM_WORLD) {
   const worldNum = map + 1;
   const worldFolder = `./data/World${worldNum}/`;
@@ -131,9 +139,9 @@ export async function getTerrainData(scene: Scene, map: ENUM_WORLD) {
     })
   );
 
-  const lightTexture = lightTextureData.Texture.clone();
+  // const lightTexture = lightTextureData.Texture.clone();
   // const lightData = terrainLight.Lights;
-  console.log({ terrainAttrs, terrainMapping, terrainHeight });
+  // console.log({ terrainAttrs, terrainMapping, terrainHeight });
 
   // const texturesBuffer = await downloadBuffer(`./data/World1_new/EncTerrain.map`);
   // const groundMap = MapUtils.parseGround([...texturesBuffer.values()]);
@@ -143,7 +151,7 @@ export async function getTerrainData(scene: Scene, map: ENUM_WORLD) {
   );
   const objects = parseTerrainObjects(objsBuffer);
 
-  await CMapManager_Load(map);
+  // await CMapManager_Load(map);
 
   // console.log({  objects:objects.map(o=>{
   //   o.Name = ENUM_OBJECTS[o.id];
@@ -151,20 +159,16 @@ export async function getTerrainData(scene: Scene, map: ENUM_WORLD) {
   // }) });
 
   const terrain = CreateGroundFromHeightMap(
-    '_abc',
+    '_world_' + worldNum,
     terrainHeight,
     { width: TERRAIN_SIZE, height: TERRAIN_SIZE, subdivisions: TERRAIN_SIZE },
     scene
   );
-  // const tm = new StandardMaterial('ground_mm', scene);
-  // tm.disableLighting = true;
-  // tm.emissiveColor.setAll(1);
-  // terrain.material = tm;
-  // if (tileGrass) {
-  //   const t = tileGrass.Texture.clone();
-  //   tm.diffuseTexture = t;
-  //   t.updateSamplingMode(Texture.LINEAR_LINEAR);
-  // }
+  terrain.isPickable = true;
+
+  terrain.metadata = {
+    terrain: true,
+  };
 
   const texturesData = textures.map(texture => {
     const t = texture.Texture.clone();
@@ -173,7 +177,7 @@ export async function getTerrainData(scene: Scene, map: ENUM_WORLD) {
 
     const size = t.getSize().height;
     let scale = size;
-    if (scale === 256) {
+    if (scale === TERRAIN_SIZE) {
       scale /= 4;
     }
     return { texture: t, scale };
@@ -202,5 +206,76 @@ export async function getTerrainData(scene: Scene, map: ENUM_WORLD) {
   terrain.rotationQuaternion = null;
   terrain.rotation.x = toRadians(90);
 
-  return { objects };
+  function RequestTerrainFlag(xf: number, yf: number) {
+    // xf += 4;
+
+    if (xf < 0 || yf < 0) return 0;
+
+    const xi = ~~xf;
+    const yi = ~~yf;
+
+    return terrainAttrs[GetTerrainIndex(xi,256- yi)];
+  }
+
+  function RequestTerrainHeight(xf: number, yf: number) {
+    xf += 4;
+
+    if (xf < 0 || yf < 0) return 0;
+
+    // xf /= TERRAIN_SCALE;
+    // yf /= TERRAIN_SCALE;
+
+    const xi = ~~xf;
+    const yi = ~~yf;
+
+    const index = GetTerrainIndex(xi, yi);
+
+    // If flagged as special height, return SpecialHeight
+    // if (
+    //   index < terrainAttrs.length &&
+    //   isFlagInBinaryMask(terrainAttrs[index], TWFlags.Height)
+    // ) {
+    //   return SpecialHeight;
+    // }
+
+    // Bilinear interpolation of height
+    const xd = xf - xi;
+    const yd = yf - yi;
+
+    const x1 = xi & TERRAIN_SIZE_MASK,
+      y1 = yi & TERRAIN_SIZE_MASK;
+    const x2 = (xi + 1) & TERRAIN_SIZE_MASK,
+      y2 = (yi + 1) & TERRAIN_SIZE_MASK;
+
+    const i1 = y1 * TERRAIN_SIZE + x1;
+    const i2 = y1 * TERRAIN_SIZE + x2;
+    const i3 = y2 * TERRAIN_SIZE + x2;
+    const i4 = y2 * TERRAIN_SIZE + x1;
+
+    const h1 = terrainHeight[i1];
+    const h2 = terrainHeight[i2];
+    const h3 = terrainHeight[i3];
+    const h4 = terrainHeight[i4];
+
+    return (
+      (1 - xd) * (1 - yd) * h1 +
+      xd * (1 - yd) * h2 +
+      xd * yd * h3 +
+      (1 - xd) * yd * h4
+    );
+  }
+
+  function IsWalkable(x: number, y: number) {
+    const terrainFlag = RequestTerrainFlag(x, y);
+    return !isFlagInBinaryMask(terrainFlag, TWFlags.NoMove);
+  }
+
+  return {
+    objects,
+    terrain,
+    terrainHeight,
+    RequestTerrainHeight,
+    IsWalkable,
+    RequestTerrainFlag,
+  };
 }

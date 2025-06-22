@@ -8,6 +8,8 @@ import { Engine } from './libs/babylon/exports';
 import { createEngine } from './libs/babylon/utils';
 import { TestScene } from './scenes/testScene';
 import { loadMapIntoScene } from './libs/mu/loadMapIntoScene';
+import { createWorld } from './ecs/createWorld';
+import { ENUM_WORLD } from '../common';
 
 if (APP_STAGE === 'dev' || QA_ENABLED) {
   import('@babylonjs/core/Legacy/legacy');
@@ -54,18 +56,32 @@ window.addEventListener(
 );
 
 const scene = new TestScene(engine);
-(window as any).__scene = scene;
-loadMapIntoScene(scene);
 
+const { world, updateSystems } = createWorld(scene);
+Store.world = world;
+
+(window as any).__scene = scene;
+(window as any).__world = world;
+loadMapIntoScene(world, ENUM_WORLD.WD_0LORENCIA);
+
+let lastTime = performance.now();
 engine.runRenderLoop(() => {
+  const now = performance.now();
+
+  const deltaTime = (now - lastTime) / 1000; // Convert to seconds
+  world.gameTime.TotalGameTime.TotalSeconds += deltaTime;
+
+  updateSystems(deltaTime);
+
   scene.render();
+
+  lastTime = now;
 });
 
-const onResize = () => {
-  engine.resize();
-};
+const onResize = () => engine.resize();
 
 window.addEventListener('resize', onResize);
+
 onResize();
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
@@ -74,4 +90,6 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
   </React.StrictMode>
 );
 
-Store.connectToConnectServer();
+if (!Store.isOffline) {
+  Store.connectToConnectServer();
+}

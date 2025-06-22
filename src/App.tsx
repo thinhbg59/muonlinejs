@@ -32,7 +32,7 @@ export const App = observer(() => {
 
   return (
     <div className="app">
-      <CurrentPage />
+      {!Store.isOffline && <CurrentPage />}
       <Notification />
     </div>
   );

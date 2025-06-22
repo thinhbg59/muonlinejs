@@ -1,0 +1,53 @@
+import { BMD, BMDReader } from './BMD';
+import { downloadBytesBuffer } from './utils';
+
+function padZero(num: number) {
+  return num.toString().padStart(2, '0');
+}
+
+const reader = new BMDReader();
+const Models: Partial<Record<number, Promise<BMD>>> = {};
+const ModelsFactory: Record<number, () => Promise<BMD>> = {};
+
+export async function getModel(modelId: number) {
+  if (Models[modelId]) return Models[modelId];
+
+  if (!ModelsFactory[modelId])
+    throw new Error(`Model factory for ID ${modelId} not found`);
+
+  Models[modelId] = ModelsFactory[modelId]();
+  return Models[modelId];
+}
+
+const cache: Partial<Record<string, Promise<BMD>>> = {};
+
+export async function loadBMD(filePath: string, Dir: string): Promise<BMD> {
+  if (cache[filePath]) return cache[filePath];
+
+  cache[filePath] = new Promise(async r =>
+    r(reader.read(await downloadBytesBuffer(filePath), Dir))
+  );
+
+  return cache[filePath];
+}
+
+export const ObjectRegistry = {
+  RegisterFactory: (
+    Type: number,
+    Dir: string,
+    FileName: string,
+    i: Int = -1
+  ) => {
+    let Name = '';
+
+    if (i === -1) {
+      Name = `${FileName}.bmd`;
+    } else {
+      Name = `${FileName}${padZero(i)}.bmd`;
+    }
+
+    const filePath = Dir + Name;
+
+    ModelsFactory[Type] = async () => loadBMD(filePath, Dir);
+  },
+};
