@@ -88,31 +88,41 @@ export class PlayerObject extends ModelObject {
     const fileSuffix = skinIndex.toString().padStart(2, '0');
 
     await Promise.all([
-      this.loadPartAsync(
-        pathPrefix,
-        this.Helm,
-        `${helmPrefix}${fileSuffix}.bmd`
-      ),
-      this.loadPartAsync(
-        pathPrefix,
-        this.Armor,
-        `${armorPrefix}${fileSuffix}.bmd`
-      ),
-      this.loadPartAsync(
-        pathPrefix,
-        this.Pants,
-        `${pantPrefix}${fileSuffix}.bmd`
-      ),
-      this.loadPartAsync(
-        pathPrefix,
-        this.Gloves,
-        `${glovePrefix}${fileSuffix}.bmd`
-      ),
-      this.loadPartAsync(
-        pathPrefix,
-        this.Boots,
-        `${bootPrefix}${fileSuffix}.bmd`
-      ),
+      !helmPrefix
+        ? Promise.resolve()
+        : this.loadPartAsync(
+            pathPrefix,
+            this.Helm,
+            `${helmPrefix}${fileSuffix}.bmd`
+          ),
+      !armorPrefix
+        ? Promise.resolve()
+        : this.loadPartAsync(
+            pathPrefix,
+            this.Armor,
+            `${armorPrefix}${fileSuffix}.bmd`
+          ),
+      !pantPrefix
+        ? Promise.resolve()
+        : this.loadPartAsync(
+            pathPrefix,
+            this.Pants,
+            `${pantPrefix}${fileSuffix}.bmd`
+          ),
+      !glovePrefix
+        ? Promise.resolve()
+        : this.loadPartAsync(
+            pathPrefix,
+            this.Gloves,
+            `${glovePrefix}${fileSuffix}.bmd`
+          ),
+      !bootPrefix
+        ? Promise.resolve()
+        : this.loadPartAsync(
+            pathPrefix,
+            this.Boots,
+            `${bootPrefix}${fileSuffix}.bmd`
+          ),
     ]);
   }
 

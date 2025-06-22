@@ -1,12 +1,14 @@
-import { unlinkSync } from "node:fs";
-import { Glob } from "bun";
+import { unlinkSync } from 'node:fs';
+import { Glob } from 'bun';
 
 const OZJ_EXT = '.OZJ';
 const JPG_EXT = '.jpg';
 
 const DATA_FOLDER = __dirname + `/../public/data/`;
 
-const glob = new Glob(`**/*${OZJ_EXT}`);
+const glob = new Glob(
+  `**/*{${OZJ_EXT.toUpperCase()},${OZJ_EXT.toLowerCase()}}`
+);
 
 let counter = 0;
 for (const ozjFileName of glob.scanSync(DATA_FOLDER)) {
@@ -14,7 +16,8 @@ for (const ozjFileName of glob.scanSync(DATA_FOLDER)) {
 
   const ozjFilePath = DATA_FOLDER + ozjFileName;
 
-  const jpgFilePath = ozjFilePath.substring(0, ozjFilePath.length - 4) + JPG_EXT;
+  const jpgFilePath =
+    ozjFilePath.substring(0, ozjFilePath.length - 4) + JPG_EXT;
 
   const ozjFile = Bun.file(ozjFilePath);
   const buffer = new Uint8Array(await ozjFile.arrayBuffer());
@@ -23,7 +26,7 @@ for (const ozjFileName of glob.scanSync(DATA_FOLDER)) {
   try {
     //remove old file
     unlinkSync(jpgFilePath);
-  } catch (e) { }
+  } catch (e) {}
 
   const jpgFile = Bun.file(jpgFilePath);
   const writer = jpgFile.writer();

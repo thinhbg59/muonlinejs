@@ -13,7 +13,7 @@ export class Lumen extends PlayerObject {
       'FemaleHead',
       'FemaleUpper',
       'FemaleLower',
-      'FemaleGlove',
+      '',
       'FemaleBoots',
       2
     );

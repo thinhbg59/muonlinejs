@@ -55,32 +55,6 @@ function createCustomMaterial(scene: Scene, opts: { withTint?: boolean }) {
   return mat;
 }
 
-const textureCache: Record<string, RawTexture> = {};
-async function loadOZTTexture(
-  filePath: string,
-  scene: Scene,
-  invertY: boolean
-) {
-  if (textureCache[filePath]) return textureCache[filePath];
-
-  const tga = await OpenTga(filePath);
-
-  const t = RawTexture.CreateRGBATexture(
-    tga.rgbaBuffer,
-    tga.width,
-    tga.height,
-    scene,
-    false,
-    invertY,
-    Texture.LINEAR_LINEAR
-  );
-  t.anisotropicFilteringLevel = 1;
-  t.name = filePath;
-
-  textureCache[filePath] = t;
-  return t;
-}
-
 const materialCache: Record<string, StandardMaterial> = {};
 
 function getMaterial(
@@ -102,19 +76,15 @@ function getMaterial(
 
   const textureName = mesh.TexturePath;
 
+  const textureFilePath = bmd.Dir + textureName;
+
   if (textureName.toLowerCase().endsWith('.tga')) {
-    const textureFilePath = bmd.Dir + textureName.replace('.tga', '.OZT');
-
-    loadOZTTexture(textureFilePath, scene, true).then(t => {
-      t.hasAlpha = true;
-      m.diffuseTexture = t;
-    });
-
-    m.transparencyMode = 2;
-    m.useAlphaFromDiffuseTexture = true;
+    const t = new Texture(textureFilePath, scene, false, false);
+    // t.hasAlpha = true;
+    m.diffuseTexture = t;
+    // m.transparencyMode = 2;
+    // m.useAlphaFromDiffuseTexture = true;
   } else {
-    const textureFilePath = bmd.Dir + textureName;
-
     const t = new Texture(textureFilePath, scene, false, false);
     m.diffuseTexture = t;
   }
