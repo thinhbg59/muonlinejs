@@ -9,6 +9,7 @@ import { TransformNode } from '@babylonjs/core/Meshes/transformNode';
 import { BMD } from '.';
 import { Mesh } from '@babylonjs/core/Meshes/mesh';
 import { getEmptyTexture } from '../../src/libs/babylon/emptyTexture';
+import { resolveUrlToDataFolder } from '../resolveUrlToDataFolder';
 
 const MAX_BONES = 64;
 
@@ -75,16 +76,18 @@ function getMaterial(
 
   const textureName = mesh.TexturePath.replace('.JPG', '.jpg');
 
-  const textureFilePath = bmd.Dir + textureName;
+  const textureFilePath = resolveUrlToDataFolder(bmd.Dir + textureName);
 
   if (textureName.toLowerCase().endsWith('.tga')) {
     const t = new Texture(textureFilePath, scene, true, false);
     t.hasAlpha = true;
+    t.anisotropicFilteringLevel = 1;
     m.diffuseTexture = t;
     m.transparencyMode = 2;
     m.useAlphaFromDiffuseTexture = true;
   } else {
     const t = new Texture(textureFilePath, scene, true, false);
+    t.anisotropicFilteringLevel = 1;
     m.diffuseTexture = t;
   }
 

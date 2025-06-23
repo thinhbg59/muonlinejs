@@ -47,7 +47,7 @@ export class TestScene extends Scene {
 
     // camera.position.set(165, 15, 110); // hanging
 
-    camera.attachControl();
+    // camera.attachControl();
 
     this.fogEnabled = true;
     this.fogStart = 1;
