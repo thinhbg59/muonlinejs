@@ -21,6 +21,7 @@ import {
   MODEL_HOUSE_WALL03,
 } from '../../../common/objects/enum';
 import { MapTileObject } from '../../../common/mapTileObject';
+import { IVector3Like } from '@babylonjs/core/Maths/math.like';
 
 async function loadWorld(world: World) {
   if (!world.terrain) return;
@@ -28,6 +29,43 @@ async function loadWorld(world: World) {
   switch (world.terrain.index) {
     case ENUM_WORLD.WD_0LORENCIA:
       return createLorencia(world);
+  }
+}
+
+function createObjects(
+  world: World,
+  objs: { id: number; pos: IVector3Like; rot: IVector3Like; scale: number }[]
+) {
+  for (const data of objs) {
+    const angles = new Vector3(
+      toRadians(data.rot.x),
+      toRadians(data.rot.y),
+      toRadians(data.rot.z)
+    );
+
+    const pos = new Vector3(
+      data.pos.x / world.terrainScale,
+      data.pos.y / world.terrainScale,
+      data.pos.z / world.terrainScale
+    );
+
+    pos.x -= 0.5;
+    pos.y -= 0.5;
+
+    world.add({
+      worldIndex: world.terrain!.index,
+      transform: {
+        pos,
+        rot: angles,
+        scale: data.scale,
+      },
+      modelId: data.id,
+      modelFactory: world.terrain!.MapTileObjects[data.id] || MapTileObject,
+      visibility: {
+        state: 'hidden',
+        lastChecked: 0,
+      },
+    });
   }
 }
 
@@ -55,37 +93,7 @@ export async function loadMapIntoScene(world: World, map: ENUM_WORLD) {
 
   const filteredObjects = objects; //filter(o => TYPES.includes(o.id));
 
-  for (const data of filteredObjects) {
-    const angles = new Vector3(
-      toRadians(data.rot.x),
-      toRadians(data.rot.y),
-      toRadians(data.rot.z)
-    );
-
-    const pos = new Vector3(
-      data.pos.x / world.terrainScale,
-      data.pos.y / world.terrainScale,
-      data.pos.z / world.terrainScale
-    );
-
-    pos.x -= 0.5;
-    pos.y -= 0.5;
-
-    world.add({
-      worldIndex: map,
-      transform: {
-        pos,
-        rot: angles,
-        scale: data.scale,
-      },
-      modelId: data.id,
-      modelFactory: world.terrain!.MapTileObjects[data.id] || MapTileObject,
-      visibility: {
-        state: 'hidden',
-        lastChecked: 0,
-      },
-    });
-  }
+  createObjects(world, filteredObjects);
 
   if (Store.isOffline) {
     const testPlayer = spawnPlayer(world);

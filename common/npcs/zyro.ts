@@ -3,9 +3,9 @@ import { ModelObject } from '../modelObject';
 
 // [NpcInfo(568, "Wandering Merchant Zyro")]
 export class Zyro extends ModelObject {
-  async init() {
+  init: ModelObject['init'] = async () => {
     const bmd = await loadBMD('NPC/volvo.bmd');
 
     this.load(bmd);
-  }
+  };
 }

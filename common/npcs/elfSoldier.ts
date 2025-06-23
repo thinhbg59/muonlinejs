@@ -4,7 +4,7 @@ import { PlayerObject } from '../playerObject';
 
 // [NpcInfo(257, "Elf Soldier")]
 export class ElfSoldier extends PlayerObject {
-  async init() {
+  init: PlayerObject['init'] = async (world, entity) => {
     this.load(await loadBMD('Player/player.bmd'));
 
     this.setBodyPartsAsync(
@@ -20,6 +20,7 @@ export class ElfSoldier extends PlayerObject {
     await this.loadPartAsync('Item/', this.Wings, `Wing04.bmd`);
 
     this.CurrentAction = PlayerAction.PLAYER_STOP_FLY;
-  }
+    world.removeComponent(entity, 'monsterAnimation');
+  };
   // protected override void HandleClick() { }
 }

@@ -80,7 +80,7 @@ export function spawnPlayer(
   playerEntity.transform.pos.z = 1.7;
 
   playerEntity.attributeSystem.setValue('isFemale', 0);
-  playerEntity.attributeSystem.setValue('isFlying', 1);
+  playerEntity.attributeSystem.setValue('isFlying', 0);
   playerEntity.attributeSystem.setValue('currentHealth', 0);
   playerEntity.attributeSystem.setValue('currentMana', 0);
   playerEntity.attributeSystem.setValue('maxHealth', 1);

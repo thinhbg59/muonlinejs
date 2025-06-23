@@ -4,7 +4,7 @@ import { PlayerObject } from '../playerObject';
 
 // [NpcInfo(247, "Crossbow Guard")]
 export class CrossbowGuard extends PlayerObject {
-  async init() {
+  init: PlayerObject['init'] = async (world, entity) => {
     this.load(await loadBMD('Player/player.bmd'));
 
     this.setBodyPartsAsync(
@@ -18,6 +18,7 @@ export class CrossbowGuard extends PlayerObject {
     );
 
     this.CurrentAction = PlayerAction.PLAYER_STOP_MALE;
-  }
+    world.removeComponent(entity, 'monsterAnimation');
+  };
   // protected override void HandleClick() { }
 }

@@ -4,7 +4,7 @@ import { PlayerObject } from '../playerObject';
 
 // [NpcInfo(236, "Golden Archer")]
 export class GoldenArcher extends PlayerObject {
-  async init() {
+  init: PlayerObject['init'] = async (world, entity) => {
     this.load(await loadBMD('Player/player.bmd'));
 
     this.setBodyPartsAsync(
@@ -21,6 +21,7 @@ export class GoldenArcher extends PlayerObject {
     // Weapon1.Level = 9;
 
     this.CurrentAction = PlayerAction.PLAYER_STOP_MALE;
-  }
+    world.removeComponent(entity, 'monsterAnimation');
+  };
   // protected override void HandleClick() { }
 }

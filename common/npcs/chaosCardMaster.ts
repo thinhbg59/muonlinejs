@@ -3,10 +3,8 @@ import { ModelObject } from '../modelObject';
 
 // [NpcInfo(375, "Chaos Card Master")]
 export class ChaosCardMaster extends ModelObject {
-  async init() {
+  init: ModelObject['init'] = async () => {
     // TODO
-    const bmd = await loadBMD('NPC/Smith01.bmd');
-
-    this.load(bmd);
-  }
+    this.load(await loadBMD('NPC/Smith01.bmd'));
+  };
 }

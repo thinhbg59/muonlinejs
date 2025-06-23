@@ -4,7 +4,7 @@ import { PlayerObject } from '../playerObject';
 
 // [NpcInfo(249, "Berdysh Guard")]
 export class BerdyshGuard extends PlayerObject {
-  async init() {
+  init: PlayerObject['init'] = async (world, entity) => {
     this.load(await loadBMD('Player/player.bmd'));
 
     this.setBodyPartsAsync(
@@ -20,6 +20,7 @@ export class BerdyshGuard extends PlayerObject {
     // Weapon1.Type = (int)ModelType.Spear + 6 + MODEL_ITEM; // Berdysh
 
     this.CurrentAction = PlayerAction.PLAYER_STOP_MALE;
-  }
+    world.removeComponent(entity, 'monsterAnimation');
+  };
   // protected override void HandleClick() { }
 }
