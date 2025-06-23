@@ -1,5 +1,5 @@
 import { BMD, BMDReader } from './BMD';
-import { downloadBytesBuffer } from './utils';
+import { downloadDataBytesBuffer } from './utils';
 
 function padZero(num: number) {
   return num.toString().padStart(2, '0');
@@ -33,7 +33,7 @@ export async function loadBMD(
 
   cache[filePath] = new Promise(async r => {
     try {
-      r(reader.read(await downloadBytesBuffer(filePath), dir));
+      r(reader.read(await downloadDataBytesBuffer(filePath), dir));
     } catch (error) {
       console.error(`Error loading BMD from ${filePath}:`, error);
       throw error;

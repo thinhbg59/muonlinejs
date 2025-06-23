@@ -1,10 +1,9 @@
 import { VertexBuffer } from '@babylonjs/core/Buffers/buffer';
-import { RawTexture, Texture } from '@babylonjs/core/Materials/Textures';
+import { Texture } from '@babylonjs/core/Materials/Textures';
 import { Color3 } from '@babylonjs/core/Maths/math.color';
 import { VertexData } from '@babylonjs/core/Meshes/mesh.vertexData';
-import { Scene } from '@babylonjs/core/scene';
+import type { Scene } from '@babylonjs/core/scene';
 import { CustomMaterial } from '@babylonjs/materials/custom/customMaterial';
-import { OpenTga } from '../textures/test';
 import { StandardMaterial } from '@babylonjs/core/Materials/standardMaterial';
 import { TransformNode } from '@babylonjs/core/Meshes/transformNode';
 import { BMD } from '.';
@@ -75,7 +74,7 @@ function getMaterial(
   m.emissiveTexture = getEmptyTexture(scene);
 
   const textureName = mesh.TexturePath.replace('.JPG', '.jpg');
-  
+
   const textureFilePath = bmd.Dir + textureName;
 
   if (textureName.toLowerCase().endsWith('.tga')) {

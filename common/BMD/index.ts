@@ -13,7 +13,7 @@ const SIZE_OF_Normal_t = 20;
 // [StructLayout(LayoutKind.Sequential, Pack = 4)]
 class BMDTextureNormal {
   Node: Short = 0;
-  Normal: Vector3;
+  Normal!: Vector3;
   BindVertex: Short = 0;
 
   toString() {
@@ -25,7 +25,7 @@ const SIZE_OF_Vertex_t = 16;
 // [StructLayout(LayoutKind.Sequential, Pack = 4)]
 class BMDTextureVertex {
   Node: Short = 0;
-  Position: Vector3;
+  Position!: Vector3;
 
   toString() {
     return `Node: ${this.Node}, Position: ${this.Position}`;
@@ -72,7 +72,7 @@ export class BMDTextureBone {
 const SIZE_OF_Triangle_t = 64;
 // [StructLayout(LayoutKind.Sequential, Pack = 4)]
 class BMDTriangle {
-  Polygon: Byte;
+  Polygon!: Byte;
 
   // [MarshalAs(UnmanagedType.ByValArray, SizeConst = 4)]
   VertexIndex: Short[] = [];
@@ -86,7 +86,7 @@ class BMDTriangle {
   // [MarshalAs(UnmanagedType.ByValArray, SizeConst = 4)]
   LightMapCoord: BMDTexCoord[] = [];
 
-  LightMapIndexes: Short;
+  LightMapIndexes!: Short;
 }
 
 class BMDTextureMesh {

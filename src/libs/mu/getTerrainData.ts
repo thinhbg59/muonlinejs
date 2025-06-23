@@ -10,7 +10,7 @@ import { CreateGroundFromHeightMap } from './customGroundMesh';
 import { createTerrainMaterial } from './terrainMaterial';
 import { ENUM_WORLD } from '../../../common';
 import {
-  downloadBytesBuffer,
+  downloadDataBytesBuffer,
   isFlagInBinaryMask,
   readOJZBufferAsJPEGBuffer,
   toRadians,
@@ -102,18 +102,18 @@ function GetTerrainIndex(x: number, y: number) {
 
 export async function getTerrainData(scene: Scene, map: ENUM_WORLD) {
   const worldNum = map + 1;
-  const worldFolder = `./data/World${worldNum}/`;
+  const worldFolder = `World${worldNum}/`;
 
-  const terrainAttributeBytes = await downloadBytesBuffer(
+  const terrainAttributeBytes = await downloadDataBytesBuffer(
     `${worldFolder}EncTerrain${worldNum}.att`
   );
-  const terrainHeightBytes = await downloadBytesBuffer(
+  const terrainHeightBytes = await downloadDataBytesBuffer(
     `${worldFolder}TerrainHeight.OZB`
   );
-  const terrainMappingBytes = await downloadBytesBuffer(
+  const terrainMappingBytes = await downloadDataBytesBuffer(
     `${worldFolder}EncTerrain${worldNum}.map`
   );
-  const terrainLightBytes = await downloadBytesBuffer(
+  const terrainLightBytes = await downloadDataBytesBuffer(
     `${worldFolder}TerrainLight.OZJ`
   );
 
@@ -134,8 +134,8 @@ export async function getTerrainData(scene: Scene, map: ENUM_WORLD) {
 
   const textures = await Promise.all(
     getTilesList(map).map(async t => {
-      const filePath = `./data/World${worldNum}/${t}.OZJ`;
-      const ozjBytes = await downloadBytesBuffer(filePath);
+      const filePath = `World${worldNum}/${t}.OZJ`;
+      const ozjBytes = await downloadDataBytesBuffer(filePath);
 
       return readOJZBufferAsJPEGBuffer(scene, filePath, ozjBytes);
     })
@@ -145,11 +145,11 @@ export async function getTerrainData(scene: Scene, map: ENUM_WORLD) {
   // const lightData = terrainLight.Lights;
   // console.log({ terrainAttrs, terrainMapping, terrainHeight });
 
-  // const texturesBuffer = await downloadBuffer(`./data/World1_new/EncTerrain.map`);
+  // const texturesBuffer = await downloadBuffer(`World1_new/EncTerrain.map`);
   // const groundMap = MapUtils.parseGround([...texturesBuffer.values()]);
 
-  const objsBuffer = await downloadBytesBuffer(
-    `./data/World${worldNum}/EncTerrain${worldNum}.obj`
+  const objsBuffer = await downloadDataBytesBuffer(
+    `World${worldNum}/EncTerrain${worldNum}.obj`
   );
   const objects = parseTerrainObjects(objsBuffer);
 
@@ -252,8 +252,8 @@ export async function getTerrainData(scene: Scene, map: ENUM_WORLD) {
 
     if (xf < 0 || yf < 0) return 0;
 
-    const xi = ~~(xf);
-    const yi = ~~(yf);
+    const xi = ~~xf;
+    const yi = ~~yf;
 
     return terrainAttrs[GetTerrainIndex(xi, 256 - yi)];
   }

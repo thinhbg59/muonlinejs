@@ -65,10 +65,10 @@ export class PlayerObject extends ModelObject {
     this.Wings.ParentBoneLink = 47;
   }
 
-  async init(world) {
-    await super.init(world);
+  async init(world, entity) {
+    await super.init(world, entity);
 
-    this.load(await loadBMD('./data/Player/player.bmd'));
+    this.load(await loadBMD('Player/player.bmd'));
   }
 
   load(bmd: BMD): void {
@@ -79,7 +79,7 @@ export class PlayerObject extends ModelObject {
 
   async updateBodyPartClassesAsync() {
     await this.setBodyPartsAsync(
-      './data/Player/',
+      'Player/',
       'HelmClass',
       'ArmorClass',
       'PantClass',
@@ -88,7 +88,7 @@ export class PlayerObject extends ModelObject {
       this.playerClass
     );
 
-    // await this.loadPartAsync('./data/Item/', this.Wings, `Wing03.bmd`);
+    // await this.loadPartAsync('Item/', this.Wings, `Wing03.bmd`);
   }
 
   async setBodyPartsAsync(

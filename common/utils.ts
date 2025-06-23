@@ -1,5 +1,6 @@
 import { type Scene } from '@babylonjs/core';
 import { Texture } from '@babylonjs/core/Materials/Textures/texture';
+import { resolveUrlToDataFolder } from './resolveUrlToDataFolder';
 
 // like 'C1 04 00 01'
 export function stringifyPacket(buffer: Buffer) {
@@ -154,6 +155,10 @@ export async function downloadBytesBuffer(url: string) {
   const buffer = new Uint8Array(ab);
 
   return buffer;
+}
+
+export async function downloadDataBytesBuffer(url: string) {
+  return downloadBytesBuffer(resolveUrlToDataFolder(url));
 }
 
 // TODO we only need bytes buffer? Try to omit bjs dependency...

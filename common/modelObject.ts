@@ -37,7 +37,7 @@ export class ModelObject {
   Children: ModelObject[] = [];
 
   get objectDir() {
-    return `./data/Object${this.WorldIndex + 1}/`;
+    return `Object${this.WorldIndex + 1}/`;
   }
 
   _invalidatedBuffers = true;

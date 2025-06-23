@@ -60,7 +60,7 @@ const gLoadData = {
             const pTexture = pModel.Textures[i];
             const textureFileName = pTexture.FileName;
 
-            const szFullPath = `./data/${SubFolder}${textureFileName}`;
+            const szFullPath = `${SubFolder}${textureFileName}`;
 
             // wchar_t __ext[_MAX_EXT] = { 0, };
             //     _wsplitpath(textureFileName, NULL, NULL, NULL, __ext);
@@ -112,18 +112,18 @@ export async function CMapManager_Load(activeWorld: ENUM_WORLD) {
 
     switch (activeWorld) {
         // case ENUM_WORLD.WD_0LORENCIA:
-        //     await gLoadData.AccessModel(ENUM_OBJECTS.MODEL_BIRD01, "./data/Object1/", "Bird", 1);
+        //     await gLoadData.AccessModel(ENUM_OBJECTS.MODEL_BIRD01, "Object1/", "Bird", 1);
         //     await gLoadData.OpenTexture(ENUM_OBJECTS.MODEL_BIRD01, "Object1/");
-        //     await gLoadData.AccessModel(ENUM_OBJECTS.MODEL_FISH01, "./data/Object1/", "Fish", 1);
+        //     await gLoadData.AccessModel(ENUM_OBJECTS.MODEL_FISH01, "Object1/", "Fish", 1);
         //     await gLoadData.OpenTexture(ENUM_OBJECTS.MODEL_FISH01, "Object1/");
         //     break;
         // case ENUM_WORLD.WD_1DUNGEON:
         // case ENUM_WORLD.WD_4LOSTTOWER:
-        //     await gLoadData.AccessModel(ENUM_OBJECTS.MODEL_DUNGEON_STONE01, "./data/Object2/", "DungeonStone", 1);
+        //     await gLoadData.AccessModel(ENUM_OBJECTS.MODEL_DUNGEON_STONE01, "Object2/", "DungeonStone", 1);
         //     await gLoadData.OpenTexture(ENUM_OBJECTS.MODEL_DUNGEON_STONE01, "Object2/");
-        //     await gLoadData.AccessModel(ENUM_OBJECTS.MODEL_BAT01, "./data/Object2/", "Bat", 1);
+        //     await gLoadData.AccessModel(ENUM_OBJECTS.MODEL_BAT01, "Object2/", "Bat", 1);
         //     await gLoadData.OpenTexture(ENUM_OBJECTS.MODEL_BAT01, "Object2/");
-        //     await gLoadData.AccessModel(ENUM_OBJECTS.MODEL_RAT01, "./data/Object2/", "Rat", 1);
+        //     await gLoadData.AccessModel(ENUM_OBJECTS.MODEL_RAT01, "Object2/", "Rat", 1);
         //     await gLoadData.OpenTexture(ENUM_OBJECTS.MODEL_RAT01, "Object2/");
         //     break;
         // case ENUM_WORLD.WD_2DEVIAS:
@@ -155,7 +155,7 @@ export async function CMapManager_Load(activeWorld: ENUM_WORLD) {
         //     }
         //     break;
         // case ENUM_WORLD.WD_3NORIA:
-        //     await gLoadData.AccessModel(ENUM_OBJECTS.MODEL_BUTTERFLY01, "./data/Object1/", "Butterfly", 1);
+        //     await gLoadData.AccessModel(ENUM_OBJECTS.MODEL_BUTTERFLY01, "Object1/", "Butterfly", 1);
         //     await gLoadData.OpenTexture(ENUM_OBJECTS.MODEL_BUTTERFLY01, "Object1/");
         //     await gLoadData.AccessModel(ENUM_OBJECTS.MODEL_WARP, "Data\\Npc\\", "warp01");
         //     await gLoadData.AccessModel(ENUM_OBJECTS.MODEL_WARP2, "Data\\Npc\\", "warp02");
@@ -346,7 +346,7 @@ export async function CMapManager_Load(activeWorld: ENUM_WORLD) {
         //     break;
 
         // case ENUM_WORLD.WD_31HUNTING_GROUND:
-        //     await gLoadData.AccessModel(ENUM_OBJECTS.MODEL_BUTTERFLY01, "./data/Object1/", "Butterfly", 1);
+        //     await gLoadData.AccessModel(ENUM_OBJECTS.MODEL_BUTTERFLY01, "Object1/", "Butterfly", 1);
         //     await gLoadData.OpenTexture(ENUM_OBJECTS.MODEL_BUTTERFLY01, "Object1/");
 
         //     LoadBitmap("Effect\\clouds.jpg", BITMAP_CLOUD, GL_LINEAR, GL_CLAMP_TO_EDGE);
@@ -388,7 +388,7 @@ export async function CMapManager_Load(activeWorld: ENUM_WORLD) {
         //     LoadWaveFile(SOUND_BC_EROHIM_DIE, "Data\\Sound\\w31\\mELOdeath.wav", 1);
         //     break;
         // case ENUM_WORLD.WD_33AIDA:
-        //     await gLoadData.AccessModel(ENUM_OBJECTS.MODEL_BUTTERFLY01, "./data/Object1/", "Butterfly", 1);
+        //     await gLoadData.AccessModel(ENUM_OBJECTS.MODEL_BUTTERFLY01, "Object1/", "Butterfly", 1);
         //     await gLoadData.OpenTexture(ENUM_OBJECTS.MODEL_BUTTERFLY01, "Object1/");
         //     await gLoadData.AccessModel(ENUM_OBJECTS.MODEL_TREE_ATTACK, "Data\\Object34\\", "tree_eff");
         //     await gLoadData.OpenTexture(ENUM_OBJECTS.MODEL_TREE_ATTACK, "Object34\\");
@@ -436,7 +436,7 @@ export async function CMapManager_Load(activeWorld: ENUM_WORLD) {
         //     LoadBitmap("Effect\\clouds.jpg", BITMAP_CLOUD, GL_LINEAR, GL_CLAMP_TO_EDGE);
         //     LoadBitmap("effect\\water.jpg", BITMAP_TWINTAIL_WATER, GL_LINEAR, GL_CLAMP_TO_EDGE);
         // case ENUM_WORLD.WD_37KANTURU_1ST:
-        //     await gLoadData.AccessModel(ENUM_OBJECTS.MODEL_BUTTERFLY01, "./data/Object1/", "Butterfly", 1);
+        //     await gLoadData.AccessModel(ENUM_OBJECTS.MODEL_BUTTERFLY01, "Object1/", "Butterfly", 1);
         //     await gLoadData.OpenTexture(ENUM_OBJECTS.MODEL_BUTTERFLY01, "Object1/");
 
         //     LoadWaveFile(SOUND_KANTURU_1ST_BG_WATERFALL, "Data\\Sound\\w37\\kan_ruin_waterfall.wav", 1);
@@ -1102,72 +1102,72 @@ export async function CMapManager_Load(activeWorld: ENUM_WORLD) {
 
     if (activeWorld == 0) {
         // for (i = 0; i < 13; i++)
-        //     await gLoadData.AccessModel(ENUM_OBJECTS.MODEL_TREE01 + i, "./data/Object1/", "Tree", i + 1);
+        //     await gLoadData.AccessModel(ENUM_OBJECTS.MODEL_TREE01 + i, "Object1/", "Tree", i + 1);
         // for (i = 0; i < 8; i++)
-        //     await gLoadData.AccessModel(ENUM_OBJECTS.MODEL_GRASS01 + i, "./data/Object1/", "Grass", i + 1);
+        //     await gLoadData.AccessModel(ENUM_OBJECTS.MODEL_GRASS01 + i, "Object1/", "Grass", i + 1);
         // for (i = 0; i < 5; i++)
-        //     await gLoadData.AccessModel(ENUM_OBJECTS.MODEL_STONE01 + i, "./data/Object1/", "Stone", i + 1);
+        //     await gLoadData.AccessModel(ENUM_OBJECTS.MODEL_STONE01 + i, "Object1/", "Stone", i + 1);
 
         // for (i = 0; i < 3; i++)
-        //     await gLoadData.AccessModel(ENUM_OBJECTS.MODEL_STONE_STATUE01 + i, "./data/Object1/", "StoneStatue", i + 1);
-        // await gLoadData.AccessModel(ENUM_OBJECTS.MODEL_STEEL_STATUE, "./data/Object1/", "SteelStatue", 1);
+        //     await gLoadData.AccessModel(ENUM_OBJECTS.MODEL_STONE_STATUE01 + i, "Object1/", "StoneStatue", i + 1);
+        // await gLoadData.AccessModel(ENUM_OBJECTS.MODEL_STEEL_STATUE, "Object1/", "SteelStatue", 1);
         // for (i = 0; i < 3; i++)
-        //     await gLoadData.AccessModel(ENUM_OBJECTS.MODEL_TOMB01 + i, "./data/Object1/", "Tomb", i + 1);
+        //     await gLoadData.AccessModel(ENUM_OBJECTS.MODEL_TOMB01 + i, "Object1/", "Tomb", i + 1);
         // for (i = 0; i < 2; i++)
-        //     await gLoadData.AccessModel(ENUM_OBJECTS.MODEL_FIRE_LIGHT01 + i, "./data/Object1/", "FireLight", i + 1);
-        // await gLoadData.AccessModel(ENUM_OBJECTS.MODEL_BONFIRE, "./data/Object1/", "Bonfire", 1);
-        // await gLoadData.AccessModel(ENUM_OBJECTS.MODEL_DUNGEON_GATE, "./data/Object1/", "DoungeonGate", 1);
-        // await gLoadData.AccessModel(ENUM_OBJECTS.MODEL_TREASURE_DRUM, "./data/Object1/", "TreasureDrum", 1);
-        // await gLoadData.AccessModel(ENUM_OBJECTS.MODEL_TREASURE_CHEST, "./data/Object1/", "TreasureChest", 1);
-        // await gLoadData.AccessModel(ENUM_OBJECTS.MODEL_SHIP, "./data/Object1/", "Ship", 1);
+        //     await gLoadData.AccessModel(ENUM_OBJECTS.MODEL_FIRE_LIGHT01 + i, "Object1/", "FireLight", i + 1);
+        // await gLoadData.AccessModel(ENUM_OBJECTS.MODEL_BONFIRE, "Object1/", "Bonfire", 1);
+        // await gLoadData.AccessModel(ENUM_OBJECTS.MODEL_DUNGEON_GATE, "Object1/", "DoungeonGate", 1);
+        // await gLoadData.AccessModel(ENUM_OBJECTS.MODEL_TREASURE_DRUM, "Object1/", "TreasureDrum", 1);
+        // await gLoadData.AccessModel(ENUM_OBJECTS.MODEL_TREASURE_CHEST, "Object1/", "TreasureChest", 1);
+        // await gLoadData.AccessModel(ENUM_OBJECTS.MODEL_SHIP, "Object1/", "Ship", 1);
 
         // for (i = 0; i < 6; i++)
-        //     await gLoadData.AccessModel(ENUM_OBJECTS.MODEL_STONE_WALL01 + i, "./data/Object1/", "StoneWall", i + 1);
+        //     await gLoadData.AccessModel(ENUM_OBJECTS.MODEL_STONE_WALL01 + i, "Object1/", "StoneWall", i + 1);
         // for (i = 0; i < 4; i++)
-        //     await gLoadData.AccessModel(ENUM_OBJECTS.MODEL_MU_WALL01 + i, "./data/Object1/", "StoneMuWall", i + 1);
+        //     await gLoadData.AccessModel(ENUM_OBJECTS.MODEL_MU_WALL01 + i, "Object1/", "StoneMuWall", i + 1);
         // for (i = 0; i < 3; i++)
-        //     await gLoadData.AccessModel(ENUM_OBJECTS.MODEL_STEEL_WALL01 + i, "./data/Object1/", "SteelWall", i + 1);
-        // await gLoadData.AccessModel(ENUM_OBJECTS.MODEL_STEEL_DOOR, "./data/Object1/", "SteelDoor", 1);
+        //     await gLoadData.AccessModel(ENUM_OBJECTS.MODEL_STEEL_WALL01 + i, "Object1/", "SteelWall", i + 1);
+        // await gLoadData.AccessModel(ENUM_OBJECTS.MODEL_STEEL_DOOR, "Object1/", "SteelDoor", 1);
         // for (i = 0; i < 3; i++)
-        //     await gLoadData.AccessModel(ENUM_OBJECTS.MODEL_CANNON01 + i, "./data/Object1/", "Cannon", i + 1);
-        // await gLoadData.AccessModel(ENUM_OBJECTS.MODEL_BRIDGE, "./data/Object1/", "Bridge", 1);
+        //     await gLoadData.AccessModel(ENUM_OBJECTS.MODEL_CANNON01 + i, "Object1/", "Cannon", i + 1);
+        // await gLoadData.AccessModel(ENUM_OBJECTS.MODEL_BRIDGE, "Object1/", "Bridge", 1);
         // for (i = 0; i < 4; i++)
-        //     await gLoadData.AccessModel(ENUM_OBJECTS.MODEL_FENCE01 + i, "./data/Object1/", "Fence", i + 1);
-        // await gLoadData.AccessModel(ENUM_OBJECTS.MODEL_BRIDGE_STONE, "./data/Object1/", "BridgeStone", 1);
+        //     await gLoadData.AccessModel(ENUM_OBJECTS.MODEL_FENCE01 + i, "Object1/", "Fence", i + 1);
+        // await gLoadData.AccessModel(ENUM_OBJECTS.MODEL_BRIDGE_STONE, "Object1/", "BridgeStone", 1);
 
-        // await gLoadData.AccessModel(ENUM_OBJECTS.MODEL_STREET_LIGHT, "./data/Object1/", "StreetLight", 1);
-        // await gLoadData.AccessModel(ENUM_OBJECTS.MODEL_CURTAIN, "./data/Object1/", "Curtain", 1);
+        // await gLoadData.AccessModel(ENUM_OBJECTS.MODEL_STREET_LIGHT, "Object1/", "StreetLight", 1);
+        // await gLoadData.AccessModel(ENUM_OBJECTS.MODEL_CURTAIN, "Object1/", "Curtain", 1);
         // for (i = 0; i < 4; i++)
-        //     await gLoadData.AccessModel(ENUM_OBJECTS.MODEL_CARRIAGE01 + i, "./data/Object1/", "Carriage", i + 1);
+        //     await gLoadData.AccessModel(ENUM_OBJECTS.MODEL_CARRIAGE01 + i, "Object1/", "Carriage", i + 1);
         // for (i = 0; i < 2; i++)
-        //     await gLoadData.AccessModel(ENUM_OBJECTS.MODEL_STRAW01 + i, "./data/Object1/", "Straw", i + 1);
+        //     await gLoadData.AccessModel(ENUM_OBJECTS.MODEL_STRAW01 + i, "Object1/", "Straw", i + 1);
         // for (i = 0; i < 2; i++)
-        //     await gLoadData.AccessModel(ENUM_OBJECTS.MODEL_SIGN01 + i, "./data/Object1/", "Sign", i + 1);
+        //     await gLoadData.AccessModel(ENUM_OBJECTS.MODEL_SIGN01 + i, "Object1/", "Sign", i + 1);
         // for (i = 0; i < 2; i++)
-        //     await gLoadData.AccessModel(ENUM_OBJECTS.MODEL_MERCHANT_ANIMAL01 + i, "./data/Object1/", "MerchantAnimal", i + 1);
-        // await gLoadData.AccessModel(ENUM_OBJECTS.MODEL_WATERSPOUT, "./data/Object1/", "Waterspout", 1);
+        //     await gLoadData.AccessModel(ENUM_OBJECTS.MODEL_MERCHANT_ANIMAL01 + i, "Object1/", "MerchantAnimal", i + 1);
+        // await gLoadData.AccessModel(ENUM_OBJECTS.MODEL_WATERSPOUT, "Object1/", "Waterspout", 1);
         // for (i = 0; i < 4; i++)
-        //     await gLoadData.AccessModel(ENUM_OBJECTS.MODEL_WELL01 + i, "./data/Object1/", "Well", i + 1);
-        // await gLoadData.AccessModel(ENUM_OBJECTS.MODEL_HANGING, "./data/Object1/", "Hanging", 1);
+        //     await gLoadData.AccessModel(ENUM_OBJECTS.MODEL_WELL01 + i, "Object1/", "Well", i + 1);
+        // await gLoadData.AccessModel(ENUM_OBJECTS.MODEL_HANGING, "Object1/", "Hanging", 1);
 
         // for (i = 0; i < 5; i++)
-        //     await gLoadData.AccessModel(ENUM_OBJECTS.MODEL_HOUSE01 + i, "./data/Object1/", "House", i + 1);
-        // await gLoadData.AccessModel(ENUM_OBJECTS.MODEL_TENT, "./data/Object1/", "Tent", 1);
-        // await gLoadData.AccessModel(ENUM_OBJECTS.MODEL_STAIR, "./data/Object1/", "Stair", 1);
+        //     await gLoadData.AccessModel(ENUM_OBJECTS.MODEL_HOUSE01 + i, "Object1/", "House", i + 1);
+        // await gLoadData.AccessModel(ENUM_OBJECTS.MODEL_TENT, "Object1/", "Tent", 1);
+        // await gLoadData.AccessModel(ENUM_OBJECTS.MODEL_STAIR, "Object1/", "Stair", 1);
 
         // for (i = 0; i < 6; i++)
-        //     await gLoadData.AccessModel(ENUM_OBJECTS.MODEL_HOUSE_WALL01 + i, "./data/Object1/", "HouseWall", i + 1);
+        //     await gLoadData.AccessModel(ENUM_OBJECTS.MODEL_HOUSE_WALL01 + i, "Object1/", "HouseWall", i + 1);
         // for (i = 0; i < 3; i++)
-        //     await gLoadData.AccessModel(ENUM_OBJECTS.MODEL_HOUSE_ETC01 + i, "./data/Object1/", "HouseEtc", i + 1);
+        //     await gLoadData.AccessModel(ENUM_OBJECTS.MODEL_HOUSE_ETC01 + i, "Object1/", "HouseEtc", i + 1);
         // for (i = 0; i < 3; i++)
-        //     await gLoadData.AccessModel(ENUM_OBJECTS.MODEL_LIGHT01 + i, "./data/Object1/", "Light", i + 1);
-        // await gLoadData.AccessModel(ENUM_OBJECTS.MODEL_POSE_BOX, "./data/Object1/", "PoseBox", 1);
+        //     await gLoadData.AccessModel(ENUM_OBJECTS.MODEL_LIGHT01 + i, "Object1/", "Light", i + 1);
+        // await gLoadData.AccessModel(ENUM_OBJECTS.MODEL_POSE_BOX, "Object1/", "PoseBox", 1);
 
         // for (i = 0; i < 7; i++)
-        //     await gLoadData.AccessModel(ENUM_OBJECTS.MODEL_FURNITURE01 + i, "./data/Object1/", "Furniture", i + 1);
-        // await gLoadData.AccessModel(ENUM_OBJECTS.MODEL_CANDLE, "./data/Object1/", "Candle", 1);
+        //     await gLoadData.AccessModel(ENUM_OBJECTS.MODEL_FURNITURE01 + i, "Object1/", "Furniture", i + 1);
+        // await gLoadData.AccessModel(ENUM_OBJECTS.MODEL_CANDLE, "Object1/", "Candle", 1);
         // for (i = 0; i < 3; i++)
-        //     await gLoadData.AccessModel(ENUM_OBJECTS.MODEL_BEER01 + i, "./data/Object1/", "Beer", i + 1);
+        //     await gLoadData.AccessModel(ENUM_OBJECTS.MODEL_BEER01 + i, "Object1/", "Beer", i + 1);
 
         // for (i = ENUM_OBJECTS.MODEL_WORLD_OBJECT; i < ENUM_OBJECTS.MAX_WORLD_OBJECTS; i++)
         //     await gLoadData.OpenTexture(i, "Object1/");
@@ -1188,7 +1188,7 @@ export async function CMapManager_Load(activeWorld: ENUM_WORLD) {
         //     iMapWorld = ENUM_WORLD.WD_45CURSEDTEMPLE_LV1 + 2;
         // }
 
-        let DirName = `./data/Object${iMapWorld}/`;
+        let DirName = `Object${iMapWorld}/`;
 
         // for (i = ENUM_OBJECTS.MODEL_WORLD_OBJECT; i < ENUM_OBJECTS.MAX_WORLD_OBJECTS; i++)
         //     await gLoadData.AccessModel(i, DirName, "Object", i + 1);

@@ -5,7 +5,7 @@ import { ModelObject } from '../modelObject';
 export class ChaosCardMaster extends ModelObject {
   async init() {
     // TODO
-    const bmd = await loadBMD('./data/NPC/Smith01.bmd');
+    const bmd = await loadBMD('NPC/Smith01.bmd');
 
     this.load(bmd);
   }

@@ -5,10 +5,10 @@ import { PlayerObject } from '../playerObject';
 // [NpcInfo(247, "Crossbow Guard")]
 export class CrossbowGuard extends PlayerObject {
   async init() {
-    this.load(await loadBMD('./data/Player/player.bmd'));
+    this.load(await loadBMD('Player/player.bmd'));
 
     this.setBodyPartsAsync(
-      './data/Player/',
+      'Player/',
       'HelmMale',
       'ArmorMale',
       'PantMale',

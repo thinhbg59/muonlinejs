@@ -4,12 +4,12 @@ import { PlayerObject } from '../playerObject';
 // [NpcInfo(255, "Lumen the Barmaid")]
 export class Lumen extends PlayerObject {
   async init() {
-    const bmd = await loadBMD('./data/NPC/Female01.bmd');
+    const bmd = await loadBMD('NPC/Female01.bmd');
 
     this.load(bmd);
 
     this.setBodyPartsAsync(
-      './data/NPC/',
+      'NPC/',
       'FemaleHead',
       'FemaleUpper',
       'FemaleLower',

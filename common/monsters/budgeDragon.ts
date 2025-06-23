@@ -9,7 +9,7 @@ export class BudgeDragon extends MonsterObject {
   }
 
   async init() {
-    this.load(await loadBMD('./data/Monster/Monster03.bmd'));
+    this.load(await loadBMD('Monster/Monster03.bmd'));
 
     this.setActionSpeed(MonsterActionType.Walk, 0.7);
   }

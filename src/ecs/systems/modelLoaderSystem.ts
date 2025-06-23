@@ -9,7 +9,7 @@ import { Entity, ISystemFactory, World } from '../world';
 // function registerMonsters() {
 //   ObjectRegistry.RegisterFactory(
 //     MODEL_MONSTER01 + 1,
-//     './data/Monster/',
+//     'Monster/',
 //     'Monster02'
 //   );
 // }
@@ -17,7 +17,7 @@ import { Entity, ISystemFactory, World } from '../world';
 function registerNpcs() {
   ObjectRegistry.RegisterFactory(
     MODEL_ELF_WIZARD,
-    './data/NPC/',
+    'NPC/',
     'ElfWizard',
     1
   );

@@ -4,7 +4,7 @@ import {
   Matrix as BJSMatrix,
   Matrix,
 } from '@babylonjs/core/Maths/math.vector';
-import { downloadBytesBuffer } from '../utils';
+import { downloadBytesBuffer, downloadDataBytesBuffer } from '../utils';
 import type { Scene } from '@babylonjs/core';
 import { Bone, Skeleton } from '@babylonjs/core/Bones';
 import { BMDReader } from '../BMD';
@@ -2787,7 +2787,7 @@ function _readString(buffer: DataView, from: number, to: number): string {
 export async function BMD_Open(DirName: string, ModelFileName: string) {
   let ModelName = DirName + ModelFileName;
 
-  const Data = await downloadBytesBuffer(ModelName);
+  const Data = await downloadDataBytesBuffer(ModelName);
 
   let Size;
   let DataPtr = 3;
