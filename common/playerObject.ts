@@ -69,6 +69,9 @@ export class PlayerObject extends ModelObject {
     await super.init(world, entity);
 
     this.load(await loadBMD('Player/player.bmd'));
+
+    this.setActionSpeed(PlayerAction.PLAYER_WALK_MALE, 2);
+    this.setActionSpeed(PlayerAction.PLAYER_WALK_FEMALE, 2);
   };
 
   load(bmd: BMD): void {

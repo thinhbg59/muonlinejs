@@ -312,7 +312,8 @@ type GAttributesKeys =
   | 'currentHealth'
   | 'maxMana'
   | 'maxHealth'
-  | 'playerNetClass';
+  | 'playerNetClass'
+  | 'totalMovementSpeed';
 
 type Stats = GAttributesKeys;
 type Others = GAttributesKeys;

@@ -7,7 +7,13 @@ export const MoveAlongPathSystem: ISystemFactory = world => {
 
   return {
     update: (deltaTime: number) => {
-      for (const { pathfinding, transform, movement, localPlayer } of query) {
+      for (const {
+        pathfinding,
+        transform,
+        movement,
+        localPlayer,
+        attributeSystem,
+      } of query) {
         if (localPlayer) {
           Store.playerData.setPosition(
             Math.round(transform.pos.x),
@@ -15,7 +21,7 @@ export const MoveAlongPathSystem: ISystemFactory = world => {
           );
         }
 
-        const speed = 4;
+        const speed = attributeSystem?.getValue('totalMovementSpeed') ?? 4;
         let deltaSpeed = speed * deltaTime;
 
         if (

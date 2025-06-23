@@ -85,6 +85,7 @@ export function spawnPlayer(
   playerEntity.attributeSystem.setValue('currentMana', 0);
   playerEntity.attributeSystem.setValue('maxHealth', 1);
   playerEntity.attributeSystem.setValue('maxMana', 1);
+  playerEntity.attributeSystem.setValue('totalMovementSpeed', 3);
   playerEntity.attributeSystem.setValue(
     'playerNetClass',
     cls ?? CharacterClassNumber.DarkKnight

@@ -108,6 +108,9 @@ export const AnimationSystem: ISystemFactory = world => {
         const playerObject = modelObject as PlayerObject;
         if (!playerObject.Ready) continue;
 
+        if (modelObject.ActionIterationWasFinished) {
+        }
+
         playerObject.CurrentAction = playerAnimation.action;
 
         if (playerObject.Wings) {

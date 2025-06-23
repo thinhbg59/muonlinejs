@@ -29,12 +29,17 @@ export class ModelObject {
   BoneTransform: Matrix[] = [];
   BodyHeight: Float = 0;
   CurrentAction: Int = 0;
+  LoopAction = true;
   LinkParent = false;
+  ActionIterationWasFinished = false;
   Ready = false;
   OutOfView = false;
   Visible = true;
   Parent?: ModelObject;
   Children: ModelObject[] = [];
+
+  #actionStartAt = 0;
+  #nextFrame = -1;
 
   get objectDir() {
     return `Object${this.WorldIndex + 1}/`;
@@ -121,6 +126,13 @@ export class ModelObject {
     parent.Children.push(this);
   }
 
+  setActionSpeed(actionType: number, speed: number) {
+    const action = this.Model?.Actions[actionType];
+    if (action) {
+      action.PlaySpeed = speed;
+    }
+  }
+
   Update(gameTime: World['gameTime']): void {
     // base.Update(gameTime);
 
@@ -140,6 +152,7 @@ export class ModelObject {
     //     }
     // }
 
+    this.ActionIterationWasFinished = false;
     this.#RunAnimation(gameTime);
     this.#SetDynamicBuffers();
 
@@ -307,17 +320,22 @@ export class ModelObject {
     }
 
     if (currentActionData.NumAnimationKeys <= 1) {
-      if (this._priorAction != this.CurrentAction) {
+      if (this._priorAction !== this.CurrentAction) {
         this.#generateBoneMatrix(this.CurrentAction, 0, 0, 0);
         this._priorAction = this.CurrentAction;
+        this.ActionIterationWasFinished = true;
       }
       return;
     }
 
-    let currentFrame =
-      gameTime.TotalGameTime.TotalSeconds *
-      this.AnimationSpeed *
-      currentActionData.PlaySpeed;
+    if (this._priorAction !== this.CurrentAction) {
+      this.#actionStartAt = gameTime.TotalGameTime.TotalSeconds;
+      this.#nextFrame = -1;
+    }
+
+    const t = gameTime.TotalGameTime.TotalSeconds - this.#actionStartAt;
+
+    let currentFrame = t * this.AnimationSpeed * currentActionData.PlaySpeed;
     const totalFrames = currentActionData.NumAnimationKeys - 1;
     currentFrame %= totalFrames;
 
@@ -330,7 +348,9 @@ export class ModelObject {
     if (this.LinkParent || this.Model == null || this.Model.Actions.length < 1)
       return;
 
-    if (this.CurrentAction >= this.Model.Actions.length) this.CurrentAction = 0;
+    if (this.CurrentAction >= this.Model.Actions.length) {
+      this.CurrentAction = 0;
+    }
 
     const currentAnimationFrame: Int = ~~Math.floor(currentFrame);
     const interpolationFactor = currentFrame - currentAnimationFrame;
@@ -338,6 +358,17 @@ export class ModelObject {
     const currentActionData = this.Model.Actions[this.CurrentAction];
     const totalFrames = currentActionData.NumAnimationKeys - 1;
     const nextAnimationFrame = (currentAnimationFrame + 1) % totalFrames;
+
+    if (nextAnimationFrame >= this.#nextFrame) {
+      this.#nextFrame = nextAnimationFrame;
+    } else if (this.#nextFrame !== -1) {
+      this.#nextFrame = -1; // Reset next frame if it has not changed
+      this.ActionIterationWasFinished = true;
+    }
+
+    if (nextAnimationFrame < currentAnimationFrame) {
+      if (!this.LoopAction) return;
+    }
 
     this.#generateBoneMatrix(
       this.CurrentAction,
