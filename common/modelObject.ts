@@ -299,6 +299,11 @@ export class ModelObject {
 
     const currentActionData = this.Model.Actions[this.CurrentAction];
 
+    if(!currentActionData){
+      console.warn(`Current action ${this.CurrentAction} not found in model actions.`);
+      return;
+    }
+
     if (currentActionData.NumAnimationKeys <= 1) {
       if (this._priorAction != this.CurrentAction) {
         this.#generateBoneMatrix(this.CurrentAction, 0, 0, 0);

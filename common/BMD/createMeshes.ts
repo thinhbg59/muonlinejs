@@ -74,8 +74,8 @@ function getMaterial(
   m.diffuseTexture = getEmptyTexture(scene);
   m.emissiveTexture = getEmptyTexture(scene);
 
-  const textureName = mesh.TexturePath;
-
+  const textureName = mesh.TexturePath.replace('.JPG', '.jpg');
+  
   const textureFilePath = bmd.Dir + textureName;
 
   if (textureName.toLowerCase().endsWith('.tga')) {

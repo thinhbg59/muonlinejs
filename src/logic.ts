@@ -1,7 +1,8 @@
-import { CharacterClassNumber } from '../common';
+import { CharacterClassNumber, ENUM_WORLD } from '../common';
 import { ItemsDatabase } from '../common/itemsDatabase';
 import { ModelFactoryPerId } from '../common/modelFactoryPerId';
 import { ModelObject } from '../common/modelObject';
+import { MonstersDatabase } from '../common/monstersDatabase';
 import {
   MonsterActionType,
   PlayerAction,
@@ -69,6 +70,12 @@ export function spawnPlayer(
       state: 'hidden',
       lastChecked: 0,
     },
+    screenPosition: {
+      worldOffsetZ: 2.5,
+      x: 0,
+      y: 0,
+    },
+    objectNameInWorld: 'Player',
   });
   playerEntity.transform.pos.z = 1.7;
 
@@ -152,7 +159,9 @@ EventBus.on('AddNpcsToScope', packet => {
   console.log(p, npcs);
 
   const world = Store.world;
-  if (!world) return;
+  if (!world || !world.terrain) return;
+
+  const worldIndex = world.terrain.index;
 
   npcs.forEach(npc => {
     const id = npc.Id & 0x7fff;
@@ -167,6 +176,7 @@ EventBus.on('AddNpcsToScope', packet => {
 
     const npcEntity = world.add({
       netId: id,
+      worldIndex,
       npcType: npc.TypeNumber,
       transform: {
         pos: new Vector3(npc.CurrentPositionX, npc.CurrentPositionY, 1.7),
@@ -195,6 +205,12 @@ EventBus.on('AddNpcsToScope', packet => {
         lastChecked: 0,
         state: 'hidden',
       },
+      screenPosition: {
+        worldOffsetZ: 2.5,
+        x: 0,
+        y: 0,
+      },
+      objectNameInWorld: MonstersDatabase.get(npc.TypeNumber)?.Name || 'NPC',
     });
 
     npcEntity.attributeSystem.setValue('isFemale', 0);
@@ -240,19 +256,25 @@ EventBus.on('AddCharactersToScope', packet => {
   console.log(p, chars);
 
   const world = Store.world;
-  if (!world) return;
+  if (!world || !world.terrain) return;
+
+  const worldIndex = world.terrain.index;
 
   chars.forEach(char => {
     const maskedId = char.Id & 0x7fff;
     const cls = ClassFromAppearance(char.Appearance);
     const playerEntity = spawnPlayer(world, { cls });
     world.addComponent(playerEntity, 'netId', maskedId);
+    world.addComponent(playerEntity, 'worldIndex', worldIndex);
     playerEntity.transform.pos.x = char.CurrentPositionX;
     playerEntity.transform.pos.y = char.CurrentPositionY;
     playerEntity.transform.rot.z = convertDirectionToAngle(char.Rotation);
 
+    playerEntity.objectNameInWorld = char.Name;
+
     if (Store.playerId === maskedId) {
       world.addComponent(playerEntity, 'localPlayer', true);
+      console.log(`Local player spawned: ${maskedId} - ${char.Name}`);
     }
   });
 });

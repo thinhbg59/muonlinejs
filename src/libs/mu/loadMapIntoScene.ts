@@ -94,5 +94,7 @@ export async function loadMapIntoScene(world: World, map: ENUM_WORLD) {
     testPlayer.transform.pos.z = 1.7;
     world.addComponent(testPlayer, 'localPlayer', true);
     world.addComponent(testPlayer, 'worldIndex', map);
+
+    testPlayer.objectNameInWorld = 'TestPlayer';
   }
 }

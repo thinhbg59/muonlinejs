@@ -31,9 +31,14 @@ export async function loadBMD(
     dir = filePath.split('/').slice(0, -1).join('/') + '/';
   }
 
-  cache[filePath] = new Promise(async r =>
-    r(reader.read(await downloadBytesBuffer(filePath), dir))
-  );
+  cache[filePath] = new Promise(async r => {
+    try {
+      r(reader.read(await downloadBytesBuffer(filePath), dir));
+    } catch (error) {
+      console.error(`Error loading BMD from ${filePath}:`, error);
+      throw error;
+    }
+  });
 
   return cache[filePath];
 }

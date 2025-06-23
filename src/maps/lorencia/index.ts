@@ -19,6 +19,7 @@ import { HouseWallObject } from './houseWallObject';
 import { LightObject } from './lightObject';
 import { MerchantAnimalObject } from './merchantAnimalObject';
 import { MuWallObject } from './muWallObject';
+import { PoseBoxObject } from './poseBoxObject';
 import { ShipObject } from './shipObject';
 import { SignObject } from './signObject';
 import { StairObject } from './stairObject';
@@ -110,7 +111,7 @@ export async function createLorencia(world: World) {
 
   for (var i = 0; i < 3; i++) terrain.MapTileObjects[130 + i] = LightObject;
 
-  //           terrain.MapTileObjects[133] = (RestPlaceObject);
+  terrain.MapTileObjects[133] = PoseBoxObject;
 
   for (var i = 0; i < 7; i++) terrain.MapTileObjects[140 + i] = FurnitureObject;
 

@@ -1,7 +1,8 @@
 .world-page {
   display: grid;
   place-content: center;
-  position: relative;
+  position: absolute;
+  inset: 0;
 
   .hud {
     position: absolute;
@@ -18,5 +19,10 @@
       top: 2rem;
       left: 1rem;
     }
+  }
+
+  .world-objects {
+    position: absolute;
+    inset: 0;
   }
 }

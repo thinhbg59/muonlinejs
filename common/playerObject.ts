@@ -65,8 +65,8 @@ export class PlayerObject extends ModelObject {
     this.Wings.ParentBoneLink = 47;
   }
 
-  async init() {
-    await super.init();
+  async init(world) {
+    await super.init(world);
 
     this.load(await loadBMD('./data/Player/player.bmd'));
   }

@@ -12,21 +12,23 @@ import { GoldenArcher } from './npcs/goldenArcher';
 import { Hanzo } from './npcs/hanzo';
 import { Leo } from './npcs/leo';
 import { Lumen } from './npcs/lumen';
+import { Pasi } from './npcs/pasi';
 import { Trainer } from './npcs/trainer';
 import { Zyro } from './npcs/zyro';
 
 export const ModelFactoryPerId: Record<number, typeof ModelObject> = {
-  [371]: Leo,
-  [240]: Baz,
   [226]: Trainer,
+  [240]: Baz,
+  [247]: CrossbowGuard,
+  [249]: BerdyshGuard,
+  [251]: Hanzo,
+  [254]: Pasi,
   [255]: Lumen,
   [257]: ElfSoldier,
-  [247]: CrossbowGuard,
-  [251]: Hanzo,
-  [568]: Zyro,
-  [249]: BerdyshGuard,
-  [543]: ElfSoldier,
+  [371]: Leo,
   [375]: ChaosCardMaster,
+  [543]: ElfSoldier,
+  [568]: Zyro,
 
   // Monsters
   [1]: Hound,

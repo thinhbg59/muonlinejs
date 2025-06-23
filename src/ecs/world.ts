@@ -14,6 +14,7 @@ import { TransformNode } from '@babylonjs/core/Meshes/transformNode';
 import { CustomGroundMesh } from '../libs/mu/customGroundMesh';
 import { createPathfinding } from '../libs/pathfinding';
 import type { ENUM_WORLD } from '../../common';
+import { Viewport } from '../libs/babylon/exports';
 
 export type ISystemFactory = (world: World) => {
   update?: (deltaTime: number) => void;
@@ -59,10 +60,18 @@ export type Entity = Partial<{
     state: 'visible' | 'nearby' | 'hidden';
     lastChecked: number;
   };
+  screenPosition: {
+    x: number;
+    y: number;
+    worldOffsetZ: number;
+  };
+  objectNameInWorld: string;
 }>;
 
 export class World extends ECSWorld<Entity> {
   readonly terrainScale = 100;
+
+  viewport = new Viewport(0, 0, 1, 1);
 
   readonly gameTime = { TotalGameTime: { TotalSeconds: 0.1 } };
 

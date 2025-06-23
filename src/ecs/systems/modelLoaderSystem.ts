@@ -63,7 +63,7 @@ function createModelObject(
   }
 
   modelObject.init(world).then(() => {
-    if (modelObject.Model) return;
+    if (modelObject.Model || modelObject.Ready) return;
     if (!entity.modelObject) {
       modelObject.dispose();
       return;

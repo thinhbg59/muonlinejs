@@ -2,8 +2,8 @@ import { loadBMD } from './modelLoader';
 import { ModelObject } from './modelObject';
 
 export class MapTileObject extends ModelObject {
-  async init(): Promise<void> {
-    await super.init();
+  async init(world) {
+    await super.init(world);
 
     // BlendState = BlendState.AlphaBlend;
 

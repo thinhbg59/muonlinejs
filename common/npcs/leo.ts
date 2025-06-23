@@ -1,13 +1,11 @@
-import { getModel } from '../modelLoader';
-import { MODEL_PLAYER, PlayerAction } from '../objects/enum';
+import { loadBMD } from '../modelLoader';
+import { PlayerAction } from '../objects/enum';
 import { PlayerObject } from '../playerObject';
 
 // [NpcInfo(371, "Leo the Helper")]
 export class Leo extends PlayerObject {
   async init() {
-    const bmd = await getModel(MODEL_PLAYER);
-
-    this.load(bmd);
+    this.load(await loadBMD('./data/Player/player.bmd'));
 
     this.setBodyPartsAsync(
       './data/Player/',

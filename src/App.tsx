@@ -23,6 +23,10 @@ const Debug = observer(() => {
 const CurrentPage = observer(() => {
   const state = Store.uiState;
 
+  if (Store.isOffline) {
+    return <WorldPage />;
+  }
+
   switch (state) {
     case UIState.Servers:
       return <ServersPage />;
@@ -45,7 +49,7 @@ export const App = observer(() => {
 
   return (
     <div className="app">
-      {!Store.isOffline && <CurrentPage />}
+      <CurrentPage />
       <Notification />
       <Debug />
     </div>
