@@ -63,8 +63,8 @@ export function createTerrainMaterial(scene: Scene, { name, }: { name: string; }
 
     vec3 light = vec3(1.0);
 
-    float WaterMove = 0.0;//float(int(time*1000.0) % 20000) * 0.0005;
-    float WindSpeed = float(int(time*1000.0) % 72000) * 0.004;
+    float WaterMove = float(int(time*50.0) % 20000) * 0.0005;
+    float WindSpeed = float(int(time*200.0) % 72000) * 0.004;
     float GrassWind = sin(WindSpeed + vXf * 2.0) * 0.1;
   
     vec3 ${FINAL_COLOR_VAR_NAME} = vec3(0.0);
