@@ -91,7 +91,13 @@ export class PlayerObject extends ModelObject {
       this.playerClass
     );
 
-    // await this.loadPartAsync('Item/', this.Wings, `Wing03.bmd`);
+    // await this.loadPartAsync('Item/', this.Wings, `Wing04.bmd`);
+    // const wingMat = this.Wings.getMaterial(0);
+    // if (wingMat) {
+    //   wingMat.alpha = 0.99;
+    //   wingMat.alphaMode = 1;
+    //   wingMat.transparencyMode = 2;
+    // }
   }
 
   async setBodyPartsAsync(

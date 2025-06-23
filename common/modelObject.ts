@@ -1,6 +1,12 @@
 import { Matrix, Quaternion, Vector3 } from '@babylonjs/core/Maths/math.vector';
 import { BMD, BMDTextureBone } from './BMD';
-import { BoundingBox, Mesh, TransformNode, type Scene } from '@babylonjs/core';
+import {
+  BoundingBox,
+  Mesh,
+  type StandardMaterial,
+  TransformNode,
+  type Scene,
+} from '@babylonjs/core';
 import type { IVector3Like } from '@babylonjs/core/Maths/math.like';
 import { createMeshesForBMD } from './BMD/createMeshes';
 import type { Entity, World } from '../src/ecs/world';
@@ -25,6 +31,8 @@ export class ModelObject {
   WorldIndex: ENUM_WORLD = ENUM_WORLD.WD_0LORENCIA;
 
   HiddenMesh = -1;
+  BlendMesh = -1;
+  // BlendMeshState  = BlendState.Additive;
   AnimationSpeed = 4.0;
   BoneTransform: Matrix[] = [];
   BodyHeight: Float = 0;
@@ -46,9 +54,7 @@ export class ModelObject {
   }
 
   _invalidatedBuffers = true;
-  // _meshesVertexData: VertexData[];
   _meshesBonesData: Float32Array[] = [];
-  // private _dataTextures: any[] = [];
   private _priorAction: Int = 0;
   Light = new Vector3(0, 0, 0);
 
@@ -126,6 +132,14 @@ export class ModelObject {
     parent.Children.push(this);
   }
 
+  getMesh(ind: number) {
+    return this._meshes[ind];
+  }
+
+  getMaterial(ind: number) {
+    return this._meshes[ind].material as StandardMaterial;
+  }
+
   setActionSpeed(actionType: number, speed: number) {
     const action = this.Model?.Actions[actionType];
     if (action) {
@@ -178,7 +192,7 @@ export class ModelObject {
     for (let i = 0; i < meshCount; i++) {
       // if (this._dataTextures[i] == null) continue;
       // bool isRGBA = _dataTextures[i].Components === 4;
-      // bool isBlendMesh = BlendMesh == i;
+      // const isBlendMesh = this.BlendMesh == i;
       // bool draw = isAfterDraw
       //     ? isRGBA || isBlendMesh
       //     : !isRGBA && !isBlendMesh;
@@ -195,11 +209,11 @@ export class ModelObject {
       //     ? MuGame.Instance.DisableDepthMask
       //     : DepthStencilState.Default;
 
-      this.#DrawMesh(i);
+      this.DrawMesh(i);
     }
   }
 
-  #DrawMesh(mesh: Int): void {
+  DrawMesh(mesh: Int): void {
     if (this.HiddenMesh === mesh) return;
 
     // const texture = this._boneTextures[mesh];

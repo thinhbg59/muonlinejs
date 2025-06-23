@@ -19,6 +19,13 @@ export class ElfSoldier extends PlayerObject {
 
     await this.loadPartAsync('Item/', this.Wings, `Wing04.bmd`);
 
+    const wingsMaterial = this.Wings.getMaterial(0);
+    if (wingsMaterial) {
+      wingsMaterial.transparencyMode = 2;
+      wingsMaterial.alphaMode = 1;
+      wingsMaterial.alpha = 0.99;
+    }
+
     this.CurrentAction = PlayerAction.PLAYER_STOP_FLY;
     world.removeComponent(entity, 'monsterAnimation');
   };
