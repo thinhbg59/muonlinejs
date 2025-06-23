@@ -1,11 +1,11 @@
 import { ENUM_WORLD } from '../../../common';
-import { Vector3 } from '../babylon/exports';
-import { getTerrainData } from './getTerrainData';
-import { toRadians } from '../../../common/utils';
-import { ModelObject } from '../../../common/modelObject';
 import type { World } from '../../ecs/world';
 import { spawnPlayer } from '../../logic';
 import { Store } from '../../store';
+import { createLorencia } from '../../maps/lorencia';
+import { getTerrainData } from './getTerrainData';
+import { Vector3 } from '../babylon/exports';
+import { toRadians } from '../../../common/utils';
 import {
   MODEL_BRIDGE,
   MODEL_WATERSPOUT,
@@ -20,6 +20,16 @@ import {
   MODEL_HOUSE_WALL02,
   MODEL_HOUSE_WALL03,
 } from '../../../common/objects/enum';
+import { MapTileObject } from '../../../common/mapTileObject';
+
+async function loadWorld(world: World) {
+  if (!world.terrain) return;
+
+  switch (world.terrain.index) {
+    case ENUM_WORLD.WD_0LORENCIA:
+      return createLorencia(world);
+  }
+}
 
 export async function loadMapIntoScene(world: World, map: ENUM_WORLD) {
   const scene = world.scene;
@@ -29,60 +39,21 @@ export async function loadMapIntoScene(world: World, map: ENUM_WORLD) {
     RequestTerrainHeight,
     IsWalkable,
     RequestTerrainFlag,
-  } = await getTerrainData(scene, map);
-  world.terrain = terrain;
+  } = await getTerrainData(scene, ENUM_WORLD.WD_0LORENCIA);
 
   world.getTerrainHeight = RequestTerrainHeight;
   world.isWalkable = IsWalkable;
   world.getTerrainFlag = RequestTerrainFlag;
 
-  // terrain.updateCoordinateHeights();
-  // terrain.setParent(world.mapParent);
+  world.terrain = {
+    mesh: terrain,
+    index: map,
+    MapTileObjects: new Array(256).fill(MapTileObject),
+  };
 
-  // world.add({
-  //   transform: {
-  //     pos: new Vector3(127, 129.5, 1.7),
-  //     rot: Vector3.Zero(),
-  //     scale: 1,
-  //   },
-  //   bmd: await getModel(MODEL_MONSTER01 + 1),
-  //   modelObject: new ModelObject(scene, mapParent),
-  // });
+  await loadWorld(world);
 
-  // world.add({
-  //   transform: {
-  //     pos: new Vector3(127, 129.5, 1.7),
-  //     rot: Vector3.Zero(),
-  //     scale: 1,
-  //   },
-  //   bmd: await getModel(ENUM_NPC_MODELS.MODEL_ELF_WIZARD),
-  //   modelObject: new ModelObject(scene, mapParent),
-  // });
-
-  if (Store.isOffline) {
-    const testPlayer = spawnPlayer(world);
-    testPlayer.transform.pos.x = 135;
-    testPlayer.transform.pos.y = 131;
-    testPlayer.transform.pos.z = 1.7;
-    world.addComponent(testPlayer, 'localPlayer', true);
-  }
-
-  const TYPES = [
-    MODEL_BRIDGE,
-    MODEL_WATERSPOUT,
-    MODEL_WELL01,
-    MODEL_WELL02,
-    MODEL_STAIR,
-    MODEL_HANGING,
-    MODEL_WELL03,
-    MODEL_WELL04,
-    MODEL_HOUSE01,
-    MODEL_HOUSE_WALL01,
-    MODEL_HOUSE_WALL02,
-    MODEL_HOUSE_WALL03,
-  ];
-
-  const filteredObjects = objects.filter(o => TYPES.includes(o.id));
+  const filteredObjects = objects; //filter(o => TYPES.includes(o.id));
 
   for (const data of filteredObjects) {
     const angles = new Vector3(
@@ -101,13 +72,27 @@ export async function loadMapIntoScene(world: World, map: ENUM_WORLD) {
     pos.y -= 0.5;
 
     world.add({
+      worldIndex: map,
       transform: {
         pos,
         rot: angles,
         scale: data.scale,
       },
       modelId: data.id,
-      modelFactory: ModelObject,
+      modelFactory: world.terrain!.MapTileObjects[data.id] || MapTileObject,
+      visibility: {
+        state: 'hidden',
+        lastChecked: 0,
+      },
     });
+  }
+
+  if (Store.isOffline) {
+    const testPlayer = spawnPlayer(world);
+    testPlayer.transform.pos.x = 135;
+    testPlayer.transform.pos.y = 131;
+    testPlayer.transform.pos.z = 1.7;
+    world.addComponent(testPlayer, 'localPlayer', true);
+    world.addComponent(testPlayer, 'worldIndex', map);
   }
 }

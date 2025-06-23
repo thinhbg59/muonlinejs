@@ -9,10 +9,7 @@ export class Spider extends MonsterObject {
   }
 
   async init() {
-    const bmd = await loadBMD(
-      './data/Monster/Monster10.bmd',
-      './data/Monster/'
-    );
+    const bmd = await loadBMD('./data/Monster/Monster10.bmd');
 
     super.load(bmd);
 

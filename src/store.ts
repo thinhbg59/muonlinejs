@@ -322,8 +322,8 @@ export const Store = new (class _Store {
 
     this.sendToGS(packet.buffer);
 
-    console.log(
-      `send walk path from [${x}, ${y}] steps: ${newDirs.join('->')}`
-    );
+    // console.log(
+    //   `send walk path from [${x}, ${y}] steps: ${newDirs.join('->')}`
+    // );
   }
 })();

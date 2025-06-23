@@ -21,11 +21,18 @@ export async function getModel(modelId: number) {
 
 const cache: Partial<Record<string, Promise<BMD>>> = {};
 
-export async function loadBMD(filePath: string, Dir: string): Promise<BMD> {
+export async function loadBMD(
+  filePath: string,
+  dir: string = ''
+): Promise<BMD> {
   if (cache[filePath]) return cache[filePath];
 
+  if (!dir) {
+    dir = filePath.split('/').slice(0, -1).join('/') + '/';
+  }
+
   cache[filePath] = new Promise(async r =>
-    r(reader.read(await downloadBytesBuffer(filePath), Dir))
+    r(reader.read(await downloadBytesBuffer(filePath), dir))
   );
 
   return cache[filePath];

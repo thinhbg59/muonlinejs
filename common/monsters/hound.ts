@@ -8,10 +8,7 @@ export class Hound extends MonsterObject {
   }
 
   async init() {
-    const bmd = await loadBMD(
-      './data/Monster/Monster01.bmd',
-      './data/Monster/'
-    );
+    const bmd = await loadBMD('./data/Monster/Monster01.bmd');
 
     super.load(bmd);
   }

@@ -24,6 +24,8 @@ export class TestScene extends Scene {
   constructor(engine: Engine) {
     super(engine);
 
+    this.skipFrustumClipping = true;
+
     const camera = new UniversalCamera(
       'UniversalCamera',
       new Vector3(0, 10, 0),
@@ -31,7 +33,7 @@ export class TestScene extends Scene {
     );
 
     camera.rotation.y = -Math.PI / 4;
-    camera.rotation.x = Math.PI / 4;
+    camera.rotation.x = Math.PI / 4.5; // vertical
 
     // camera.rotation.y = -Math.PI / 4;
     // camera.rotation.x = 0;

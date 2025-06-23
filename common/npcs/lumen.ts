@@ -4,7 +4,7 @@ import { PlayerObject } from '../playerObject';
 // [NpcInfo(255, "Lumen the Barmaid")]
 export class Lumen extends PlayerObject {
   async init() {
-    const bmd = await loadBMD('./data/NPC/Female01.bmd', './data/NPC/');
+    const bmd = await loadBMD('./data/NPC/Female01.bmd');
 
     this.load(bmd);
 

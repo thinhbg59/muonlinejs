@@ -3,7 +3,6 @@ import { ItemsDatabase } from '../common/itemsDatabase';
 import { ModelFactoryPerId } from '../common/modelFactoryPerId';
 import { ModelObject } from '../common/modelObject';
 import {
-  MODEL_PLAYER,
   MonsterActionType,
   PlayerAction,
   ServerPlayerActionType,
@@ -48,7 +47,6 @@ export function spawnPlayer(
       rot: Vector3.Zero(),
       scale: 1,
     },
-    modelId: MODEL_PLAYER,
     modelFactory: PlayerObject,
     pathfinding: {
       from: { x: 0, y: 0 },
@@ -67,6 +65,10 @@ export function spawnPlayer(
       action: PlayerAction.PLAYER_SET,
     },
     attributeSystem: createAttributeSystem(),
+    visibility: {
+      state: 'hidden',
+      lastChecked: 0,
+    },
   });
   playerEntity.transform.pos.z = 1.7;
 
@@ -189,6 +191,10 @@ EventBus.on('AddNpcsToScope', packet => {
         action: MonsterActionType.Stop1,
       },
       attributeSystem: createAttributeSystem(),
+      visibility: {
+        lastChecked: 0,
+        state: 'hidden',
+      },
     });
 
     npcEntity.attributeSystem.setValue('isFemale', 0);

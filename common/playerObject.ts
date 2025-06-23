@@ -1,4 +1,9 @@
-import type { Scene, TransformNode } from '@babylonjs/core';
+import {
+  BoundingBox,
+  Vector3,
+  type Scene,
+  type TransformNode,
+} from '@babylonjs/core';
 import { ModelObject } from './modelObject';
 import { PlayerClass } from './types';
 import { BMD } from './BMD';
@@ -21,6 +26,11 @@ export class PlayerObject extends ModelObject {
 
   constructor(scene: Scene, parent: TransformNode) {
     super(scene, parent);
+
+    this.BoundingBoxLocal = new BoundingBox(
+      new Vector3(-40, -40, 0),
+      new Vector3(40, 40, 120)
+    );
 
     this.CurrentAction = PlayerAction.PLAYER_SKILL_INFERNO;
 
@@ -53,6 +63,12 @@ export class PlayerObject extends ModelObject {
 
     this.Wings.LinkParent = false;
     this.Wings.ParentBoneLink = 47;
+  }
+
+  async init() {
+    await super.init();
+
+    this.load(await loadBMD('./data/Player/player.bmd'));
   }
 
   load(bmd: BMD): void {
@@ -127,7 +143,7 @@ export class PlayerObject extends ModelObject {
   }
 
   async loadPartAsync(dir: string, part: ModelObject, modelPath: string) {
-    const bmd = await loadBMD(dir + modelPath, dir);
+    const bmd = await loadBMD(dir + modelPath);
     part.load(bmd);
   }
 

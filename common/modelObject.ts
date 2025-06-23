@@ -1,11 +1,14 @@
 import { Matrix, Quaternion, Vector3 } from '@babylonjs/core/Maths/math.vector';
 import { BMD, BMDTextureBone } from './BMD';
-import { Mesh, TransformNode, type Scene } from '@babylonjs/core';
+import { BoundingBox, Mesh, TransformNode, type Scene } from '@babylonjs/core';
 import type { IVector3Like } from '@babylonjs/core/Maths/math.like';
 import { createMeshesForBMD } from './BMD/createMeshes';
-import { World } from '../src/ecs/world';
+import type { World } from '../src/ecs/world';
+import { ENUM_WORLD } from './types';
+import { loadBMD } from './modelLoader';
 
 const MAX_BONES = 64;
+const BoundingUpdateInterval = 5;
 
 type Int = number;
 
@@ -18,6 +21,9 @@ const tmpVec3 = Vector3.Zero();
 export class ModelObject {
   static OverrideScale = -1;
 
+  Type: number = -1;
+  WorldIndex: ENUM_WORLD = ENUM_WORLD.WD_0LORENCIA;
+
   HiddenMesh = -1;
   AnimationSpeed = 4.0;
   BoneTransform: Matrix[] = [];
@@ -29,6 +35,10 @@ export class ModelObject {
   Visible = true;
   Parent?: ModelObject;
   Children: ModelObject[] = [];
+
+  get objectDir() {
+    return `./data/Object${this.WorldIndex + 1}/`;
+  }
 
   _invalidatedBuffers = true;
   // _meshesVertexData: VertexData[];
@@ -66,7 +76,7 @@ export class ModelObject {
     }
   }
 
-  init(): Promise<void> {
+  init(world: World): Promise<void> {
     return Promise.resolve();
   }
 
@@ -499,6 +509,56 @@ export class ModelObject {
     this._invalidatedBuffers = false;
   }
 
+  #boundingFrameCounter = 0;
+
+  BoundingBoxLocal = new BoundingBox(Vector3.Zero(), Vector3.Zero());
+
+  UpdateBoundings() {
+    // Recalculate bounding box only every few frames
+    // if (this.#boundingFrameCounter++ < BoundingUpdateInterval) return;
+
+    this.#boundingFrameCounter = 0;
+
+    if (
+      !this.Model?.Meshes ||
+      this.Model.Meshes.length === 0 ||
+      this.BoneTransform.length === 0
+    )
+      return;
+
+    const min = new Vector3(Number.MAX_VALUE);
+    const max = new Vector3(Number.MIN_VALUE);
+
+    let hasValidVertices = false;
+
+    for (const mesh of this.Model.Meshes) {
+      for (const vertex of mesh.Vertices) {
+        const boneIndex = vertex.Node;
+        if (boneIndex < 0 || boneIndex >= this.BoneTransform.length) continue;
+
+        const transformedPosition = Vector3.TransformCoordinates(
+          vertex.Position,
+          this.BoneTransform[boneIndex]
+        );
+
+        // Optimized min/max calculation
+        if (transformedPosition.x < min.x) min.x = transformedPosition.x;
+        if (transformedPosition.y < min.y) min.y = transformedPosition.y;
+        if (transformedPosition.z < min.z) min.z = transformedPosition.z;
+
+        if (transformedPosition.x > max.x) max.x = transformedPosition.x;
+        if (transformedPosition.y > max.z) max.y = transformedPosition.y;
+        if (transformedPosition.z > max.z) max.z = transformedPosition.z;
+
+        hasValidVertices = true;
+      }
+    }
+
+    if (hasValidVertices) {
+      this.BoundingBoxLocal = new BoundingBox(min, max);
+    }
+  }
+
   updateLocation(pos: IVector3Like, scale: Float, angles: IVector3Like) {
     this._node.position.set(pos.x, pos.y, pos.z);
 
@@ -523,6 +583,19 @@ export class ModelObject {
 
     this.Children.length = 0;
     this._meshes.length = 0;
+  }
+
+  protected async loadSpecificModel(modelName: string) {
+    this.load(await loadBMD(`${this.objectDir}${modelName}`));
+  }
+
+  protected async loadSpecificModelWithDynamicID(
+    modelId: number,
+    namePrefix: string
+  ) {
+    const idx = (this.Type - modelId + 1).toString().padStart(2, '0');
+    const name = `${namePrefix}${idx}.bmd`;
+    await this.loadSpecificModel(name);
   }
 }
 

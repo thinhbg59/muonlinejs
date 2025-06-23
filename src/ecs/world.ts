@@ -13,6 +13,7 @@ import type { MUAttributeSystem } from '../libs/attributeSystem';
 import { TransformNode } from '@babylonjs/core/Meshes/transformNode';
 import { CustomGroundMesh } from '../libs/mu/customGroundMesh';
 import { createPathfinding } from '../libs/pathfinding';
+import type { ENUM_WORLD } from '../../common';
 
 export type ISystemFactory = (world: World) => {
   update?: (deltaTime: number) => void;
@@ -21,6 +22,7 @@ export type ISystemFactory = (world: World) => {
 export type Entity = Partial<{
   netId: number;
   modelId: number;
+  worldIndex: ENUM_WORLD;
   modelFilePath: string;
   npcType: number;
   localPlayer: true;
@@ -53,6 +55,10 @@ export type Entity = Partial<{
     action: MonsterActionType;
   };
   attributeSystem: MUAttributeSystem;
+  visibility: {
+    state: 'visible' | 'nearby' | 'hidden';
+    lastChecked: number;
+  };
 }>;
 
 export class World extends ECSWorld<Entity> {
@@ -67,7 +73,6 @@ export class World extends ECSWorld<Entity> {
   readonly playersQuery = this.with(
     'attributeSystem',
     'transform',
-    'modelId',
     'playerAnimation',
     'playerMoveTo',
     'pathfinding'
@@ -79,7 +84,11 @@ export class World extends ECSWorld<Entity> {
     return this.#localPlayerQuery.entities[0];
   }
 
-  terrain: CustomGroundMesh | null = null;
+  terrain: {
+    mesh: CustomGroundMesh;
+    index: ENUM_WORLD;
+    MapTileObjects: (typeof ModelObject)[];
+  } | null = null;
 
   readonly pathfinder = createPathfinding({
     width: 256,

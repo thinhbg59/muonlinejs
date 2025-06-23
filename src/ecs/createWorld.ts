@@ -9,11 +9,13 @@ import { ModelLoaderSystem } from './systems/modelLoaderSystem';
 import { CameraFollowSystem } from './systems/cameraFollowSystem';
 import { NetworkSystem } from './systems/networkSystem';
 import { OutOfScopeSystem } from './systems/outOfScopeSystem';
+import { CalculateVisibilitySystem } from './systems/calculateVisibilitySystem';
 
 const factories: ISystemFactory[] = [
   ModelLoaderSystem,
   PlayerControllerSystem,
   PathfindingSystem,
+  CalculateVisibilitySystem,
   NetworkSystem,
   MoveAlongPathSystem,
   AnimationSystem,
