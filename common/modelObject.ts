@@ -360,6 +360,7 @@ export class ModelObject {
 
     const boneTransforms = this.BoneTransform; // Cache BoneTransform
     const modelBones = this.Model.Bones; // Cache Model.Bones
+    const lockPositions = currentActionData.LockPositions;
 
     for (let i = 0; i < modelBones.length; i++) {
       const bone = modelBones[i];
@@ -391,20 +392,14 @@ export class ModelObject {
         tmpVec3
       );
 
-      if (i === 0 && currentActionData.LockPositions) {
-        const row = matrix.getRow(3);
-        if (row) {
-          row.x = bm.Position[0].x;
-          row.z = bm.Position[0].z;
-          row.y =
-            position1.y * (1 - interpolationFactor) +
-            position2.y * interpolationFactor +
-            this.BodyHeight;
-          matrix.setRow(3, row);
-        }
-      } else {
-        matrix.setTranslation(interpolatedPosition);
+      if (i === 0 && lockPositions) {
+        interpolatedPosition.x = bm.Position[0].x;
+        interpolatedPosition.y = bm.Position[0].y;
+        // Z is UP in our implementation
+        interpolatedPosition.z = interpolatedPosition.z + this.BodyHeight;
       }
+
+      matrix.setTranslation(interpolatedPosition);
 
       if (bone.Parent !== -1) {
         const parentMatrix = boneTransforms[bone.Parent];
