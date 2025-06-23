@@ -3,7 +3,7 @@ import { BMD, BMDTextureBone } from './BMD';
 import { BoundingBox, Mesh, TransformNode, type Scene } from '@babylonjs/core';
 import type { IVector3Like } from '@babylonjs/core/Maths/math.like';
 import { createMeshesForBMD } from './BMD/createMeshes';
-import type { World } from '../src/ecs/world';
+import type { Entity, World } from '../src/ecs/world';
 import { ENUM_WORLD } from './types';
 import { loadBMD } from './modelLoader';
 
@@ -76,7 +76,7 @@ export class ModelObject {
     }
   }
 
-  init(world: World): Promise<void> {
+  init(_world: World, _entity: Entity): Promise<void> {
     return Promise.resolve();
   }
 
@@ -299,8 +299,10 @@ export class ModelObject {
 
     const currentActionData = this.Model.Actions[this.CurrentAction];
 
-    if(!currentActionData){
-      console.warn(`Current action ${this.CurrentAction} not found in model actions.`);
+    if (!currentActionData) {
+      console.warn(
+        `Current action ${this.CurrentAction} not found in model actions.`
+      );
       return;
     }
 
