@@ -44,6 +44,16 @@ export class PlayerObject extends ModelObject {
     this.Weapon2 = new ModelObject(scene, this._node);
     this.Wings = new ModelObject(scene, this._node);
 
+    this.HelmMask.NodeNamePrefix = 'HelmMask_';
+    this.Helm.NodeNamePrefix = 'Helm_';
+    this.Armor.NodeNamePrefix = 'Armor_';
+    this.Pants.NodeNamePrefix = 'Pants_';
+    this.Gloves.NodeNamePrefix = 'Gloves_';
+    this.Boots.NodeNamePrefix = 'Boots_';
+    this.Weapon1.NodeNamePrefix = 'Weapon1_';
+    this.Weapon2.NodeNamePrefix = 'Weapon2_';
+    this.Wings.NodeNamePrefix = 'Wings_';
+
     const objs = [
       this.HelmMask,
       this.Helm,
@@ -63,6 +73,9 @@ export class PlayerObject extends ModelObject {
 
     this.Wings.LinkParent = false;
     this.Wings.ParentBoneLink = 47;
+
+    // this.Weapon1.ParentBoneLink = 27;//37;//33;
+    // this.Weapon2.ParentBoneLink = 36;//28;//42;
   }
 
   init: ModelObject['init'] = async (world, entity) => {
@@ -98,6 +111,70 @@ export class PlayerObject extends ModelObject {
     //   wingMat.alphaMode = 1;
     //   wingMat.transparencyMode = 2;
     // }
+  }
+
+  async setDefaultHelm() {
+    await this.setBodyPartsAsync(
+      'Player/',
+      'HelmClass',
+      '',
+      '',
+      '',
+      '',
+      this.playerClass
+    );
+  }
+
+  async setDefaultMask() {
+    this.HelmMask.Unload();
+  }
+
+  async setDefaultArmor() {
+    await this.setBodyPartsAsync(
+      'Player/',
+      '',
+      'ArmorClass',
+      '',
+      '',
+      '',
+      this.playerClass
+    );
+  }
+
+  async setDefaultPants() {
+    await this.setBodyPartsAsync(
+      'Player/',
+      '',
+      '',
+      'PantClass',
+      '',
+      '',
+      this.playerClass
+    );
+  }
+
+  async setDefaultGloves() {
+    await this.setBodyPartsAsync(
+      'Player/',
+      '',
+      '',
+      '',
+      'GloveClass',
+      '',
+      this.playerClass
+    );
+  }
+
+  async setDefaultBoots() {
+    await this.setBodyPartsAsync(
+      'Player/',
+      '',
+      '',
+      '',
+      '',
+      'BootClass',
+      this.playerClass
+    );
   }
 
   async setBodyPartsAsync(

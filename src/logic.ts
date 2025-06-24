@@ -1,4 +1,5 @@
 import { CharacterClassNumber, ENUM_WORLD } from '../common';
+import { deserializeAppearance } from '../common/deserializeAppearance';
 import { ItemsDatabase } from '../common/itemsDatabase';
 import { ModelFactoryPerId } from '../common/modelFactoryPerId';
 import { ModelObject } from '../common/modelObject';
@@ -26,7 +27,7 @@ import {
 } from '../common/packets/ServerToClientPackets';
 import { ServerToClientActionMap } from '../common/playerActionMapper';
 import { PlayerObject } from '../common/playerObject';
-import { World } from './ecs/world';
+import { Entity, World } from './ecs/world';
 import { createAttributeSystem } from './libs/attributeSystem';
 import { Vector3 } from './libs/babylon/exports';
 import { EventBus } from './libs/eventBus';
@@ -76,6 +77,20 @@ export function spawnPlayer(
       y: 0,
     },
     objectNameInWorld: 'Player',
+    charAppearance: {
+      helm: null,
+      armor: null,
+      gloves: null,
+      pants: null,
+      boots: null,
+      leftHand: null,
+      rightHand: null,
+      wings: null,
+      charClass: cls ?? CharacterClassNumber.DarkKnight,
+      changed: true,
+    } satisfies NonNullable<Entity['charAppearance']> as NonNullable<
+      Entity['charAppearance']
+    >,
   });
   playerEntity.transform.pos.z = 1.7;
 
@@ -219,38 +234,6 @@ EventBus.on('AddNpcsToScope', packet => {
   });
 });
 
-function ClassFromAppearance(app: DataView): CharacterClassNumber {
-  if (app.byteLength === 0) return CharacterClassNumber.DarkWizard;
-  const raw = (app.getUint8(0) >> 3) & 0b1_1111;
-
-  switch (raw) {
-    case 0:
-      return CharacterClassNumber.DarkWizard;
-    case 1:
-      return CharacterClassNumber.SoulMaster;
-    case 2:
-      return CharacterClassNumber.GrandMaster;
-    case 4:
-      return CharacterClassNumber.DarkKnight;
-    case 6:
-      return CharacterClassNumber.BladeKnight;
-    case 8:
-      return CharacterClassNumber.FairyElf;
-    case 10:
-      return CharacterClassNumber.MuseElf;
-    case 12:
-      return CharacterClassNumber.MagicGladiator;
-    case 16:
-      return CharacterClassNumber.DarkLord;
-    case 20:
-      return CharacterClassNumber.Summoner;
-    case 24:
-      return CharacterClassNumber.RageFighter;
-    default:
-      return CharacterClassNumber.DarkWizard;
-  }
-}
-
 EventBus.on('AddCharactersToScope', packet => {
   const p = new AddCharactersToScopePacket(packet);
   const chars = p.getCharacters();
@@ -263,8 +246,8 @@ EventBus.on('AddCharactersToScope', packet => {
 
   chars.forEach(char => {
     const maskedId = char.Id & 0x7fff;
-    const cls = ClassFromAppearance(char.Appearance);
-    const playerEntity = spawnPlayer(world, { cls });
+    const appearance = deserializeAppearance(char.Appearance);
+    const playerEntity = spawnPlayer(world, { cls: appearance.cls });
     world.addComponent(playerEntity, 'netId', maskedId);
     world.addComponent(playerEntity, 'worldIndex', worldIndex);
     playerEntity.transform.pos.x = char.CurrentPositionX;
@@ -277,6 +260,27 @@ EventBus.on('AddCharactersToScope', packet => {
       world.addComponent(playerEntity, 'localPlayer', true);
       console.log(`Local player spawned: ${maskedId} - ${char.Name}`);
     }
+
+    const cApp = playerEntity.charAppearance;
+
+    cApp.leftHand = appearance.leftHand;
+    cApp.rightHand = appearance.rightHand;
+    cApp.helm = appearance.helm;
+    cApp.armor = appearance.armor;
+    cApp.pants = appearance.pants;
+    cApp.gloves = appearance.gloves;
+    cApp.boots = appearance.boots;
+
+    Object.values(cApp).forEach(item => {
+      if (typeof item !== 'object' || item === null) return;
+
+      const itemConfig = ItemsDatabase.getItem(item.group, item.num);
+      console.log(
+        `Item: ${itemConfig?.szItemName} (${item.group}, ${item.num})`
+      );
+    });
+
+    cApp.changed = true;
   });
 });
 

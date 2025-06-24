@@ -13,11 +13,17 @@ import type { MUAttributeSystem } from '../libs/attributeSystem';
 import { TransformNode } from '@babylonjs/core/Meshes/transformNode';
 import { CustomGroundMesh } from '../libs/mu/customGroundMesh';
 import { createPathfinding } from '../libs/pathfinding';
-import type { ENUM_WORLD } from '../../common';
+import type { CharacterClassNumber, ENUM_WORLD } from '../../common';
 import { Viewport } from '../libs/babylon/exports';
 
 export type ISystemFactory = (world: World) => {
   update?: (deltaTime: number) => void;
+};
+
+type Item = {
+  num: number;
+  group: number;
+  lvl: number;
 };
 
 export type Entity = Partial<{
@@ -66,6 +72,18 @@ export type Entity = Partial<{
     worldOffsetZ: number;
   };
   objectNameInWorld: string;
+  charAppearance: {
+    helm: Item | null;
+    armor: Item | null;
+    pants: Item | null;
+    gloves: Item | null;
+    boots: Item | null;
+    leftHand: Item | null;
+    rightHand: Item | null;
+    wings: Item | null;
+    charClass: CharacterClassNumber;
+    changed: boolean;
+  };
 }>;
 
 export class World extends ECSWorld<Entity> {

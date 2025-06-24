@@ -11,6 +11,7 @@ import { NetworkSystem } from './systems/networkSystem';
 import { OutOfScopeSystem } from './systems/outOfScopeSystem';
 import { CalculateVisibilitySystem } from './systems/calculateVisibilitySystem';
 import { CalculateScreenPositionSystem } from './systems/calculateScreenPositionSystem';
+import { AppearanceSystem } from './systems/appearanceSystem';
 
 const factories: ISystemFactory[] = [
   ModelLoaderSystem,
@@ -21,6 +22,7 @@ const factories: ISystemFactory[] = [
   NetworkSystem,
   MoveAlongPathSystem,
   AnimationSystem,
+  AppearanceSystem,
   CameraFollowSystem,
   OutOfScopeSystem,
   RenderSystem,

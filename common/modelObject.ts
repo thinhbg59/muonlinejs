@@ -72,6 +72,8 @@ export class ModelObject {
   private _node: TransformNode;
   private _meshes: Mesh[] = [];
 
+  NodeNamePrefix = '';
+
   get Model() {
     return this.bmd;
   }
@@ -94,7 +96,7 @@ export class ModelObject {
   load(bmd: BMD) {
     const oldBMD = this.bmd;
     this.bmd = bmd;
-    this._node.name = bmd.Name;
+    this._node.name = this.NodeNamePrefix + bmd.Name;
 
     if (oldBMD && oldBMD !== bmd) {
       this._meshes.forEach(m => {
@@ -173,7 +175,9 @@ export class ModelObject {
     if (this.Parent && this.ParentBoneLink >= 0) {
       const m = this.ParentBodyOrigin;
       m.decomposeToTransformNode(this._node);
+      // this._node.position.scaleInPlace(0.01);
       // this._node.addRotation(0, Math.PI, 0);
+      // this._node.scaling.set(1, 1, 1);
     }
   }
 
@@ -614,6 +618,15 @@ export class ModelObject {
     this._node.rotation.z = angles.z;
 
     this._node.scaling.setAll(scale);
+  }
+
+  Unload() {
+    this._meshes.forEach(m => {
+      m.dispose();
+    });
+    this._meshes.length = 0;
+
+    this.Ready = false;
   }
 
   dispose(): void {

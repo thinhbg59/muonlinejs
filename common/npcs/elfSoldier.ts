@@ -7,20 +7,27 @@ export class ElfSoldier extends PlayerObject {
   init: PlayerObject['init'] = async (world, entity) => {
     this.load(await loadBMD('Player/player.bmd'));
 
-    this.setBodyPartsAsync(
+    await this.setBodyPartsAsync(
       'Player/',
-      'HelmElf',
-      'ArmorElf',
-      'PantElf',
-      'GloveElf',
-      'BootElf',
-      5
+      'HelmMale',
+      'ArmorMale',
+      'PantMale',
+      'GloveMale',
+      'BootMale',
+      25
     );
 
     await this.loadPartAsync('Item/', this.Wings, `Wing04.bmd`);
 
     const wingsMaterial = this.Wings.getMaterial(0);
     if (wingsMaterial) {
+      wingsMaterial.transparencyMode = 2;
+      wingsMaterial.alphaMode = 1;
+      wingsMaterial.alpha = 0.99;
+    }
+
+    const pantsMaterial = this.Pants.getMaterial(3);
+    if (pantsMaterial) {
       wingsMaterial.transparencyMode = 2;
       wingsMaterial.alphaMode = 1;
       wingsMaterial.alpha = 0.99;
