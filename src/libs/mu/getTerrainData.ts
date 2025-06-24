@@ -28,6 +28,7 @@ import {
 } from '../../../common/terrain/consts';
 import { parseTerrainObjects } from '../../../common/terrain/parseTerrainObjects';
 import { Store } from '../../store';
+import { World } from '../../ecs/world';
 
 function createTexturesAtlasFromRects(
   scene: Scene,
@@ -100,7 +101,8 @@ function GetTerrainIndex(x: number, y: number) {
   return ~~(~~y * TERRAIN_SIZE + ~~x);
 }
 
-export async function getTerrainData(scene: Scene, map: ENUM_WORLD) {
+export async function getTerrainData(world: World, map: ENUM_WORLD) {
+  const scene = world.scene;
   const worldNum = map + 1;
   const worldFolder = `World${worldNum}/`;
 
@@ -202,11 +204,12 @@ export async function getTerrainData(scene: Scene, map: ENUM_WORLD) {
     }
   );
 
-  //TODO why?
-  terrain.position.x -= 4.5;
-  terrain.position.y = 256.5;
-  terrain.rotationQuaternion = null;
-  terrain.rotation.x = toRadians(90);
+  terrain.setParent(world.mapParent);
+  terrain.scaling.setAll(100);
+  terrain.position.setAll(0);
+
+  terrain.position.x = -450;
+  terrain.position.y = -50;
 
   if (Store.showTerrainAttributes) {
     const plane = CreatePlane('_terrainPlane', { size: 256 }, scene);

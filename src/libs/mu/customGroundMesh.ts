@@ -30,15 +30,11 @@ function CreateGroundFromHeightMapVertexData(buffer: Float32Array): VertexData {
   // Vertices
   for (y = 0; y <= sub; y++) {
     for (x = 0; x <= sub; x++) {
-      const position = new Vector3(
-        x * TERRAIN_SCALE,
-        0,
-        (sub - y) * TERRAIN_SCALE
-      );
+      const position = new Vector3(x * TERRAIN_SCALE, 0, y * TERRAIN_SCALE);
 
       const pos = TERRAIN_INDEX(
         x >= TERRAIN_SIZE ? TERRAIN_SIZE - 1 : x,
-        sub - y >= TERRAIN_SIZE ? TERRAIN_SIZE - 1 : sub - y
+        y >= TERRAIN_SIZE ? TERRAIN_SIZE - 1 : y
       );
 
       const r = buffer[pos];
@@ -46,9 +42,9 @@ function CreateGroundFromHeightMapVertexData(buffer: Float32Array): VertexData {
       position.y = r * 1;
 
       // Add  vertex
-      positions.push(position.x, position.y, position.z);
+      positions.push(position.x, position.z, position.y);
       normals.push(0, 0, 0);
-      uvs.push((x - 4) / sub, 1 - y / sub);
+      uvs.push((x - 4) / sub, y / sub);
       ids.push(x, y);
     }
   }

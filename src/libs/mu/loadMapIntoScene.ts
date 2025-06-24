@@ -70,14 +70,13 @@ function createObjects(
 }
 
 export async function loadMapIntoScene(world: World, map: ENUM_WORLD) {
-  const scene = world.scene;
   const {
     objects,
     terrain,
     RequestTerrainHeight,
     IsWalkable,
     RequestTerrainFlag,
-  } = await getTerrainData(scene, ENUM_WORLD.WD_0LORENCIA);
+  } = await getTerrainData(world, ENUM_WORLD.WD_0LORENCIA);
 
   world.getTerrainHeight = RequestTerrainHeight;
   world.isWalkable = IsWalkable;
