@@ -23,6 +23,10 @@ const EmptyMatrix = Matrix.Identity();
 const tmpMatrix = Matrix.Identity();
 const tmpQ = Quaternion.Identity();
 const tmpVec3 = Vector3.Zero();
+const tmpVec32 = Vector3.Zero();
+
+const minTmp = new Vector3(Number.MAX_VALUE);
+const maxTmp = new Vector3(Number.MIN_VALUE);
 
 export class ModelObject {
   static OverrideScale = -1;
@@ -49,9 +53,9 @@ export class ModelObject {
   #actionStartAt = 0;
   #nextFrame = -1;
 
-  get objectDir() {
-    return `Object${this.WorldIndex + 1}/`;
-  }
+  #boundingFrameCounter = 0;
+
+  BoundingBoxLocal = new BoundingBox(Vector3.Zero(), Vector3.Zero());
 
   _invalidatedBuffers = true;
   _meshesBonesData: Float32Array[] = [];
@@ -59,6 +63,16 @@ export class ModelObject {
   Light = new Vector3(0, 0, 0);
 
   ParentBoneLink = -1;
+
+  private _node: TransformNode;
+  private _meshes: Mesh[] = [];
+  private bmd: BMD | null = null;
+
+  NodeNamePrefix = '';
+
+  get objectDir() {
+    return `Object${this.WorldIndex + 1}/`;
+  }
 
   get ParentBodyOrigin(): Matrix {
     const bt = this.Parent?.BoneTransform;
@@ -69,16 +83,9 @@ export class ModelObject {
       : EmptyMatrix;
   }
 
-  private _node: TransformNode;
-  private _meshes: Mesh[] = [];
-
-  NodeNamePrefix = '';
-
   get Model() {
     return this.bmd;
   }
-
-  private bmd: BMD | null = null;
 
   constructor(private readonly scene: Scene, parent?: TransformNode) {
     this._node = new TransformNode('modelObject', this.scene);
@@ -560,16 +567,7 @@ export class ModelObject {
     this._invalidatedBuffers = false;
   }
 
-  #boundingFrameCounter = 0;
-
-  BoundingBoxLocal = new BoundingBox(Vector3.Zero(), Vector3.Zero());
-
   UpdateBoundings() {
-    // Recalculate bounding box only every few frames
-    // if (this.#boundingFrameCounter++ < BoundingUpdateInterval) return;
-
-    this.#boundingFrameCounter = 0;
-
     if (
       !this.Model?.Meshes ||
       this.Model.Meshes.length === 0 ||
@@ -577,8 +575,13 @@ export class ModelObject {
     )
       return;
 
-    const min = new Vector3(Number.MAX_VALUE);
-    const max = new Vector3(Number.MIN_VALUE);
+    const min = minTmp;
+    const max = maxTmp;
+    min.setAll(Number.MAX_VALUE);
+    max.setAll(Number.MIN_VALUE);
+
+    this.BoundingBoxLocal.minimum.copyFrom(min);
+    this.BoundingBoxLocal.maximum.copyFrom(max);
 
     let hasValidVertices = false;
 
@@ -587,9 +590,10 @@ export class ModelObject {
         const boneIndex = vertex.Node;
         if (boneIndex < 0 || boneIndex >= this.BoneTransform.length) continue;
 
-        const transformedPosition = Vector3.TransformCoordinates(
+        const transformedPosition = Vector3.TransformCoordinatesToRef(
           vertex.Position,
-          this.BoneTransform[boneIndex]
+          this.BoneTransform[boneIndex],
+          tmpVec3
         );
 
         // Optimized min/max calculation
@@ -598,7 +602,7 @@ export class ModelObject {
         if (transformedPosition.z < min.z) min.z = transformedPosition.z;
 
         if (transformedPosition.x > max.x) max.x = transformedPosition.x;
-        if (transformedPosition.y > max.z) max.y = transformedPosition.y;
+        if (transformedPosition.y > max.y) max.y = transformedPosition.y;
         if (transformedPosition.z > max.z) max.z = transformedPosition.z;
 
         hasValidVertices = true;
@@ -606,7 +610,8 @@ export class ModelObject {
     }
 
     if (hasValidVertices) {
-      this.BoundingBoxLocal = new BoundingBox(min, max);
+      this.BoundingBoxLocal.minimum.copyFrom(min);
+      this.BoundingBoxLocal.maximum.copyFrom(max);
     }
   }
 
