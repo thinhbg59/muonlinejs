@@ -438,7 +438,7 @@ export class BMDReader {
     bmd.Actions = actions;
     bmd.Dir = Dir;
 
-    console.log(bmd);
+    // console.log(bmd);
 
     return bmd;
   }

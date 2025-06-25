@@ -4,6 +4,6 @@ export class CurtainObject extends ModelObject {
   async init() {
     // LightEnabled = true;
 
-    await this.loadSpecificModel(`Curtain01.bmd`);
+    await this.loadSpecificModel(`Curtain01.glb`);
   }
 }

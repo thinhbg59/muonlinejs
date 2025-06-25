@@ -4,6 +4,6 @@ export class BonfireObject extends ModelObject {
   async init() {
     // LightEnabled = true;
 
-    await this.loadSpecificModel(`Bonfire01.bmd`);
+    await this.loadSpecificModel(`Bonfire01.glb`);
   }
 }

@@ -119,6 +119,7 @@ export const Store = new (class _Store {
 
   debugPathfinding = false;
   showTerrainAttributes = false;
+  debugBoundingBoxes = false;
 
   constructor() {
     makeObservable(this, {
@@ -139,6 +140,7 @@ export const Store = new (class _Store {
       world: observable,
       debugPathfinding: observable,
       showTerrainAttributes: observable,
+      debugBoundingBoxes: observable,
     });
     this.loadConfig();
   }

@@ -4,7 +4,6 @@ import type {
   IVector3Like,
 } from '@babylonjs/core/Maths/math.like';
 import type { ModelObject } from '../../common/modelObject';
-import type { Scene } from '@babylonjs/core/scene';
 import type {
   MonsterActionType,
   PlayerAction,
@@ -14,7 +13,9 @@ import { TransformNode } from '@babylonjs/core/Meshes/transformNode';
 import { CustomGroundMesh } from '../libs/mu/customGroundMesh';
 import { createPathfinding } from '../libs/pathfinding';
 import type { CharacterClassNumber, ENUM_WORLD } from '../../common';
-import { Viewport } from '../libs/babylon/exports';
+import { AssetsManager, Color3, Viewport } from '../libs/babylon/exports';
+import type { HighlightLayer } from '@babylonjs/core/Layers/highlightLayer';
+import type { TestScene } from '../scenes/testScene';
 
 export type ISystemFactory = (world: World) => {
   update?: (deltaTime: number) => void;
@@ -84,6 +85,10 @@ export type Entity = Partial<{
     charClass: CharacterClassNumber;
     changed: boolean;
   };
+  highlighted: {
+    color: Color3;
+    layer: HighlightLayer | null;
+  };
 }>;
 
 export class World extends ECSWorld<Entity> {
@@ -122,13 +127,15 @@ export class World extends ECSWorld<Entity> {
     height: 256,
   });
 
-  constructor(readonly scene: Scene) {
+  readonly assetsManager: AssetsManager;
+
+  constructor(readonly scene: TestScene) {
     super();
 
+    this.assetsManager = new AssetsManager(this.scene);
+    this.assetsManager.useDefaultLoadingScreen = false;
+
     this.mapParent = new TransformNode('mapParent', scene);
-    this.mapParent.scaling.setAll(1 / this.terrainScale);
-    this.mapParent.scaling.y *= -1;
-    this.mapParent.position.y = 256;
   }
 
   getTerrainHeight(x: number, y: number): number {

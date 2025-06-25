@@ -6,10 +6,10 @@ import {
 } from '@babylonjs/core';
 import { ModelObject } from './modelObject';
 import { PlayerClass } from './types';
-import { BMD } from './BMD';
-import { World } from '../src/ecs/world';
+import { Entity, World } from '../src/ecs/world';
 import { PlayerAction } from './objects/enum';
-import { loadBMD } from './modelLoader';
+import { loadGLTF } from './modelLoader';
+import { Store } from '../src/store';
 
 export class PlayerObject extends ModelObject {
   playerClass: PlayerClass = PlayerClass.DarkKnight;
@@ -78,19 +78,15 @@ export class PlayerObject extends ModelObject {
     // this.Weapon2.ParentBoneLink = 36;//28;//42;
   }
 
-  init: ModelObject['init'] = async (world, entity) => {
+  async init(world: World, entity: Entity) {
     await super.init(world, entity);
 
-    this.load(await loadBMD('Player/player.bmd'));
+   
+    this.load(await loadGLTF('Player/player.glb', world));
+    await this.updateBodyPartClassesAsync();
 
     this.setActionSpeed(PlayerAction.PLAYER_WALK_MALE, 2);
     this.setActionSpeed(PlayerAction.PLAYER_WALK_FEMALE, 2);
-  };
-
-  load(bmd: BMD): void {
-    super.load(bmd);
-
-    this.updateBodyPartClassesAsync();
   }
 
   async updateBodyPartClassesAsync() {
@@ -104,13 +100,13 @@ export class PlayerObject extends ModelObject {
       this.playerClass
     );
 
-    // await this.loadPartAsync('Item/', this.Wings, `Wing04.bmd`);
-    // const wingMat = this.Wings.getMaterial(0);
-    // if (wingMat) {
-    //   wingMat.alpha = 0.99;
-    //   wingMat.alphaMode = 1;
-    //   wingMat.transparencyMode = 2;
-    // }
+    await this.loadPartAsync('Item/', this.Wings, `Wing04.glb`);
+    const wingMat = this.Wings.getMaterial(0);
+    if (wingMat) {
+      wingMat.alpha = 0.99;
+      wingMat.alphaMode = 1;
+      wingMat.transparencyMode = 2;
+    }
   }
 
   async setDefaultHelm() {
@@ -195,42 +191,42 @@ export class PlayerObject extends ModelObject {
         : this.loadPartAsync(
             pathPrefix,
             this.Helm,
-            `${helmPrefix}${fileSuffix}.bmd`
+            `${helmPrefix}${fileSuffix}.glb`
           ),
       !armorPrefix
         ? Promise.resolve()
         : this.loadPartAsync(
             pathPrefix,
             this.Armor,
-            `${armorPrefix}${fileSuffix}.bmd`
+            `${armorPrefix}${fileSuffix}.glb`
           ),
       !pantPrefix
         ? Promise.resolve()
         : this.loadPartAsync(
             pathPrefix,
             this.Pants,
-            `${pantPrefix}${fileSuffix}.bmd`
+            `${pantPrefix}${fileSuffix}.glb`
           ),
       !glovePrefix
         ? Promise.resolve()
         : this.loadPartAsync(
             pathPrefix,
             this.Gloves,
-            `${glovePrefix}${fileSuffix}.bmd`
+            `${glovePrefix}${fileSuffix}.glb`
           ),
       !bootPrefix
         ? Promise.resolve()
         : this.loadPartAsync(
             pathPrefix,
             this.Boots,
-            `${bootPrefix}${fileSuffix}.bmd`
+            `${bootPrefix}${fileSuffix}.glb`
           ),
     ]);
   }
 
   async loadPartAsync(dir: string, part: ModelObject, modelPath: string) {
-    const bmd = await loadBMD(dir + modelPath);
-    part.load(bmd);
+    const gltf = await loadGLTF(dir + modelPath, Store.world!);
+    part.load(gltf);
   }
 
   Update(gameTime: World['gameTime']): void {

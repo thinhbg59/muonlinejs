@@ -31,6 +31,7 @@ export class HouseWallObject extends ModelObject {
         m.alphaMode = BlendState.ALPHA_ADD;
         m.alpha = 0.99;
         m.transparencyMode = 2;
+        m.backFaceCulling = false;
       }
     }
   }

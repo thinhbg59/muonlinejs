@@ -4,7 +4,7 @@ import { spawnPlayer } from '../../logic';
 import { Store } from '../../store';
 import { createLorencia } from '../../maps/lorencia';
 import { getTerrainData } from './getTerrainData';
-import { Vector3 } from '../babylon/exports';
+import { Color3, Vector3 } from '../babylon/exports';
 import { toRadians } from '../../../common/utils';
 import {
   MODEL_BRIDGE,
@@ -39,18 +39,18 @@ function createObjects(
   for (const data of objs) {
     const angles = new Vector3(
       toRadians(data.rot.x),
-      toRadians(data.rot.y),
-      toRadians(data.rot.z)
+      toRadians(data.rot.z),
+      toRadians(data.rot.y)
     );
 
     const pos = new Vector3(
       data.pos.x / world.terrainScale,
-      data.pos.y / world.terrainScale,
-      data.pos.z / world.terrainScale
+      data.pos.z / world.terrainScale,
+      data.pos.y / world.terrainScale
     );
 
     pos.x -= 0.5;
-    pos.y -= 0.5;
+    pos.z -= 0.5;
 
     world.add({
       worldIndex: world.terrain!.index,
@@ -97,11 +97,16 @@ export async function loadMapIntoScene(world: World, map: ENUM_WORLD) {
   if (Store.isOffline) {
     const testPlayer = spawnPlayer(world);
     testPlayer.transform.pos.x = 135;
-    testPlayer.transform.pos.y = 131;
-    testPlayer.transform.pos.z = 1.7;
+    testPlayer.transform.pos.y = 1.7;
+    testPlayer.transform.pos.z = 131;
     world.addComponent(testPlayer, 'localPlayer', true);
     world.addComponent(testPlayer, 'worldIndex', map);
 
     testPlayer.objectNameInWorld = 'TestPlayer';
+
+    world.addComponent(testPlayer, 'highlighted', {
+      color: new Color3(1, 0, 0),
+      layer: null,
+    });
   }
 }

@@ -4,6 +4,6 @@ export class StairObject extends ModelObject {
   async init() {
     // LightEnabled = true;
 
-    await this.loadSpecificModel(`Stair01.bmd`);
+    await this.loadSpecificModel(`Stair01.glb`);
   }
 }

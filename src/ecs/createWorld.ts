@@ -1,4 +1,3 @@
-import type { Scene } from '@babylonjs/core';
 import { RenderSystem } from './systems/renderSystem';
 import { World, type ISystemFactory } from './world';
 import { PathfindingSystem } from './systems/pathfindingSystem';
@@ -12,6 +11,9 @@ import { OutOfScopeSystem } from './systems/outOfScopeSystem';
 import { CalculateVisibilitySystem } from './systems/calculateVisibilitySystem';
 import { CalculateScreenPositionSystem } from './systems/calculateScreenPositionSystem';
 import { AppearanceSystem } from './systems/appearanceSystem';
+import { DrawDebugSystem } from './systems/drawDebugSystem';
+import { HighlightSystem } from './systems/highlightSystem';
+import type { TestScene } from '../scenes/testScene';
 
 const factories: ISystemFactory[] = [
   ModelLoaderSystem,
@@ -21,14 +23,16 @@ const factories: ISystemFactory[] = [
   CalculateScreenPositionSystem,
   NetworkSystem,
   MoveAlongPathSystem,
+  HighlightSystem,
   AnimationSystem,
   AppearanceSystem,
   CameraFollowSystem,
   OutOfScopeSystem,
+  DrawDebugSystem,
   RenderSystem,
 ];
 
-export function createWorld(scene: Scene) {
+export function createWorld(scene: TestScene) {
   const world = new World(scene);
 
   const systems = factories.map(f => f(world));

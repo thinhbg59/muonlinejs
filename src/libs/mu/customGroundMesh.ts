@@ -42,7 +42,7 @@ function CreateGroundFromHeightMapVertexData(buffer: Float32Array): VertexData {
       position.y = r * 1;
 
       // Add  vertex
-      positions.push(position.x, position.z, position.y);
+      positions.push(position.x, position.y, position.z);
       normals.push(0, 0, 0);
       uvs.push((x - 4) / sub, y / sub);
       ids.push(x, y);
@@ -60,30 +60,13 @@ function CreateGroundFromHeightMapVertexData(buffer: Float32Array): VertexData {
       const idx3 = x + y * s;
       const idx4 = x + (y + 1) * s;
 
-      // const idx1 = x + 1 + ((TERRAIN_SIZE - y - 1) + 1) * s;
-      // const idx2 = x + 1 + (TERRAIN_SIZE - y - 1) * s;
-      // const idx3 = x + (TERRAIN_SIZE - y - 1) * s;
-      // const idx4 = x + ((TERRAIN_SIZE - y - 1) + 1) * s;
-
-      // if ((y) % 2 !== (x) % 2) {
-
-      //   indices.push(idx2);
-      //   indices.push(idx3);
-      //   indices.push(idx4);
-
-      //   indices.push(idx1);
-      //   indices.push(idx2);
-      //   indices.push(idx4);
-      // } else {
-
       indices.push(idx1);
-      indices.push(idx2);
       indices.push(idx3);
+      indices.push(idx2);
 
       indices.push(idx4);
-      indices.push(idx1);
       indices.push(idx3);
-      // }
+      indices.push(idx1);
     }
   }
 

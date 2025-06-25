@@ -19,7 +19,7 @@ export const CalculateVisibilitySystem: ISystemFactory = world => {
 
         const distance = Math.sqrt(
           Math.pow(transform.pos.x - playerEntity.transform.pos.x, 2) +
-            Math.pow(transform.pos.y - playerEntity.transform.pos.y, 2)
+            Math.pow(transform.pos.z - playerEntity.transform.pos.z, 2)
         );
 
         if (distance <= visibleRange) {

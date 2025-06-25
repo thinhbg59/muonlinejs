@@ -4,6 +4,6 @@ export class CandleObject extends ModelObject {
   async init() {
     // LightEnabled = true;
 
-    await this.loadSpecificModel(`Candle01.bmd`);
+    await this.loadSpecificModel(`Candle01.glb`);
   }
 }

@@ -4,6 +4,6 @@ export class SteelStatueObject extends ModelObject {
   async init() {
     // LightEnabled = true;
 
-    await this.loadSpecificModel(`SteelStatue01.bmd`);
+    await this.loadSpecificModel(`SteelStatue01.glb`);
   }
 }

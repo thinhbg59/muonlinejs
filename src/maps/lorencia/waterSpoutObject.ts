@@ -5,7 +5,7 @@ export class WaterSpoutObject extends ModelObject {
   async init() {
     // LightEnabled = true;
 
-    await this.loadSpecificModel(`Waterspout01.bmd`);
+    await this.loadSpecificModel(`Waterspout01.glb`);
 
     const m = this.getMaterial(3);
     if (m) {

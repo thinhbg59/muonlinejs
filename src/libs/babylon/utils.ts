@@ -73,7 +73,7 @@ export function createEngine(baseCanvas?: HTMLCanvasElement, enableAntialiasing?
     !!enableAntialiasing,
     {
       audioEngine: true,
-      stencil: false,
+      stencil: true,
       useHighPrecisionFloats: true,
       powerPreference: 'low-power',
       doNotHandleContextLost: false,

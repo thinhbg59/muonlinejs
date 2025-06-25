@@ -13,12 +13,16 @@ import { resolveUrlToDataFolder } from '../resolveUrlToDataFolder';
 
 const MAX_BONES = 64;
 
-function createCustomMaterial(scene: Scene, opts: { withTint?: boolean }) {
-  const mat = new CustomMaterial('TexturesAtlasMaterial', scene);
-  mat.fogEnabled = true;
-  mat.backFaceCulling = false;
+export function createCustomMaterial(
+  scene: Scene,
+  name = 'TexturesAtlasMaterial'
+) {
+  const mat = new CustomMaterial(name, scene);
+  mat.fogEnabled = false;
+  mat.backFaceCulling = true;
+  mat.cullBackFaces = false;
   mat.transparencyMode = 1;
-  mat.useAlphaFromDiffuseTexture = true;
+  mat.useAlphaFromDiffuseTexture = false;
   mat.specularColor = Color3.Black();
 
   mat.AddAttribute(VertexBuffer.UV2Kind);
@@ -35,20 +39,20 @@ function createCustomMaterial(scene: Scene, opts: { withTint?: boolean }) {
   `);
 
   // let time = 0;
-  scene.onReadyObservable.addOnce(() => {
-    // scene.onBeforeRenderObservable.add(() => {
-    //   time += scene.getEngine()!.getDeltaTime()! / 1000;
-    // });
+  // scene.onReadyObservable.addOnce(() => {
+  // scene.onBeforeRenderObservable.add(() => {
+  //   time += scene.getEngine()!.getDeltaTime()! / 1000;
+  // });
 
-    mat.onBindObservable.add(ev => {
-      const effect = mat.getEffect();
-      if (!effect) return;
-      // effect.setFloat('time', time);
-      const array = ev.metadata?.array;
-      if (!array || array.length === 0) return;
-      effect.setMatrices('bonesArray', array);
-    });
+  mat.onBindObservable.add(ev => {
+    const effect = mat.getEffect();
+    if (!effect) return;
+    // effect.setFloat('time', time);
+    const array = ev.metadata?.array;
+    if (!array || array.length === 0) return;
+    effect.setMatrices('bonesArray', array);
   });
+  // });
 
   mat.unfreeze();
 
@@ -68,9 +72,8 @@ function getMaterial(
 
   if (materialCache[uniqName]) return materialCache[uniqName];
 
-  const m = createCustomMaterial(scene, {});
+  const m = createCustomMaterial(scene);
   m.name = uniqName;
-  m.backFaceCulling = false;
   m.diffuseTexture = getEmptyTexture(scene);
   m.emissiveTexture = getEmptyTexture(scene);
 

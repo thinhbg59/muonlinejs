@@ -4,6 +4,6 @@ export class DungeonGateObject extends ModelObject {
   async init() {
     // LightEnabled = true;
 
-    await this.loadSpecificModel(`DoungeonGate01.bmd`);
+    await this.loadSpecificModel(`DoungeonGate01.glb`);
   }
 }

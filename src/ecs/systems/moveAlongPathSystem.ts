@@ -17,7 +17,7 @@ export const MoveAlongPathSystem: ISystemFactory = world => {
         if (localPlayer) {
           Store.playerData.setPosition(
             Math.round(transform.pos.x),
-            Math.round(transform.pos.y)
+            Math.round(transform.pos.z)
           );
         }
 
@@ -38,7 +38,7 @@ export const MoveAlongPathSystem: ISystemFactory = world => {
         while (deltaSpeed > 0 && pathfinding.path.length > 0) {
           let nextPoint = pathfinding.path[0];
           let dx = nextPoint.x - transform.pos.x;
-          let dy = nextPoint.y - transform.pos.y;
+          let dy = nextPoint.y - transform.pos.z;
           const distance = Math.sqrt(dx * dx + dy * dy);
 
           const deltaDistance = Math.min(deltaSpeed, distance);
@@ -64,14 +64,14 @@ export const MoveAlongPathSystem: ISystemFactory = world => {
           const deltaY = (dy / distance) * deltaDistance;
 
           transform.pos.x += deltaX;
-          transform.pos.y += deltaY;
+          transform.pos.z += deltaY;
 
           if (world.terrain) {
-            const h = world.getTerrainHeight(transform.pos.x, transform.pos.y);
-            transform.pos.z = Scalar.Lerp(transform.pos.z, h, 5 * deltaTime);
+            const h = world.getTerrainHeight(transform.pos.x, transform.pos.z);
+            transform.pos.y = Scalar.Lerp(transform.pos.y, h, 5 * deltaTime);
           }
 
-          transform.rot.z =
+          transform.rot.y =
             Math.atan2(movement.velocity.y, movement.velocity.x) + Math.PI / 2;
         }
       }

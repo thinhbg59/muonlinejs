@@ -20,6 +20,8 @@ export const AnimationSystem: ISystemFactory = world => {
     'modelObject'
   );
 
+  const animatableModelObjectsQuery = world.with('modelObject');
+
   function calculateAnimation(
     attributeSystem: MUAttributeSystem,
     velocity: IVector2Like
@@ -111,7 +113,7 @@ export const AnimationSystem: ISystemFactory = world => {
         if (modelObject.ActionIterationWasFinished) {
         }
 
-        playerObject.CurrentAction = playerAnimation.action;
+        playerObject.playAction(playerAnimation.action, true);
 
         if (playerObject.Wings) {
           if (playerObject.CurrentAction < 15) {
@@ -140,7 +142,7 @@ export const AnimationSystem: ISystemFactory = world => {
         //   ? MonsterActionType.Walk
         //   : MonsterActionType.Stop1;
 
-        modelObject.CurrentAction = monsterAnimation.action;
+        modelObject.playAction(monsterAnimation.action, true);
       }
     },
   };

@@ -2,6 +2,7 @@ import { UniversalCamera } from '@babylonjs/core/Cameras/universalCamera';
 import {
   Color3,
   Color4,
+  CreateBox,
   DirectionalLight,
   Engine,
   HemisphericLight,
@@ -13,6 +14,7 @@ import {
 import { addInspectorForScene } from '../libs/babylon/utils';
 import { toRadians } from '../../common/utils';
 import { EventBus } from '../libs/eventBus';
+import { HighlightLayer } from '@babylonjs/core/Layers/highlightLayer';
 
 const CLICK_TO_MOVE_MAX_TIME_DELTA = 150;
 
@@ -21,16 +23,26 @@ export class TestScene extends Scene {
 
   readonly transformedRoot: TransformNode;
 
+  readonly hl: HighlightLayer;
   constructor(engine: Engine) {
     super(engine);
-
-    this.skipFrustumClipping = true;
 
     const camera = new UniversalCamera(
       'UniversalCamera',
       new Vector3(0, 10, 0),
       this
     );
+
+    this.hl = new HighlightLayer('hl1', this, {
+      isStroke: true,
+      alphaBlendingMode: 1,
+    });
+
+    this.hl.innerGlow = false;
+
+    // this.hl.onBeforeRenderMeshToEffect.add((mesh, effect) => {
+    //   console.log(mesh, effect);
+    // });
 
     camera.rotation.y = -Math.PI / 4;
     camera.rotation.x = Math.PI / 4.5; // vertical
@@ -43,13 +55,14 @@ export class TestScene extends Scene {
     camera.minZ = 0.1;
     camera.maxZ = 5000;
     camera.position.set(135, 10, 130);
-    // camera.upVector.set(0, 0, 1);
 
-    // camera.position.set(165, 15, 110); // hanging
+    // const _testBox = CreateBox('_test', { size: 1 }, this);
+    // _testBox.position.set(135, 1.5, 131);
+    // _testBox.alwaysSelectAsActiveMesh = true;
 
-    // camera.attachControl();
+    camera.attachControl();
 
-    this.fogEnabled = true;
+    this.fogEnabled = false;
     this.fogStart = 1;
     this.fogEnd = 25;
 
@@ -60,7 +73,7 @@ export class TestScene extends Scene {
 
     this.defaultCamera = camera;
 
-    // this.skipFrustumClipping = true;
+    this.skipFrustumClipping = true;
     this.autoClearDepthAndStencil = true;
     this.autoClear = true;
 
@@ -68,13 +81,6 @@ export class TestScene extends Scene {
     this.ambientColor = new Color3(1, 1, 1);
 
     addInspectorForScene(this);
-
-    this.transformedRoot = new TransformNode('_gltf_root', this);
-    this.transformedRoot.scaling.z = 1;
-    this.transformedRoot.position.set(0, 256, 0);
-    this.transformedRoot.rotation.x = toRadians(90);
-
-    camera.parent = this.transformedRoot;
 
     const light2 = new DirectionalLight(
       'DirectionalLight2',
@@ -103,20 +109,6 @@ export class TestScene extends Scene {
             ev.pickInfo.pickedMesh?.metadata?.terrain &&
             diff < CLICK_TO_MOVE_MAX_TIME_DELTA
           ) {
-            // const mouseInput = world.with('mouseInput').entities[0];
-            // if (mouseInput) {
-            //   const delta = mouseInput.mouseInput.delta;
-
-            //   if (delta) {
-            //     const magnitude = Math.abs(delta.x) + Math.abs(delta.y);
-
-            //     if (magnitude > 3) {
-            //       return;
-            //     }
-            //   }
-            // }
-            point.y = 256 - point.y;
-
             EventBus.emit('groundPointClicked', { point });
           }
         }

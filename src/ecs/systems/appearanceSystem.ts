@@ -30,24 +30,24 @@ export const AppearanceSystem: ISystemFactory = world => {
 
         const playerObject = modelObject as PlayerObject;
 
-        loadPart(charAppearance.helm, playerObject, playerObject.HelmMask) ||
-          playerObject.setDefaultMask();
-        loadPart(charAppearance.armor, playerObject, playerObject.Armor) ||
-          playerObject.setDefaultArmor();
-        loadPart(charAppearance.pants, playerObject, playerObject.Pants) ||
-          playerObject.setDefaultPants();
-        loadPart(charAppearance.gloves, playerObject, playerObject.Gloves) ||
-          playerObject.setDefaultGloves();
-        loadPart(charAppearance.boots, playerObject, playerObject.Boots) ||
-          playerObject.setDefaultBoots();
+        // loadPart(charAppearance.helm, playerObject, playerObject.HelmMask) ||
+        //   playerObject.setDefaultMask();
+        // loadPart(charAppearance.armor, playerObject, playerObject.Armor) ||
+        //   playerObject.setDefaultArmor();
+        // loadPart(charAppearance.pants, playerObject, playerObject.Pants) ||
+        //   playerObject.setDefaultPants();
+        // loadPart(charAppearance.gloves, playerObject, playerObject.Gloves) ||
+        //   playerObject.setDefaultGloves();
+        // loadPart(charAppearance.boots, playerObject, playerObject.Boots) ||
+        //   playerObject.setDefaultBoots();
 
-        loadPart(charAppearance.leftHand, playerObject, playerObject.Weapon1) ||
-          playerObject.Weapon1.Unload();
-        loadPart(
-          charAppearance.rightHand,
-          playerObject,
-          playerObject.Weapon2
-        ) || playerObject.Weapon2.Unload();
+        // loadPart(charAppearance.leftHand, playerObject, playerObject.Weapon1) ||
+        //   playerObject.Weapon1.Unload();
+        // loadPart(
+        //   charAppearance.rightHand,
+        //   playerObject,
+        //   playerObject.Weapon2
+        // ) || playerObject.Weapon2.Unload();
 
         charAppearance.changed = false;
       }

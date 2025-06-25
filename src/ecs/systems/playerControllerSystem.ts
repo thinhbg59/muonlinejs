@@ -7,28 +7,29 @@ export const PlayerControllerSystem: ISystemFactory = world => {
 
   const box = CreateBox(
     'playerControllerBox',
-    { width: 1, depth: 0.1, height: 1 },
+    { width: 0.5, depth: 0.5, height: 0.1 },
     world.scene
   );
   box.setParent(world.mapParent);
   box.isPickable = false;
+  // box.isVisible = false;
 
   EventBus.on('groundPointClicked', ({ point }) => {
     const playerEntity = world.playerEntity;
     if (!playerEntity) return;
 
     const x = Math.round(point.x);
-    const y = Math.round(point.y);
+    const z = Math.round(point.z);
 
     // TODO replace with world.isWalkable after fixing it
-    const node = world.pathfinder.getNode(x, y);
+    const node = world.pathfinder.getNode(x, z);
 
     if (!node || node.weight < 1) return;
 
     // console.log(JSON.stringify(point), x, y);
 
     playerEntity.playerMoveTo.point.x = x;
-    playerEntity.playerMoveTo.point.y = y;
+    playerEntity.playerMoveTo.point.y = z;
     playerEntity.playerMoveTo.handled = false;
     playerEntity.playerMoveTo.sendToServer = true;
   });
@@ -48,18 +49,17 @@ export const PlayerControllerSystem: ISystemFactory = world => {
         pathfinding.calculated = false;
 
         pathfinding.from.x = transform.pos.x;
-        pathfinding.from.y = transform.pos.y;
+        pathfinding.from.y = transform.pos.z;
 
         pathfinding.to.x = playerMoveTo.point.x;
         pathfinding.to.y = playerMoveTo.point.y;
 
         if (localPlayer) {
           box.position.x = playerMoveTo.point.x;
-          box.position.y = playerMoveTo.point.y;
-          box.position.z =
+          box.position.z = playerMoveTo.point.y;
+          box.position.y =
             world.getTerrainHeight(playerMoveTo.point.x, playerMoveTo.point.y) +
             0.1;
-          box.position.scaleInPlace(world.terrainScale);
         }
       }
     },

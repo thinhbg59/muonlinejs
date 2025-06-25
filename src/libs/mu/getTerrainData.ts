@@ -176,8 +176,6 @@ export async function getTerrainData(world: World, map: ENUM_WORLD) {
 
   const texturesData = textures.map(texture => {
     const t = texture.Texture.clone();
-    t.updateSamplingMode(Texture.LINEAR_LINEAR);
-    t.anisotropicFilteringLevel = 1;
 
     const size = t.getSize().height;
     let scale = size;
@@ -204,12 +202,10 @@ export async function getTerrainData(world: World, map: ENUM_WORLD) {
     }
   );
 
-  terrain.setParent(world.mapParent);
-  terrain.scaling.setAll(100);
-  terrain.position.setAll(0);
+  // terrain.position.setAll(0);
 
-  terrain.position.x = -450;
-  terrain.position.y = -50;
+  terrain.position.x = -4.5;
+  terrain.position.z = -0.5;
 
   if (Store.showTerrainAttributes) {
     const plane = CreatePlane('_terrainPlane', { size: 256 }, scene);

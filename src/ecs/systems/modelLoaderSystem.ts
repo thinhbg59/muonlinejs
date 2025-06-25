@@ -1,29 +1,9 @@
 import { With } from 'miniplex';
 import { MapPlayerNetClassToModelClass } from '../../../common/mapPlayerNetClassToModelClass';
-import { getModel, loadBMD, ObjectRegistry } from '../../../common/modelLoader';
+import { getModel, loadGLTF } from '../../../common/modelLoader';
 import { ModelObject } from '../../../common/modelObject';
-import { MODEL_ELF_WIZARD } from '../../../common/objects/enum';
 import { PlayerObject } from '../../../common/playerObject';
 import { Entity, ISystemFactory, World } from '../world';
-
-// function registerMonsters() {
-//   ObjectRegistry.RegisterFactory(
-//     MODEL_MONSTER01 + 1,
-//     'Monster/',
-//     'Monster02'
-//   );
-// }
-
-function registerNpcs() {
-  ObjectRegistry.RegisterFactory(
-    MODEL_ELF_WIZARD,
-    'NPC/',
-    'ElfWizard',
-    1
-  );
-}
-
-registerNpcs();
 
 const v3Temp = { x: 0, y: 0, z: 0 };
 
@@ -72,17 +52,15 @@ function createModelObject(
     const modelFilePath = entity.modelFilePath;
 
     if (modelId != null) {
-      getModel(modelId).then(bmd => {
+      getModel(modelId).then(gltf => {
         if (entity.modelObject) {
-          entity.modelObject.load(bmd);
-          // console.log(`Model loaded: ${entity.modelId} - ${bmd.Name}`);
+          entity.modelObject.load(gltf);
         }
       });
     } else if (modelFilePath) {
-      loadBMD(modelFilePath).then(bmd => {
+      loadGLTF(modelFilePath,world).then(gltf => {
         if (entity.modelObject) {
-          entity.modelObject.load(bmd);
-          // console.log(`Model loaded: ${entity.modelId} - ${bmd.Name}`);
+          entity.modelObject.load(gltf);
         }
       });
     }
