@@ -2,17 +2,14 @@ import { UniversalCamera } from '@babylonjs/core/Cameras/universalCamera';
 import {
   Color3,
   Color4,
-  CreateBox,
   DirectionalLight,
   Engine,
   HemisphericLight,
   PointerEventTypes,
   Scene,
-  TransformNode,
   Vector3,
 } from '../libs/babylon/exports';
 import { addInspectorForScene } from '../libs/babylon/utils';
-import { toRadians } from '../../common/utils';
 import { EventBus } from '../libs/eventBus';
 import { HighlightLayer } from '@babylonjs/core/Layers/highlightLayer';
 
@@ -21,9 +18,8 @@ const CLICK_TO_MOVE_MAX_TIME_DELTA = 150;
 export class TestScene extends Scene {
   defaultCamera: UniversalCamera;
 
-  readonly transformedRoot: TransformNode;
-
   readonly hl: HighlightLayer;
+
   constructor(engine: Engine) {
     super(engine);
 
@@ -40,25 +36,14 @@ export class TestScene extends Scene {
 
     this.hl.innerGlow = false;
 
-    // this.hl.onBeforeRenderMeshToEffect.add((mesh, effect) => {
-    //   console.log(mesh, effect);
-    // });
-
     camera.rotation.y = -Math.PI / 4;
     camera.rotation.x = Math.PI / 4.5; // vertical
-
-    // camera.rotation.y = -Math.PI / 4;
-    // camera.rotation.x = 0;
 
     camera.speed = 0.2;
     camera.angularSensibility = 4000;
     camera.minZ = 0.1;
     camera.maxZ = 5000;
     camera.position.set(135, 10, 130);
-
-    // const _testBox = CreateBox('_test', { size: 1 }, this);
-    // _testBox.position.set(135, 1.5, 131);
-    // _testBox.alwaysSelectAsActiveMesh = true;
 
     camera.attachControl();
 
@@ -74,6 +59,7 @@ export class TestScene extends Scene {
     this.defaultCamera = camera;
 
     this.skipFrustumClipping = true;
+
     this.autoClearDepthAndStencil = true;
     this.autoClear = true;
 

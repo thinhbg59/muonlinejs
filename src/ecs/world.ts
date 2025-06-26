@@ -1,21 +1,21 @@
-import { World as ECSWorld } from 'miniplex';
+import { type Bucket, World as ECSWorld } from 'miniplex';
 import type {
   IVector2Like,
   IVector3Like,
 } from '@babylonjs/core/Maths/math.like';
-import type { ModelObject } from '../../common/modelObject';
-import type {
-  MonsterActionType,
-  PlayerAction,
-} from '../../common/objects/enum';
+import type { ModelObject } from '../common/modelObject';
+import type { MonsterActionType, PlayerAction } from '../common/objects/enum';
 import type { MUAttributeSystem } from '../libs/attributeSystem';
 import { TransformNode } from '@babylonjs/core/Meshes/transformNode';
 import { CustomGroundMesh } from '../libs/mu/customGroundMesh';
 import { createPathfinding } from '../libs/pathfinding';
-import type { CharacterClassNumber, ENUM_WORLD } from '../../common';
+import type { CharacterClassNumber, ENUM_WORLD } from '../common';
 import { AssetsManager, Color3, Viewport } from '../libs/babylon/exports';
 import type { HighlightLayer } from '@babylonjs/core/Layers/highlightLayer';
 import type { TestScene } from '../scenes/testScene';
+
+export type EntityTypeFromQuery<TB extends Bucket<any> = Bucket<any>> =
+  TB extends Bucket<infer T> ? T : never;
 
 export type ISystemFactory = (world: World) => {
   update?: (deltaTime: number) => void;
@@ -89,6 +89,7 @@ export type Entity = Partial<{
     color: Color3;
     layer: HighlightLayer | null;
   };
+  interactable: true;
 }>;
 
 export class World extends ECSWorld<Entity> {
@@ -128,6 +129,8 @@ export class World extends ECSWorld<Entity> {
   });
 
   readonly assetsManager: AssetsManager;
+
+  currentPointerTarget: Entity | null = null;
 
   constructor(readonly scene: TestScene) {
     super();

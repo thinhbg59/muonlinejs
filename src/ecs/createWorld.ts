@@ -14,9 +14,11 @@ import { AppearanceSystem } from './systems/appearanceSystem';
 import { DrawDebugSystem } from './systems/drawDebugSystem';
 import { HighlightSystem } from './systems/highlightSystem';
 import type { TestScene } from '../scenes/testScene';
+import { PointerInputSystem } from './systems/pointerInputSystem';
 
 const factories: ISystemFactory[] = [
   ModelLoaderSystem,
+  PointerInputSystem,
   PlayerControllerSystem,
   PathfindingSystem,
   CalculateVisibilitySystem,

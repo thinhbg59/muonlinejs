@@ -313,7 +313,8 @@ type GAttributesKeys =
   | 'maxMana'
   | 'maxHealth'
   | 'playerNetClass'
-  | 'totalMovementSpeed';
+  | 'totalMovementSpeed'
+  | 'isSpearEquipped';
 
 type Stats = GAttributesKeys;
 type Others = GAttributesKeys;

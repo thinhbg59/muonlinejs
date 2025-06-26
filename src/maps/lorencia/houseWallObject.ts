@@ -1,6 +1,6 @@
-import { ModelObject } from '../../../common/modelObject';
-import { BlendState, MODEL_HOUSE_WALL01 } from '../../../common/objects/enum';
-import { Rand } from '../../../common/rand';
+import { ModelObject } from '../../common/modelObject';
+import { BlendState, MODEL_HOUSE_WALL01 } from '../../common/objects/enum';
+import { Rand } from '../../common/rand';
 import { World } from '../../ecs/world';
 import { Scalar } from '../../libs/babylon/exports';
 

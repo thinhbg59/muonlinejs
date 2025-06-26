@@ -1,5 +1,5 @@
-import { ModelObject } from '../../../common/modelObject';
-import { MODEL_HOUSE_ETC01 } from '../../../common/objects/enum';
+import { ModelObject } from '../../common/modelObject';
+import { MODEL_HOUSE_ETC01 } from '../../common/objects/enum';
 
 export class HouseEtcObject extends ModelObject {
   async init() {

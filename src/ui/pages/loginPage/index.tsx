@@ -5,9 +5,9 @@ import { useEventBus } from '../../../hooks/useEventBus';
 import {
   LoginResponseLoginResultEnum,
   LoginResponsePacket,
-} from '../../../../common/packets/ServerToClientPackets';
+} from '../../../common/packets/ServerToClientPackets';
 import { MAX_PASSWORD_LENGTH, MAX_USERNAME_LENGTH } from '../../../consts';
-import { RequestCharacterListPacket } from '../../../../common/packets/ClientToServerPackets';
+import { RequestCharacterListPacket } from '../../../common/packets/ClientToServerPackets';
 
 export const LoginPage = observer(() => {
   useEventBus('LoginResponse', async bytes => {

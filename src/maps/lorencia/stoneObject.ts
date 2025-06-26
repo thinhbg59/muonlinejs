@@ -1,5 +1,5 @@
-import { ModelObject } from '../../../common/modelObject';
-import { MODEL_STONE01 } from '../../../common/objects/enum';
+import { ModelObject } from '../../common/modelObject';
+import { MODEL_STONE01 } from '../../common/objects/enum';
 
 export class StoneObject extends ModelObject {
   async init() {

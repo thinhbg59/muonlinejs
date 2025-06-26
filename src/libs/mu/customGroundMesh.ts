@@ -1,5 +1,5 @@
-import { TERRAIN_SCALE, TERRAIN_SIZE } from '../../../common/terrain/consts';
-import { TERRAIN_INDEX } from '../../../common/terrain/utils';
+import { TERRAIN_SCALE, TERRAIN_SIZE } from '../../common/terrain/consts';
+import { TERRAIN_INDEX } from '../../common/terrain/utils';
 import {
   GroundMesh,
   type Scene,

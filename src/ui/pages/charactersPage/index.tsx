@@ -5,7 +5,7 @@ import {
   ConnectionInfoPacket,
   ConnectionInfoRequestPacket,
   ServerListResponsePacket,
-} from '../../../../common/packets/ConnectServerPackets';
+} from '../../../common/packets/ConnectServerPackets';
 import { useEventBus } from '../../../hooks/useEventBus';
 import { CS_HOST, MAX_USERNAME_LENGTH } from '../../../consts';
 import { Fragment, useEffect } from 'react';
@@ -14,8 +14,8 @@ import {
   CharacterCreationSuccessfulPacket,
   CharacterFocusedPacket,
   CharacterListPacket,
-} from '../../../../common/packets/ServerToClientPackets';
-import { CharacterClassNumber } from '../../../../common';
+} from '../../../common/packets/ServerToClientPackets';
+import { CharacterClassNumber } from '../../../common';
 
 export const CharactersPage = observer(() => {
   useEffect(() => {

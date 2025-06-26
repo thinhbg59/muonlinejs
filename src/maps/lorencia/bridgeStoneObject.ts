@@ -1,4 +1,4 @@
-import { ModelObject } from '../../../common/modelObject';
+import { ModelObject } from '../../common/modelObject';
 
 export class BridgeStoneObject extends ModelObject {
   async init() {

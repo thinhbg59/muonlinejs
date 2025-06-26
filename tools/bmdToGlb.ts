@@ -1,9 +1,9 @@
 import { Document, Node, NodeIO } from '@gltf-transform/core';
-import { BMD, BMDReader, BMDTextureBone } from '../common/BMD';
+import { BMD, BMDReader, BMDTextureBone } from '../src/common/BMD';
 import { Glob } from 'bun';
 import { EXTTextureWebP } from '@gltf-transform/extensions';
 import sharp from 'sharp';
-import {decodeTga} from '@lunapaint/tga-codec';
+import { decodeTga } from '@lunapaint/tga-codec';
 import { PNG } from 'pngjs';
 
 async function tga2png(file: Buffer) {
@@ -44,7 +44,10 @@ async function convertImageToWebP(image: Uint8Array): Promise<Uint8Array> {
 
 const BMD_EXT = '.bmd';
 
-const DATA_FOLDER = __dirname + `/../public/data/`;
+const PROJECT_ROOT = __dirname + `/../`;
+
+const DATA_FOLDER = PROJECT_ROOT + `Data/`;
+const OUTPUT_FOLDER = PROJECT_ROOT + `public/game-assets/`;
 
 const glob = new Glob(
   `**/*{${BMD_EXT.toUpperCase()},${BMD_EXT.toLowerCase()}}`
@@ -89,6 +92,7 @@ function convertQuaternion(q: Quaternion): Quaternion {
 }
 
 async function convertBMDToGLTF(bmd: BMD, outputFilename: string) {
+  const SCALE_MULTIPLIER = 0.01;
   const fileName = outputFilename.split('/').at(-1)!.split('.')[0];
 
   const doc = new Document();
@@ -171,7 +175,11 @@ async function convertBMDToGLTF(bmd: BMD, outputFilename: string) {
         const posArray: number[] = [];
         boneMatrix.Position.forEach(p => {
           const cp = convertVec3(p);
-          posArray.push(cp.x, cp.y, cp.z);
+          posArray.push(
+            cp.x * SCALE_MULTIPLIER,
+            cp.y * SCALE_MULTIPLIER,
+            cp.z * SCALE_MULTIPLIER
+          );
         });
 
         if (boneIndex === 0 && lockPositions && posArray.length > 0) {
@@ -239,9 +247,6 @@ async function convertBMDToGLTF(bmd: BMD, outputFilename: string) {
   for (const bmdMesh of bmd.Meshes) {
     const node = doc.createNode(`node_${meshIndex}`);
     meshIndex++;
-    node.setTranslation([0, 0, 0]);
-    node.setRotation([0, 0, 0, 1]);
-    node.setScale([1, 1, 1]);
     modelRoot.addChild(node);
 
     node.setSkin(skin);
@@ -276,7 +281,11 @@ async function convertBMDToGLTF(bmd: BMD, outputFilename: string) {
         const pos = vertex.Position;
         const convPos = convertVec3(pos);
 
-        positionArray.push(convPos.x, convPos.y, convPos.z);
+        positionArray.push(
+          convPos.x * SCALE_MULTIPLIER,
+          convPos.y * SCALE_MULTIPLIER,
+          convPos.z * SCALE_MULTIPLIER
+        );
         const convNormal = convertVec3(normal);
         normalsArray.push(convNormal.x, convNormal.y, convNormal.z);
         texcoordArray.push(texCoord.U, texCoord.V);
@@ -337,15 +346,22 @@ async function convertBMDToGLTF(bmd: BMD, outputFilename: string) {
       .setBuffer(buffer);
 
     const isTransparent = bmdMesh.TexturePath.endsWith('.tga');
-    const texPath = bmd.Dir + bmdMesh.TexturePath;
+    const texPath = DATA_FOLDER + bmd.Dir + bmdMesh.TexturePath;
+    // const texFilePath = bmd.Dir + bmdMesh.TexturePath.split('.')[0] + '.webp';
+    // const outputTexFilePath = OUTPUT_FOLDER + texFilePath;
+
     const texture = doc.createTexture(
-      texPath.split('/').slice(-2).join('/').split('.')[0] + '.webp'
+      bmd.Dir + bmdMesh.TexturePath.split('.')[0]
     );
     let texSuccess = false;
+
     try {
       const bytes = await Bun.file(texPath).bytes();
-      texture.setImage(await convertImageToWebP(bytes));
+      const webpBytes = await convertImageToWebP(bytes);
+      // await Bun.write(outputTexFilePath, webpBytes, { createPath: true });
+      texture.setImage(webpBytes);
       texture.setMimeType(`image/webp`);
+      // texture.setURI(`./game-assets/${texFilePath}`);
       texSuccess = true;
     } catch (e) {
       console.error(`Error converting ${texPath} to webp:`, e);
@@ -380,28 +396,30 @@ async function convertBMDToGLTF(bmd: BMD, outputFilename: string) {
 
   const io = new NodeIO();
   io.registerExtensions([EXTTextureWebP]);
+  await Bun.write(outputFilename, '', { createPath: true });
   await io.write(outputFilename, doc);
 }
 
 const reader = new BMDReader();
 
 let counter = 0;
-for (const relFilePath of glob.scanSync(DATA_FOLDER)) {
-  const fileName = relFilePath.split('/').at(-1)!;
+for (const relInputFilePath of glob.scanSync(DATA_FOLDER)) {
+  const inputFileName = relInputFilePath.split('/').at(-1)!;
 
-  const absFilePath = DATA_FOLDER + relFilePath;
-  const folder = absFilePath.replace(fileName, '');
+  const absInputFilePath = DATA_FOLDER + relInputFilePath;
+  const inputFolder = relInputFilePath.replace(inputFileName, '');
 
-  const buffer = await Bun.file(absFilePath).bytes();
+  const buffer = await Bun.file(absInputFilePath).bytes();
 
   try {
-    const bmd = reader.read(buffer, folder);
+    const bmd = reader.read(buffer, inputFolder);
 
-    const outputFilename = `${folder}${fileName.replace(BMD_EXT, '.glb')}`;
+    const outputFileName =
+      OUTPUT_FOLDER + relInputFilePath.replace(BMD_EXT, '.glb');
 
-    await convertBMDToGLTF(bmd, outputFilename);
+    await convertBMDToGLTF(bmd, outputFileName);
   } catch (e) {
-    console.error(`Ошибка при конвертации ${absFilePath}:`, e);
+    console.error(`Ошибка при конвертации ${absInputFilePath}:`, e);
     // console.log(bmd);
     continue;
   }

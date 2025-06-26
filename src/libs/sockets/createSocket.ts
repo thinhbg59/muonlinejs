@@ -1,6 +1,6 @@
 import { EventBus } from "../eventBus";
-import { ConnectServerPackets, ServerToClientPackets, SimpleModulusDecryptor } from "../../../common";
-import { byteToString, getPacketSize, getSizeOfPacketType } from "../../../common/utils";
+import { ConnectServerPackets, ServerToClientPackets, SimpleModulusDecryptor } from "../../common";
+import { byteToString, getPacketSize, getSizeOfPacketType } from "../../common/utils";
 
 type Options = {
   wsAddress: string;

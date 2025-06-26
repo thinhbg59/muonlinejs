@@ -1,5 +1,5 @@
-import { ModelObject } from '../../../common/modelObject';
-import { MODEL_CARRIAGE01 } from '../../../common/objects/enum';
+import { ModelObject } from '../../common/modelObject';
+import { MODEL_CARRIAGE01 } from '../../common/objects/enum';
 
 export class CarriageObject extends ModelObject {
   async init() {

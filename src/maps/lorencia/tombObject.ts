@@ -1,5 +1,5 @@
-import { ModelObject } from '../../../common/modelObject';
-import { MODEL_TOMB01 } from '../../../common/objects/enum';
+import { ModelObject } from '../../common/modelObject';
+import { MODEL_TOMB01 } from '../../common/objects/enum';
 
 export class TombObject extends ModelObject {
   async init() {

@@ -1,8 +1,8 @@
 import type { IVector2Like } from '@babylonjs/core/Maths/math.like';
-import { MonsterActionType, PlayerAction } from '../../../common/objects/enum';
+import { MonsterActionType, PlayerAction } from '../../common/objects/enum';
 import type { MUAttributeSystem } from '../../libs/attributeSystem';
 import type { ISystemFactory } from '../world';
-import type { PlayerObject } from '../../../common/playerObject';
+import type { PlayerObject } from '../../common/playerObject';
 
 export const AnimationSystem: ISystemFactory = world => {
   const playersQuery = world.with(
@@ -29,11 +29,28 @@ export const AnimationSystem: ISystemFactory = world => {
     const isFemale = attributeSystem.isAboveZero('isFemale');
     const isFlying = attributeSystem.isAboveZero('isFlying');
     const isSwimming = attributeSystem.isAboveZero('isSwimming');
+    const isSpearEquipped = attributeSystem.isAboveZero('isSpearEquipped');
     const isMoving = velocity.x !== 0 || velocity.y !== 0;
 
     //
     // Female player animations
     //
+
+    if (isSpearEquipped) {
+      if (isMoving) {
+        if (isFlying) {
+          return PlayerAction.PLAYER_FLY;
+        }
+
+        if (isSwimming) {
+          return PlayerAction.PLAYER_WALK_SWIM;
+        }
+
+        return PlayerAction.PLAYER_WALK_SPEAR;
+      }
+
+      return PlayerAction.PLAYER_STOP_SPEAR;
+    }
 
     if (isFemale) {
       if (isMoving) {

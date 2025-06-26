@@ -1,7 +1,7 @@
 import type { ISystemFactory } from '../world';
 
-const VERTICAL_OFFSET = 6.5;
-const HORIZONTAL_OFFSET = 5;
+const VERTICAL_OFFSET = 6;
+const HORIZONTAL_OFFSET = 5.5;
 
 export const CameraFollowSystem: ISystemFactory = world => {
   const scene = world.scene;

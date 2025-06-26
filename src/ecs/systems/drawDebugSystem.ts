@@ -23,7 +23,7 @@ export const DrawDebugSystem: ISystemFactory = world => {
   );
   box.setParent(world.mapParent);
   box.position.set(0, 0, 0);
-  box.scaling.setAll(world.terrainScale);
+  box.scaling.setAll(1);
   const boxMaterial = new StandardMaterial('__bb__mat', world.scene);
   boxMaterial.alpha = 0.6;
   boxMaterial.disableLighting = true;
@@ -85,6 +85,7 @@ export const DrawDebugSystem: ISystemFactory = world => {
 
   return {
     update: dt => {
+     
       delay -= dt;
       if (delay > 0) return;
       delay = 0.1;
@@ -105,22 +106,11 @@ export const DrawDebugSystem: ISystemFactory = world => {
 
         // console.log(bb);
 
-        const size = bb.maximum
-          .subtractToRef(bb.minimum, vec3Tmp)
-          .scaleInPlace(0.01);
+        const size = bb.maximumWorld.subtractToRef(bb.minimumWorld, vec3Tmp);
 
         //size.scaleToRef(0.5, vec3Tmp2);
-        const center = bb.maximum
-          .add(bb.minimum)
-          .scaleInPlace(0.5)
-          .scaleInPlace(0.01); //bb.center.scaleToRef(0.01, vec3Tmp2);
+        const center = bb.maximumWorld.add(bb.minimumWorld).scaleInPlace(0.5); //bb.center.scaleToRef(0.01, vec3Tmp2);
         const pos = center;
-        pos.addInPlace(transform.pos as any);
-
-        // pos.z += size.z * 0.5;
-
-        // pos.y -= 0.06;
-        // pos.x -= 0.06;
 
         Quaternion.FromEulerAnglesToRef(
           transform.rot.x,

@@ -5,7 +5,7 @@ import {
 } from '../../libs/babylon/exports';
 import type { ISystemFactory, World } from '../world';
 import { Store } from '../../store';
-import { TERRAIN_SIZE } from '../../../common/terrain/consts';
+import { TERRAIN_SIZE } from '../../common/terrain/consts';
 
 export const PathfindingSystem: ISystemFactory = world => {
   const query = world.with('pathfinding');

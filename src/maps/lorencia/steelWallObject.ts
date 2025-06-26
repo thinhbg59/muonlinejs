@@ -1,5 +1,5 @@
-import { ModelObject } from '../../../common/modelObject';
-import { MODEL_STEEL_WALL01 } from '../../../common/objects/enum';
+import { ModelObject } from '../../common/modelObject';
+import { MODEL_STEEL_WALL01 } from '../../common/objects/enum';
 
 export class SteelWallObject extends ModelObject {
   async init() {

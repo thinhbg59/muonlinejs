@@ -14,11 +14,7 @@ export const RenderSystem: ISystemFactory = world => {
         v3Temp.copyFrom(transform.rot as any);
         v3Temp.y = Math.PI * 2 - v3Temp.y;
 
-        modelObject.updateLocation(
-          transform.pos,
-          transform.scale * 0.01,
-          v3Temp
-        );
+        modelObject.updateLocation(transform.pos, transform.scale, v3Temp);
 
         modelObject.Draw(world.gameTime);
       }

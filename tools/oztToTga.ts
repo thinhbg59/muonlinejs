@@ -4,7 +4,7 @@ import { Glob } from "bun";
 const OZT_EXT = '.OZT';
 const TGA_EXT = '.tga';
 
-const DATA_FOLDER = __dirname + `/../public/data/`;
+const DATA_FOLDER = __dirname + `/../Data/`;
 
 const glob = new Glob(`**/*{${OZT_EXT.toUpperCase()},${OZT_EXT.toLowerCase()}}`);
 

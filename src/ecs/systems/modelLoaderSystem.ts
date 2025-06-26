@@ -1,8 +1,8 @@
 import { With } from 'miniplex';
-import { MapPlayerNetClassToModelClass } from '../../../common/mapPlayerNetClassToModelClass';
-import { getModel, loadGLTF } from '../../../common/modelLoader';
-import { ModelObject } from '../../../common/modelObject';
-import { PlayerObject } from '../../../common/playerObject';
+import { MapPlayerNetClassToModelClass } from '../../common/mapPlayerNetClassToModelClass';
+import { getModel, loadGLTF } from '../../common/modelLoader';
+import { ModelObject } from '../../common/modelObject';
+import { PlayerObject } from '../../common/playerObject';
 import { Entity, ISystemFactory, World } from '../world';
 
 const v3Temp = { x: 0, y: 0, z: 0 };
@@ -27,9 +27,9 @@ function createModelObject(
     modelObject.Type = modelId;
   }
 
-  v3Temp.x = transform.pos.x * terrainScale;
-  v3Temp.y = transform.pos.y * terrainScale;
-  v3Temp.z = transform.pos.z * terrainScale;
+  v3Temp.x = transform.pos.x;
+  v3Temp.y = transform.pos.y;
+  v3Temp.z = transform.pos.z;
 
   modelObject.updateLocation(v3Temp, transform.scale, transform.rot);
 
@@ -43,7 +43,7 @@ function createModelObject(
   }
 
   modelObject.init(world, entity).then(() => {
-    if (modelObject.Model || modelObject.Ready) return;
+    if (modelObject.gltf || modelObject.Ready) return;
     if (!entity.modelObject) {
       modelObject.dispose();
       return;
@@ -58,7 +58,7 @@ function createModelObject(
         }
       });
     } else if (modelFilePath) {
-      loadGLTF(modelFilePath,world).then(gltf => {
+      loadGLTF(modelFilePath, world).then(gltf => {
         if (entity.modelObject) {
           entity.modelObject.load(gltf);
         }
@@ -79,6 +79,8 @@ export const ModelLoaderSystem: ISystemFactory = world => {
     update: () => {
       const terrain = world.terrain;
       if (!terrain) return;
+      const playerEntity = world.playerEntity;
+      if (!playerEntity) return;
 
       for (const entity of query) {
         const visibility = entity.visibility;

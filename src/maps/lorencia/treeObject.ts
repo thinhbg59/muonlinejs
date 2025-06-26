@@ -1,5 +1,5 @@
-import { ModelObject } from '../../../common/modelObject';
-import { MODEL_TREE01 } from '../../../common/objects/enum';
+import { ModelObject } from '../../common/modelObject';
+import { MODEL_TREE01 } from '../../common/objects/enum';
 
 export class TreeObject extends ModelObject {
   async init() {

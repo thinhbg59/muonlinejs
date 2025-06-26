@@ -3,7 +3,7 @@ import {
   SimpleModulusEncryptor,
   Xor32Encryptor,
   Xor3Byte,
-} from '../common';
+} from './common';
 import {
   CreateCharacterPacket,
   FocusCharacterPacket,
@@ -11,14 +11,14 @@ import {
   RequestCharacterListPacket,
   SelectCharacterPacket,
   WalkRequestPacket,
-} from '../common/packets/ClientToServerPackets';
+} from './common/packets/ClientToServerPackets';
 import {
   ConnectionInfoRequestPacket,
   ServerListRequestPacket,
   ServerListResponsePacket,
-} from '../common/packets/ConnectServerPackets';
-import { CharacterListPacket } from '../common/packets/ServerToClientPackets';
-import { stringToBytes } from '../common/utils';
+} from './common/packets/ConnectServerPackets';
+import { CharacterListPacket } from './common/packets/ServerToClientPackets';
+import { stringToBytes } from './common/utils';
 import {
   CLIENT_VERSION,
   CS_HOST,

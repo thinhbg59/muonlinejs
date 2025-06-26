@@ -1,7 +1,7 @@
 import { With } from 'miniplex';
 import { IdleState, State, StateMachine } from '.';
 import { Entity, World } from '../../ecs/world';
-import { MonsterActionType } from '../../../common/objects/enum';
+import { MonsterActionType } from '../../common/objects/enum';
 
 declare global {
   interface IStateMachineIncomingEvents {

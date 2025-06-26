@@ -1,7 +1,7 @@
-import { ModelObject } from '../../../common/modelObject';
+import { ModelObject } from '../../common/modelObject';
 import {
   MODEL_FENCE01,
-} from '../../../common/objects/enum';
+} from '../../common/objects/enum';
 
 export class FenceObject extends ModelObject {
   async init() {

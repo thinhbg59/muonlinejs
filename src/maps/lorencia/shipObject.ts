@@ -1,4 +1,4 @@
-import { ModelObject } from '../../../common/modelObject';
+import { ModelObject } from '../../common/modelObject';
 
 export class ShipObject extends ModelObject {
   async init() {

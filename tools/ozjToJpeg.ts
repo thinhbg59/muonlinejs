@@ -4,7 +4,7 @@ import { Glob } from 'bun';
 const OZJ_EXT = '.OZJ';
 const JPG_EXT = '.jpg';
 
-const DATA_FOLDER = __dirname + `/../public/data/`;
+const DATA_FOLDER = __dirname + `/../Data/`;
 
 const glob = new Glob(
   `**/*{${OZJ_EXT.toUpperCase()},${OZJ_EXT.toLowerCase()}}`

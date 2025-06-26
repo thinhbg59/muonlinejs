@@ -5,7 +5,7 @@ import type {
 import type {
   ConnectServerPackets,
   ServerToClientPackets,
-} from '../../../common';
+} from '../../common';
 import type { Entity } from '../../ecs/world';
 import type { With } from 'miniplex';
 

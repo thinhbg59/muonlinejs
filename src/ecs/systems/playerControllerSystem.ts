@@ -5,14 +5,15 @@ import type { ISystemFactory } from '../world';
 export const PlayerControllerSystem: ISystemFactory = world => {
   const query = world.with('playerMoveTo', 'transform', 'pathfinding');
 
+  const size = 0.75;
   const box = CreateBox(
     'playerControllerBox',
-    { width: 0.5, depth: 0.5, height: 0.1 },
+    { width: size, depth: size, height: 0.02 },
     world.scene
   );
   box.setParent(world.mapParent);
   box.isPickable = false;
-  // box.isVisible = false;
+  box.alwaysSelectAsActiveMesh = true;
 
   EventBus.on('groundPointClicked', ({ point }) => {
     const playerEntity = world.playerEntity;
@@ -59,7 +60,7 @@ export const PlayerControllerSystem: ISystemFactory = world => {
           box.position.z = playerMoveTo.point.y;
           box.position.y =
             world.getTerrainHeight(playerMoveTo.point.x, playerMoveTo.point.y) +
-            0.1;
+            0.02;
         }
       }
     },

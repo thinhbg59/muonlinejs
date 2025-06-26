@@ -1,5 +1,5 @@
-import { ModelObject } from '../../../common/modelObject';
-import { MODEL_GRASS01 } from '../../../common/objects/enum';
+import { ModelObject } from '../../common/modelObject';
+import { MODEL_GRASS01 } from '../../common/objects/enum';
 import { Vector2 } from '../../libs/babylon/exports';
 
 const TERRAIN_OFFSET = -10;

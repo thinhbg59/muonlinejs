@@ -1,5 +1,5 @@
-import { ModelObject } from '../../../common/modelObject';
-import { MODEL_SIGN01 } from '../../../common/objects/enum';
+import { ModelObject } from '../../common/modelObject';
+import { MODEL_SIGN01 } from '../../common/objects/enum';
 
 export class SignObject extends ModelObject {
   async init() {

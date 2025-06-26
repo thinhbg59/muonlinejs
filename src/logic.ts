@@ -1,15 +1,15 @@
-import { CharacterClassNumber, ENUM_WORLD } from '../common';
-import { deserializeAppearance } from '../common/deserializeAppearance';
-import { ItemsDatabase } from '../common/itemsDatabase';
-import { ModelFactoryPerId } from '../common/modelFactoryPerId';
-import { ModelObject } from '../common/modelObject';
-import { MonstersDatabase } from '../common/monstersDatabase';
+import { CharacterClassNumber, ENUM_WORLD } from './common';
+import { deserializeAppearance } from './common/deserializeAppearance';
+import { ItemsDatabase } from './common/itemsDatabase';
+import { ModelFactoryPerId } from './common/modelFactoryPerId';
+import { ModelObject } from './common/modelObject';
+import { MonstersDatabase } from './common/monstersDatabase';
 import {
   MonsterActionType,
   PlayerAction,
   ServerPlayerActionType,
-} from '../common/objects/enum';
-import { HelloPacket } from '../common/packets/ConnectServerPackets';
+} from './common/objects/enum';
+import { HelloPacket } from './common/packets/ConnectServerPackets';
 import {
   AddCharactersToScopePacket,
   AddNpcsToScopePacket,
@@ -24,9 +24,9 @@ import {
   ObjectAnimationPacket,
   ObjectGotKilledPacket,
   ObjectWalkedPacket,
-} from '../common/packets/ServerToClientPackets';
-import { ServerToClientActionMap } from '../common/playerActionMapper';
-import { PlayerObject } from '../common/playerObject';
+} from './common/packets/ServerToClientPackets';
+import { ServerToClientActionMap } from './common/playerActionMapper';
+import { PlayerObject } from './common/playerObject';
 import { Entity, World } from './ecs/world';
 import { createAttributeSystem } from './libs/attributeSystem';
 import { Vector3 } from './libs/babylon/exports';
@@ -195,8 +195,12 @@ EventBus.on('AddNpcsToScope', packet => {
       worldIndex,
       npcType: npc.TypeNumber,
       transform: {
-        pos: new Vector3(npc.CurrentPositionX, npc.CurrentPositionY, 1.7),
-        rot: new Vector3(0, 0, convertDirectionToAngle(npc.Rotation)),
+        pos: new Vector3(
+          npc.CurrentPositionX,
+          world.getTerrainHeight(npc.CurrentPositionX, npc.CurrentPositionY),
+          npc.CurrentPositionY
+        ),
+        rot: new Vector3(0, convertDirectionToAngle(npc.Rotation), 0),
         scale: modelFactory.OverrideScale >= 0 ? modelFactory.OverrideScale : 1,
       },
       modelFactory,
@@ -227,6 +231,7 @@ EventBus.on('AddNpcsToScope', packet => {
         y: 0,
       },
       objectNameInWorld: MonstersDatabase.get(npc.TypeNumber)?.Name || 'NPC',
+      interactable: true,
     });
 
     npcEntity.attributeSystem.setValue('isFemale', 0);
@@ -251,8 +256,13 @@ EventBus.on('AddCharactersToScope', packet => {
     world.addComponent(playerEntity, 'netId', maskedId);
     world.addComponent(playerEntity, 'worldIndex', worldIndex);
     playerEntity.transform.pos.x = char.CurrentPositionX;
-    playerEntity.transform.pos.y = char.CurrentPositionY;
-    playerEntity.transform.rot.z = convertDirectionToAngle(char.Rotation);
+    playerEntity.transform.pos.z = char.CurrentPositionY;
+    playerEntity.transform.pos.y = world.getTerrainHeight(
+      char.CurrentPositionX,
+      char.CurrentPositionY
+    );
+
+    playerEntity.transform.rot.y = convertDirectionToAngle(char.Rotation);
 
     playerEntity.objectNameInWorld = char.Name;
 
@@ -321,9 +331,10 @@ EventBus.on('ObjectWalked', packet => {
     obj.playerMoveTo.point.y = p.TargetY;
   } else {
     obj.transform.pos.x = p.TargetX;
-    obj.transform.pos.y = p.TargetY;
-    obj.transform.rot.z = convertDirectionToAngle(p.TargetRotation);
+    obj.transform.pos.z = p.TargetY;
   }
+
+  obj.transform.rot.y = convertDirectionToAngle(p.TargetRotation);
 
   const dirs = new Array(p.StepCount).fill(0);
   for (let i = 0; i < p.StepCount; i++) {
@@ -378,7 +389,7 @@ EventBus.on('ObjectAnimation', packet => {
     }
   }
 
-  obj.transform.rot.z = convertDirectionToAngle(p.Direction);
+  obj.transform.rot.y = convertDirectionToAngle(p.Direction);
 });
 
 EventBus.on('ObjectGotKilled', packet => {
@@ -497,8 +508,8 @@ EventBus.on('ItemsDropped', packet => {
       transform: {
         pos: new Vector3(
           item.PositionX,
-          item.PositionY,
-          world.getTerrainHeight(item.PositionX, item.PositionY) + 0.1
+          world.getTerrainHeight(item.PositionX, item.PositionY) + 0.1,
+          item.PositionY
         ),
         rot: Vector3.Zero(),
         scale: 1,

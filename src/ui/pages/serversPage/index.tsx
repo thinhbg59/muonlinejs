@@ -5,7 +5,7 @@ import {
   ConnectionInfoPacket,
   ConnectionInfoRequestPacket,
   ServerListResponsePacket,
-} from '../../../../common/packets/ConnectServerPackets';
+} from '../../../common/packets/ConnectServerPackets';
 import { useEventBus } from '../../../hooks/useEventBus';
 import { CS_HOST } from '../../../consts';
 import { ServerItem } from './ServerItem';

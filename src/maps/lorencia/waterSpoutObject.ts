@@ -1,5 +1,5 @@
-import { ModelObject } from '../../../common/modelObject';
-import { BlendState } from '../../../common/objects/enum';
+import { ModelObject } from '../../common/modelObject';
+import { BlendState } from '../../common/objects/enum';
 
 export class WaterSpoutObject extends ModelObject {
   async init() {

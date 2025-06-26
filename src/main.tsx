@@ -9,7 +9,7 @@ import { createEngine } from './libs/babylon/utils';
 import { TestScene } from './scenes/testScene';
 import { loadMapIntoScene } from './libs/mu/loadMapIntoScene';
 import { createWorld } from './ecs/createWorld';
-import { ENUM_WORLD } from '../common';
+import { ENUM_WORLD } from './common';
 
 if (APP_STAGE === 'dev' || QA_ENABLED) {
   import('@babylonjs/core/Legacy/legacy');

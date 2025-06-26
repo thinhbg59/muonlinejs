@@ -1,11 +1,11 @@
-import { ENUM_WORLD } from '../../../common';
-import type { World } from '../../ecs/world';
+import { ENUM_WORLD } from '../../common';
+import type { Entity, World } from '../../ecs/world';
 import { spawnPlayer } from '../../logic';
 import { Store } from '../../store';
 import { createLorencia } from '../../maps/lorencia';
 import { getTerrainData } from './getTerrainData';
 import { Color3, Vector3 } from '../babylon/exports';
-import { toRadians } from '../../../common/utils';
+import { toRadians } from '../../common/utils';
 import {
   MODEL_BRIDGE,
   MODEL_WATERSPOUT,
@@ -19,9 +19,14 @@ import {
   MODEL_HOUSE_WALL01,
   MODEL_HOUSE_WALL02,
   MODEL_HOUSE_WALL03,
-} from '../../../common/objects/enum';
-import { MapTileObject } from '../../../common/mapTileObject';
+  MonsterActionType,
+} from '../../common/objects/enum';
+import { MapTileObject } from '../../common/mapTileObject';
 import { IVector3Like } from '@babylonjs/core/Maths/math.like';
+import { ItemsDatabase } from '../../common/itemsDatabase';
+import { MonstersDatabase } from '../../common/monstersDatabase';
+import { createAttributeSystem } from '../attributeSystem';
+import { ElfSoldier } from '../../common/npcs/elfSoldier';
 
 async function loadWorld(world: World) {
   if (!world.terrain) return;
@@ -104,9 +109,75 @@ export async function loadMapIntoScene(world: World, map: ENUM_WORLD) {
 
     testPlayer.objectNameInWorld = 'TestPlayer';
 
-    world.addComponent(testPlayer, 'highlighted', {
-      color: new Color3(1, 0, 0),
-      layer: null,
+    const leatherArmor = ItemsDatabase.getItem(8, 5);
+    testPlayer.charAppearance.armor = {
+      num: leatherArmor.ItemSubIndex,
+      group: leatherArmor.ItemSubGroup,
+      lvl: 0,
+    };
+
+    const dragonGloves = ItemsDatabase.getItem(10, 1);
+    testPlayer.charAppearance.gloves = {
+      num: dragonGloves.ItemSubIndex,
+      group: dragonGloves.ItemSubGroup,
+      lvl: 0,
+    };
+
+    const weapon = ItemsDatabase.getItem(3, 9); // bill spear
+    // const weapon = ItemsDatabase.getItem(1, 1); // small axe
+    testPlayer.charAppearance.leftHand = {
+      num: weapon.ItemSubIndex,
+      group: weapon.ItemSubGroup,
+      lvl: 0,
+    };
+
+    //
+    // Test NPC
+    //
+
+    const modelFactory = ElfSoldier;
+
+    const npcEntity = world.add({
+      // netId: id,
+      worldIndex: testPlayer.worldIndex,
+      // npcType: npc.TypeNumber,
+      transform: {
+        pos: new Vector3(133, world.getTerrainHeight(133, 131), 131),
+        rot: new Vector3(0, 0, 0),
+        scale: modelFactory.OverrideScale >= 0 ? modelFactory.OverrideScale : 1,
+      },
+      modelFactory,
+      pathfinding: {
+        from: { x: 0, y: 0 },
+        to: { x: 0, y: 0 },
+        path: [],
+        calculated: true,
+      },
+      playerMoveTo: {
+        point: { x: 0, y: 0 },
+        handled: true as boolean,
+      },
+      movement: {
+        velocity: { x: 0, y: 0 },
+      },
+      monsterAnimation: {
+        action: MonsterActionType.Stop1,
+      },
+      attributeSystem: createAttributeSystem(),
+      visibility: {
+        lastChecked: 0,
+        state: 'hidden',
+      },
+      screenPosition: {
+        worldOffsetZ: 2.5,
+        x: 0,
+        y: 0,
+      },
+      objectNameInWorld: 'NPC',
+      interactable: true,
     });
+
+    npcEntity.attributeSystem.setValue('isFemale', 0);
+    npcEntity.attributeSystem.setValue('isFlying', 0);
   }
 }

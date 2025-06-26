@@ -1,5 +1,5 @@
-import { ModelObject } from '../../../common/modelObject';
-import { MODEL_FIRE_LIGHT01 } from '../../../common/objects/enum';
+import { ModelObject } from '../../common/modelObject';
+import { MODEL_FIRE_LIGHT01 } from '../../common/objects/enum';
 
 export class FireLightObject extends ModelObject {
   async init() {

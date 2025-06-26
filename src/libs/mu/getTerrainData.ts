@@ -8,25 +8,25 @@ import {
 } from '../babylon/exports';
 import { CreateGroundFromHeightMap } from './customGroundMesh';
 import { createTerrainMaterial } from './terrainMaterial';
-import { ENUM_WORLD } from '../../../common';
+import { ENUM_WORLD } from '../../common';
 import {
   downloadDataBytesBuffer,
   isFlagInBinaryMask,
   readOJZBufferAsJPEGBuffer,
   toRadians,
-} from '../../../common/utils';
-import { parseTerrainAttribute } from '../../../common/terrain/parseTerrainAttribute';
-import { parseTerrainHeight } from '../../../common/terrain/parseTerrainHeight';
-import { parseTerrainMapping } from '../../../common/terrain/parseTerrainMapping';
-import { parseTerrainLight } from '../../../common/terrain/parseTerrainLight';
-import { getTilesList } from '../../../common/terrain/getTilesList';
+} from '../../common/utils';
+import { parseTerrainAttribute } from '../../common/terrain/parseTerrainAttribute';
+import { parseTerrainHeight } from '../../common/terrain/parseTerrainHeight';
+import { parseTerrainMapping } from '../../common/terrain/parseTerrainMapping';
+import { parseTerrainLight } from '../../common/terrain/parseTerrainLight';
+import { getTilesList } from '../../common/terrain/getTilesList';
 import {
   SpecialHeight,
   TERRAIN_SIZE,
   TERRAIN_SIZE_MASK,
   TWFlags,
-} from '../../../common/terrain/consts';
-import { parseTerrainObjects } from '../../../common/terrain/parseTerrainObjects';
+} from '../../common/terrain/consts';
+import { parseTerrainObjects } from '../../common/terrain/parseTerrainObjects';
 import { Store } from '../../store';
 import { World } from '../../ecs/world';
 
