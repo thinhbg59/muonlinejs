@@ -1,103 +1,122 @@
-import { type Scene, ShaderMaterial, type Texture } from "../babylon/exports";
+import { type Scene, ShaderMaterial, type Texture } from '../babylon/exports';
 
 const FINAL_COLOR_VAR_NAME = `finalColor`;
 
-export function createTerrainMaterial(scene: Scene, { name, }: { name: string; }, config: {
-  texturesData: { texture: Texture; scale: number; }[];
-  atlas: Texture;
-  alphaMap: Texture;
-}) {
-  const finalColorStr = config.texturesData.map((_, i) => {
-    const textureData = config.texturesData[i];
-    const isWater = i === 5;// || (Texture == 11 && (gMapManager.IsPKField() || IsDoppelGanger2()) //TODO
-    return `
-    if (m1 >= ${i}.0 && m1 < ${i}.1) {
-      ${FINAL_COLOR_VAR_NAME} += texture2D(textures[${i}], vUV * ${textureData.scale.toFixed(1)}${isWater ? ` + vec2(WaterMove,GrassWind)` : ''}).rgb;
+export function createTerrainMaterial(
+  scene: Scene,
+  { name }: { name: string },
+  config: {
+    texturesData: { texture: Texture; scale: number }[];
+    atlas: Texture;
+    alphaMap: Texture;
+  }
+) {
+  const finalColorStr = config.texturesData
+    .map((_, i) => {
+      const textureData = config.texturesData[i];
+      const isWater = i === 5; // || (Texture == 11 && (gMapManager.IsPKField() || IsDoppelGanger2()) //TODO
+      return `
+  if (m1 >= ${i}.0 && m1 < ${i}.1) {
+      opaqueColor = texture2D(textures[${i}], vUV * ${textureData.scale.toFixed(
+        1
+      )}${isWater ? ` + vec2(WaterMove,GrassWind)` : ''}).rgb;
   }
   if (m2 >= ${i}.0 && m2 < ${i}.1) {
-      ${FINAL_COLOR_VAR_NAME} += texture2D(textures[${i}], vUV * ${textureData.scale.toFixed(1)}${isWater ? ` + vec2(WaterMove,GrassWind)` : ''}).rgb * a;
+      alphaColor = texture2D(textures[${i}], vUV * ${textureData.scale.toFixed(
+        1
+      )}${isWater ? ` + vec2(WaterMove,GrassWind)` : ''}).rgb;
+      alphaRendered = true;
   }
   `;
-  }).join('');
+    })
+    .join('');
 
-  const terrainMaterial = new ShaderMaterial('SplatTerrainMaterial' + name, scene,
+  const terrainMaterial = new ShaderMaterial(
+    'SplatTerrainMaterial' + name,
+    scene,
     {
       vertexSource: `
   precision highp float;
   attribute vec3 position;
   attribute vec2 uv;
   attribute vec2 uv2;
+  attribute vec4 color;
+  attribute vec4 matricesWeights;
   uniform mat4 viewProjection;
   uniform mat4 view;
   uniform mat4 world;
   varying vec2 vUV;
-  varying float vXf;
-  varying float vYf;
+  varying float vOpaqueTexture;
+  varying float vAlphaTexture;
+  varying vec4 vColor;
+  varying vec4 vAlphaColor;
 
   void main() {
       vec4 p = vec4(position, 1.);
       vec4 worldPosition = world * p;
       vUV = uv;
-      vXf = uv2.x;
-      vYf = uv2.y;
+      vOpaqueTexture = uv2.x;
+      vAlphaTexture = uv2.y;
+      vColor = color;
+      vAlphaColor = matricesWeights;
       gl_Position = viewProjection * worldPosition;
   }
   `,
       fragmentSource: `
   precision highp float;
   uniform float time;
-  uniform sampler2D texturesData;
-  uniform sampler2D alphaMap;
   uniform sampler2D textures[${config.texturesData.length}];
   varying vec2 vUV;
-  varying float vXf;
-  varying float vYf;
+  varying float vOpaqueTexture;
+  varying float vAlphaTexture;
+  varying vec4 vColor;
+  varying vec4 vAlphaColor;
 
   void main() 
   {
-    vec4 mixColor = texture2D(texturesData,vUV).rgba;
-    vec4 alpha = texture2D(alphaMap,vUV).rgba;
-    float m1 = mixColor.r * 255.0;
-    float m2 = mixColor.g * 255.0;
-    float a = alpha.r;
-
-    vec3 light = alpha.gba;
+    float m1 = vOpaqueTexture;
+    float m2 = vAlphaTexture;
+    bool alphaRendered = false;
 
     float WaterMove = float(int(time*50.0) % 20000) * 0.0005;
     float WindSpeed = float(int(time*200.0) % 72000) * 0.004;
-    float GrassWind = sin(WindSpeed + vXf * 2.0) * 0.1;
+    float GrassWind = 0.0;//sin(WindSpeed + vXf * 2.0) * 0.1;
   
-    vec3 ${FINAL_COLOR_VAR_NAME} = vec3(0.0);
-    ${finalColorStr}
-    ${FINAL_COLOR_VAR_NAME} = ${FINAL_COLOR_VAR_NAME} * light;
-    ${FINAL_COLOR_VAR_NAME} = clamp(${FINAL_COLOR_VAR_NAME}, 0.0, 1.0);
-  
-    gl_FragColor = vec4(${FINAL_COLOR_VAR_NAME}, 1.0);
-  }
-  `
-    }, {
-    attributes: [
-      "position",
-      "normal",
-      "uv",
-      "uv2",
-    ],
-    uniforms: [
-      "view",
-      "world",
-      "viewProjection",
-      "time",
+    vec4 ${FINAL_COLOR_VAR_NAME} = vec4(0.0);
 
-    ],
-    samplers: [
-      "texturesData",
-      "alphaMap",
-      "textures",
-    ],
-    defines: [],
-    needAlphaBlending: false,
-    needAlphaTesting: true,
+    vec3 opaqueColor = vec3(0.0);
+    vec3 alphaColor = vec3(0.0);
+
+    ${finalColorStr}
+
+    ${FINAL_COLOR_VAR_NAME} = vec4(opaqueColor, 1.0);
+
+    if(alphaRendered){
+      ${FINAL_COLOR_VAR_NAME} *= (1.0 - vAlphaColor.r); // TODO: figure out why rgb doesnt work
+      ${FINAL_COLOR_VAR_NAME} += vec4(alphaColor, 1.0) * vAlphaColor.r;
+    }
+
+    ${FINAL_COLOR_VAR_NAME} *= vColor.rgba;
+  
+    gl_FragColor = clamp(${FINAL_COLOR_VAR_NAME}, 0.0, 1.0);
   }
+  `,
+    },
+    {
+      attributes: [
+        'position',
+        'normal',
+        'uv',
+        'uv2',
+        'color',
+        'matricesWeights',
+      ],
+      uniforms: ['view', 'world', 'viewProjection', 'time'],
+      samplers: ['textures'],
+      defines: [],
+      needAlphaBlending: false,
+      needAlphaTesting: true,
+    }
   ) as ShaderMaterial;
 
   terrainMaterial.fogEnabled = false;
@@ -112,8 +131,6 @@ export function createTerrainMaterial(scene: Scene, { name, }: { name: string; }
     const et = (Date.now() - st) / 1000;
     terrainMaterial.setFloat('time', et);
     terrainMaterial.setTextureArray('textures', textures);
-    terrainMaterial.setTexture('texturesData', config.atlas);
-    terrainMaterial.setTexture('alphaMap', config.alphaMap);
   });
 
   return terrainMaterial;

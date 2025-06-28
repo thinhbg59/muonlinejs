@@ -48,6 +48,7 @@ export function spawnPlayer(
       pos: new Vector3(),
       rot: Vector3.Zero(),
       scale: 1,
+      posOffset: new Vector3(0.5, 0, 0.5),
     },
     modelFactory: PlayerObject,
     pathfinding: {

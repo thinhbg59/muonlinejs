@@ -29,7 +29,7 @@ export const PathfindingSystem: ISystemFactory = world => {
             const isWalkable = world.isWalkable(x, y);
 
             if (!isWalkable) {
-              ids.push(x * TERRAIN_SIZE + (256- y));
+              ids.push(x * TERRAIN_SIZE + y);
             }
           }
         }
@@ -59,12 +59,10 @@ export const PathfindingSystem: ISystemFactory = world => {
 function createDebugCells(world: World) {
   const box = CreateBox(
     '__pathfinding__',
-    { width: 0.95, height: 0.95, depth: 0.1 },
+    { width: 0.95, height: 0.15, depth: 0.95 },
     world.scene
   );
-  box.setParent(world.mapParent);
-  box.position.set(0, 0, 170);
-  box.scaling.setAll(world.terrainScale);
+  box.position.set(0.5, 1.6, 0.5);
   const boxMaterial = new StandardMaterial('__pathfinding__mat', world.scene);
   boxMaterial.alpha = 0.75;
   boxMaterial.disableLighting = true;
@@ -76,7 +74,7 @@ function createDebugCells(world: World) {
       const node = world.pathfinder.getNode(x, y);
 
       if (node && node.weight < 1) {
-        box.thinInstanceAdd(Matrix.Translation(x, y, 0), false);
+        box.thinInstanceAdd(Matrix.Translation(x, 0, y), false);
       }
     }
   }

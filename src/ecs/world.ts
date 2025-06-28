@@ -1,10 +1,9 @@
 import { type Bucket, World as ECSWorld } from 'miniplex';
-import type { IVector2Like, IVector3Like } from '../libs/babylon/exports';
+import type { IVector2Like, IVector3Like, Mesh } from '../libs/babylon/exports';
 import type { ModelObject } from '../common/modelObject';
 import type { MonsterActionType, PlayerAction } from '../common/objects/enum';
 import type { MUAttributeSystem } from '../libs/attributeSystem';
 import { TransformNode } from '../libs/babylon/exports';
-import { CustomGroundMesh } from '../libs/mu/customGroundMesh';
 import { createPathfinding } from '../libs/pathfinding';
 import type { CharacterClassNumber, ENUM_WORLD } from '../common';
 import { AssetsManager, Color3, Viewport } from '../libs/babylon/exports';
@@ -35,6 +34,7 @@ export type Entity = Partial<{
     pos: IVector3Like;
     rot: IVector3Like;
     scale: number;
+    posOffset?: IVector3Like;
   };
   modelObject: ModelObject;
   modelFactory: typeof ModelObject;
@@ -115,7 +115,7 @@ export class World extends ECSWorld<Entity> {
   }
 
   terrain: {
-    mesh: CustomGroundMesh;
+    mesh: Mesh;
     index: ENUM_WORLD;
     MapTileObjects: (typeof ModelObject)[];
   } | null = null;

@@ -94,6 +94,7 @@ export class TestScene extends Scene {
             ev.pickInfo.pickedMesh?.metadata?.terrain &&
             diff < CLICK_TO_MOVE_MAX_TIME_DELTA
           ) {
+            console.log('groundPointClicked', point.toString()); 
             EventBus.emit('groundPointClicked', { point });
           }
         }

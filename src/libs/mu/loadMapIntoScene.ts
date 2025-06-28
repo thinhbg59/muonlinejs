@@ -39,9 +39,6 @@ function createObjects(
       data.pos.y / world.terrainScale
     );
 
-    pos.x -= 0.5;
-    pos.z -= 0.5;
-
     world.add({
       worldIndex: world.terrain!.index,
       transform: {
@@ -130,6 +127,7 @@ export async function loadMapIntoScene(world: World, map: ENUM_WORLD) {
         pos: new Vector3(133, world.getTerrainHeight(133, 131), 131),
         rot: new Vector3(0, 0, 0),
         scale: modelFactory.OverrideScale >= 0 ? modelFactory.OverrideScale : 1,
+        posOffset: new Vector3(0.5, 0, 0.5),
       },
       modelFactory,
       pathfinding: {

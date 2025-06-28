@@ -1,16 +1,16 @@
-import { ArrayCopy } from "../utils";
-import { TERRAIN_SIZE } from "./consts";
-import { decryptMapFile } from "./mapFileEncryption";
+import { ArrayCopy } from '../utils';
+import { TERRAIN_SIZE } from './consts';
+import { decryptMapFile } from './mapFileEncryption';
 
 function createArrays() {
   const layer1 = new Uint8Array(TERRAIN_SIZE * TERRAIN_SIZE);
   const layer2 = new Uint8Array(TERRAIN_SIZE * TERRAIN_SIZE);
-  const alpha = new Float32Array(TERRAIN_SIZE * TERRAIN_SIZE);
+  const alpha = new Uint8Array(TERRAIN_SIZE * TERRAIN_SIZE);
 
   for (let i = 0; i < TERRAIN_SIZE * TERRAIN_SIZE; ++i) {
     layer1[i] = 0;
     layer2[i] = 255;
-    alpha[i] = 0.0;
+    alpha[i] = 0;
     // TerrainGrassTexture[i] = (rand() % 4) / 4.0;
     // #ifdef ASG_ADD_MAP_KARUTAN;
     // g_fTerrainGrassWind1[i] = 0;
@@ -33,16 +33,28 @@ export async function parseTerrainMapping(encodedData: Uint8Array) {
   const iMapNumber = decodedData[DataPtr];
   DataPtr += 1;
 
-  ArrayCopy(decodedData, DataPtr, result.layer1, 0, TERRAIN_SIZE * TERRAIN_SIZE);
+  ArrayCopy(
+    decodedData,
+    DataPtr,
+    result.layer1,
+    0,
+    TERRAIN_SIZE * TERRAIN_SIZE
+  );
   DataPtr += TERRAIN_SIZE * TERRAIN_SIZE;
 
-  ArrayCopy(decodedData, DataPtr, result.layer2, 0, TERRAIN_SIZE * TERRAIN_SIZE);
+  ArrayCopy(
+    decodedData,
+    DataPtr,
+    result.layer2,
+    0,
+    TERRAIN_SIZE * TERRAIN_SIZE
+  );
   DataPtr += TERRAIN_SIZE * TERRAIN_SIZE;
 
   for (let i = 0; i < TERRAIN_SIZE * TERRAIN_SIZE; i++) {
     const alpha: Byte = decodedData[DataPtr];
     DataPtr += 1;
-    result.alpha[i] = alpha / 255.0;
+    result.alpha[i] = alpha;
   }
 
   // TerrainGrassEnable = true;

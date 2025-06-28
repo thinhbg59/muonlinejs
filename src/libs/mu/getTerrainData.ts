@@ -13,7 +13,6 @@ import {
   downloadDataBytesBuffer,
   isFlagInBinaryMask,
   readOJZBufferAsJPEGBuffer,
-  toRadians,
 } from '../../common/utils';
 import { parseTerrainAttribute } from '../../common/terrain/parseTerrainAttribute';
 import { parseTerrainHeight } from '../../common/terrain/parseTerrainHeight';
@@ -143,30 +142,20 @@ export async function getTerrainData(world: World, map: ENUM_WORLD) {
     })
   );
 
-  // const lightTexture = lightTextureData.Texture.clone();
-  // const lightData = terrainLight.Lights;
-  // console.log({ terrainAttrs, terrainMapping, terrainHeight });
-
-  // const texturesBuffer = await downloadBuffer(`World1_new/EncTerrain.map`);
-  // const groundMap = MapUtils.parseGround([...texturesBuffer.values()]);
-
   const objsBuffer = await downloadDataBytesBuffer(
     `World${worldNum}/EncTerrain${worldNum}.obj`
   );
   const objects = parseTerrainObjects(objsBuffer);
 
-  // await CMapManager_Load(map);
-
-  // console.log({  objects:objects.map(o=>{
-  //   o.Name = ENUM_OBJECTS[o.id];
-  //   return o;
-  // }) });
-
   const terrain = CreateGroundFromHeightMap(
     '_world_' + worldNum,
+    scene,
     terrainHeight,
-    { width: TERRAIN_SIZE, height: TERRAIN_SIZE, subdivisions: TERRAIN_SIZE },
-    scene
+    terrainMapping.layer1,
+    terrainMapping.layer2,
+    terrainMapping.alpha,
+    terrainLight,
+    Vector3.One().setAll(0.25)
   );
   terrain.isPickable = true;
 
@@ -179,12 +168,11 @@ export async function getTerrainData(world: World, map: ENUM_WORLD) {
 
     const size = t.getSize().height;
     let scale = size;
-    if (scale === TERRAIN_SIZE) {
+    if (scale === 256) {
       scale /= 4;
     }
     return { texture: t, scale };
   });
-  // tm.diffuseTexture = texturesData[0].texture;
 
   terrain.material = createTerrainMaterial(
     scene,
@@ -201,11 +189,6 @@ export async function getTerrainData(world: World, map: ENUM_WORLD) {
       }),
     }
   );
-
-  // terrain.position.setAll(0);
-
-  terrain.position.x = -4.5;
-  terrain.position.z = -0.5;
 
   if (Store.showTerrainAttributes) {
     const plane = CreatePlane('_terrainPlane', { size: 256 }, scene);
@@ -247,19 +230,15 @@ export async function getTerrainData(world: World, map: ENUM_WORLD) {
   }
 
   function RequestTerrainFlag(xf: number, yf: number) {
-    // xf += 4;
-
     if (xf < 0 || yf < 0) return 0;
 
     const xi = ~~xf;
     const yi = ~~yf;
 
-    return terrainAttrs[GetTerrainIndex(xi, 256 - yi)];
+    return terrainAttrs[GetTerrainIndex(xi, yi)];
   }
 
   function RequestTerrainHeight(xf: number, yf: number) {
-    xf += 4;
-
     if (xf < 0 || yf < 0) return 0;
 
     // xf /= TERRAIN_SCALE;

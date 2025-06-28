@@ -24,6 +24,8 @@ export class PlayerObject extends ModelObject {
   readonly Weapon2: ModelObject;
   readonly Wings: ModelObject;
 
+  IsInteractable = false;
+
   constructor(scene: Scene, parent: TransformNode) {
     super(scene, parent);
 
@@ -241,9 +243,9 @@ export class PlayerObject extends ModelObject {
     const gltf = await loadGLTF(dir + modelPath, Store.world!);
     part.load(gltf);
 
-    gltf.mesh.isPickable = true;
+    gltf.mesh.isPickable = this.IsInteractable;
     part.getMeshes().forEach(mesh => {
-      mesh.isPickable = true;
+      mesh.isPickable = this.IsInteractable;
     });
   }
 

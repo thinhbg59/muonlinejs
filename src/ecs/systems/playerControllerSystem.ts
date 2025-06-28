@@ -19,8 +19,8 @@ export const PlayerControllerSystem: ISystemFactory = world => {
     const playerEntity = world.playerEntity;
     if (!playerEntity) return;
 
-    const x = Math.round(point.x);
-    const z = Math.round(point.z);
+    const x = ~~point.x;
+    const z = ~~point.z;
 
     // TODO replace with world.isWalkable after fixing it
     const node = world.pathfinder.getNode(x, z);
@@ -29,8 +29,8 @@ export const PlayerControllerSystem: ISystemFactory = world => {
 
     // console.log(JSON.stringify(point), x, y);
 
-    playerEntity.playerMoveTo.point.x = x;
-    playerEntity.playerMoveTo.point.y = z;
+    playerEntity.playerMoveTo.point.x = point.x;
+    playerEntity.playerMoveTo.point.y = point.z;
     playerEntity.playerMoveTo.handled = false;
     playerEntity.playerMoveTo.sendToServer = true;
   });
@@ -52,12 +52,12 @@ export const PlayerControllerSystem: ISystemFactory = world => {
         pathfinding.from.x = transform.pos.x;
         pathfinding.from.y = transform.pos.z;
 
-        pathfinding.to.x = playerMoveTo.point.x;
-        pathfinding.to.y = playerMoveTo.point.y;
+        pathfinding.to.x = ~~playerMoveTo.point.x;
+        pathfinding.to.y = ~~playerMoveTo.point.y;
 
         if (localPlayer) {
-          box.position.x = playerMoveTo.point.x;
-          box.position.z = playerMoveTo.point.y;
+          box.position.x = ~~playerMoveTo.point.x + 0.5;
+          box.position.z = ~~playerMoveTo.point.y + 0.5;
           box.position.y =
             world.getTerrainHeight(playerMoveTo.point.x, playerMoveTo.point.y) +
             0.02;

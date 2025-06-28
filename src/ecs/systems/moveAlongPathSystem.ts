@@ -15,10 +15,7 @@ export const MoveAlongPathSystem: ISystemFactory = world => {
         attributeSystem,
       } of query) {
         if (localPlayer) {
-          Store.playerData.setPosition(
-            Math.round(transform.pos.x),
-            Math.round(transform.pos.z)
-          );
+          Store.playerData.setPosition(~~transform.pos.x, ~~transform.pos.z);
         }
 
         const speed = attributeSystem?.getValue('totalMovementSpeed') ?? 4;
