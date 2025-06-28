@@ -1,36 +1,64 @@
-# MU Online with TypeScript
+# MU Online JS (TypeScript Client)
 
-Worked with [OpenMU](https://github.com/MUnique/OpenMU) server!
+[Live Demo](https://mujs.pages.dev/offline)
 
-LIVE DEMO: https://mujs.pages.dev
+A modern TypeScript/Babylon.js client for **MU Online** that works out-of-the-box with the [OpenMU](https://github.com/MUnique/OpenMU) server.
 
-### How to run
+## Features
 
-0. You need to have [Bun](https://bun.sh) installed.
-1. Run OpenMU server.
-2. Install dependencies: `bun install`
-3. Run `bun run proxy` to start proxy.
-4. Run `bun run dev` to start demo client.
-5. Open http://localhost:5173/ in the browser.
+- Runs directly in the browser
+- Offline single-player demo
+- Multiplayer support via a WebSocket ↔ TCP proxy written in **Bun**
+- Packet encryption (SimpleModulus, Xor32, Xor3)
+- Utility scripts for converting original MU assets to modern formats
 
-You should see log messages from OpenMU in your browser's console.
+## Prerequisites
 
-### What we have
+- [Bun](https://bun.sh) ≥ v1.0
 
-#### /proxy
+## Installation
 
-The WebSocket <-> TCP proxy based on [Bun](https://bun.sh) for exchange packets between browser and MUOnline's server(only tested with OpenMU).
+```bash
+bun install
+```
 
-#### /common/packets
+## Usage
 
-Class-based packets(protocol) for communication with a server.
+### Offline demo
 
-#### /common/encryption
+```bash
+bun run dev
+```
+Then open <http://localhost:5173/offline> in your browser.
 
-SimpleModulus, Xor32, Xor3 algorithms based on **OpenMU** implementation.
+### Multiplayer demo (requires OpenMU server)
 
-Read more: https://github.com/MUnique/OpenMU/tree/2532fab17a350faa275c0974c3d8a7b960c80914/src/Network#encryption
+1. Follow the [OpenMU Quick Start](https://github.com/MUnique/OpenMU/blob/master/QuickStart.md) guide to run the server.
+2. Start the WebSocket ↔ TCP proxy:
 
-### Need your help!
+   ```bash
+   bun run proxy
+   ```
+3. Open <http://localhost:5173/> in your browser.
 
-If you find any bug or error please report it via [Issues](https://github.com/afrokick/muonlinejs/issues)!
+You should see log messages from OpenMU in the browser console.
+
+## Project layout
+
+```
+/proxy            WebSocket ↔ TCP proxy (Bun)
+/tools            Asset-conversion scripts (BMD → GLB, OZJ → JPEG, OZT → TGA, …)
+/src              Game logic, packet definitions and encryption utilities
+```
+
+## Need help?
+
+If you encounter a bug or have an idea for improvement, please open an [issue](https://github.com/afrokick/muonlinejs/issues) or submit a pull request.
+
+## License
+
+Distributed under the MIT License.
+
+## Acknowledgements
+
+- [OpenMU](https://github.com/MUnique/OpenMU) — the open-source server this client was built for

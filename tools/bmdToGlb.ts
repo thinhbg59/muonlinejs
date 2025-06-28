@@ -49,23 +49,22 @@ const PROJECT_ROOT = __dirname + `/../`;
 const DATA_FOLDER = PROJECT_ROOT + `Data/`;
 const OUTPUT_FOLDER = PROJECT_ROOT + `public/game-assets/`;
 
+const SCALE_MULTIPLIER = 0.01;
+
 const glob = new Glob(
   `**/*{${BMD_EXT.toUpperCase()},${BMD_EXT.toLowerCase()}}`
 );
 
-// === Конвертация системы координат BMD → glTF ===
 const convertVec3 = (v: { x: number; y: number; z: number }) => v;
 //  ({
-//   x: -v.y, //  -Y  →  +X (но так как в glTF «право» = -X, разворачиваем знак)
+//   x: -v.y, //  -Y  →  +X
 //   y: v.z, //  +Z  →  +Y
 //   z: v.x, //  +X  →  +Z
 // });
 
-// Простейшие операции с кватернионами — без сторонних зависимостей
-
 type Quaternion = { x: number; y: number; z: number; w: number };
 
-// Умножение кватернионов (a * b)
+// Quaternion multiplication (a * b)
 function quatMultiply(a: Quaternion, b: Quaternion): Quaternion {
   return {
     w: a.w * b.w - a.x * b.x - a.y * b.y - a.z * b.z,
@@ -76,11 +75,10 @@ function quatMultiply(a: Quaternion, b: Quaternion): Quaternion {
 }
 
 function quatInvert(q: Quaternion): Quaternion {
-  // Для единичного кватерниона инверсия = сопряжение
+  // For a unit quaternion, inversion = conjugation
   return { x: -q.x, y: -q.y, z: -q.z, w: q.w };
 }
 
-// Кватернион, поворачивающий базис BMD в базис glTF
 const TRANSFORM_Q: Quaternion = { x: 0.5, y: -0.5, z: 0.5, w: -0.5 };
 const TRANSFORM_Q_INV: Quaternion = quatInvert(TRANSFORM_Q);
 
@@ -92,7 +90,6 @@ function convertQuaternion(q: Quaternion): Quaternion {
 }
 
 async function convertBMDToGLTF(bmd: BMD, outputFilename: string) {
-  const SCALE_MULTIPLIER = 0.01;
   const fileName = outputFilename.split('/').at(-1)!.split('.')[0];
 
   const doc = new Document();
@@ -133,7 +130,7 @@ async function convertBMDToGLTF(bmd: BMD, outputFilename: string) {
     boneIndex++;
   }
 
-  // === КОНВЕРТАЦИЯ АНИМАЦИЙ ===
+  // === Animations conversion ===
   const DEFAULT_FPS = 24;
   for (let actionIndex = 0; actionIndex < bmd.Actions.length; actionIndex++) {
     const action = bmd.Actions[actionIndex];
@@ -142,7 +139,6 @@ async function convertBMDToGLTF(bmd: BMD, outputFilename: string) {
 
     const animation = doc.createAnimation(`action_${actionIndex}`);
 
-    // Общий accessor времени для всех костей
     const times: number[] = [];
     const dt =
       1 /
@@ -160,7 +156,6 @@ async function convertBMDToGLTF(bmd: BMD, outputFilename: string) {
 
     const lockPositions = action.LockPositions;
 
-    // Проходим по всем костям и создаём каналы
     for (let boneIndex = 0; boneIndex < bmd.Bones.length; boneIndex++) {
       const bone = bmd.Bones[boneIndex];
       if (bone === BMDTextureBone.Dummy) continue;
@@ -242,7 +237,6 @@ async function convertBMDToGLTF(bmd: BMD, outputFilename: string) {
     }
   }
 
-  // Обрабатываем каждый меш
   let meshIndex = 0;
   for (const bmdMesh of bmd.Meshes) {
     const node = doc.createNode(`node_${meshIndex}`);
@@ -251,11 +245,11 @@ async function convertBMDToGLTF(bmd: BMD, outputFilename: string) {
 
     node.setSkin(skin);
 
-    const positionArray: number[] = []; //vec3
-    const indicesArray: number[] = []; //float
-    const texcoordArray: number[] = []; //vec2
-    const normalsArray: number[] = []; //vec3
-    const colorsArray: number[] = []; //vec4
+    const positionArray: number[] = [];
+    const indicesArray: number[] = [];
+    const texcoordArray: number[] = [];
+    const normalsArray: number[] = [];
+    const colorsArray: number[] = [];
     const boneIndexArray: number[] = [];
     const weightsArray: number[] = [];
 
@@ -367,7 +361,6 @@ async function convertBMDToGLTF(bmd: BMD, outputFilename: string) {
       console.error(`Error converting ${texPath} to webp:`, e);
     }
 
-    // material
     const material = doc
       .createMaterial()
       .setRoughnessFactor(1)
@@ -379,7 +372,6 @@ async function convertBMDToGLTF(bmd: BMD, outputFilename: string) {
       material.setBaseColorTexture(texture);
     }
 
-    // primitive and mesh
     const prim = doc
       .createPrimitive()
       .setMaterial(material)
@@ -395,7 +387,7 @@ async function convertBMDToGLTF(bmd: BMD, outputFilename: string) {
   }
 
   const io = new NodeIO();
-  io.registerExtensions([EXTTextureWebP]);
+  io.registerExtensions([EXTTextureWebP as any]);
   await Bun.write(outputFilename, '', { createPath: true });
   await io.write(outputFilename, doc);
 }
@@ -419,12 +411,10 @@ for (const relInputFilePath of glob.scanSync(DATA_FOLDER)) {
 
     await convertBMDToGLTF(bmd, outputFileName);
   } catch (e) {
-    console.error(`Ошибка при конвертации ${absInputFilePath}:`, e);
+    console.error(`Error converting ${absInputFilePath}:`, e);
     // console.log(bmd);
     continue;
   }
-
-  // console.log(`GLTF файл сохранен как: ${outputFilename}`);
 
   counter++;
 }
@@ -443,5 +433,5 @@ console.log(`Processed ${counter} files!`);
 
 //   await convertBMDToGLTF(bmd, outputFilename);
 // } catch (e) {
-//   console.error(`Ошибка при конвертации ${absFilePath}:`, e);
+//   console.error(`Error converting ${absFilePath}:`, e);
 // }

@@ -7,10 +7,8 @@
     "build": "APP_ENV=prod vite build",
     "preview": "vite preview",
     "proxy": "bun run --watch proxy/main.ts",
-    "generate": "bun run common/packets/generate.ts",
-    "tsc": "tsc --noEmit",
-    "utils:ozjToJpeg": "bun run tools/ozjToJpeg.ts",
-    "utils:oztToTga": "bun run tools/oztToTga.ts"
+    "generate": "bun run src/common/packets/generate.ts",
+    "tsc": "tsc --noEmit"
   },
   "devDependencies": {
     "@gltf-transform/core": "^4.2.0",
@@ -25,7 +23,7 @@
     "sharp": "^0.34.2",
     "typescript": "^5.5.4",
     "vite": "^5.3.5",
-    "vite-plugin-gltf": "4"
+    "pngjs": "^7.0.0"
   },
   "dependencies": {
     "@babylonjs/core": "^7.17.2",
@@ -36,7 +34,6 @@
     "mobx": "^6.13.1",
     "mobx-react-lite": "^4.0.7",
     "nanoid": "^5.0.7",
-    "pngjs": "^7.0.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
   },

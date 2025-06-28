@@ -5,10 +5,6 @@ import { ArrayCopy } from '../utils';
 
 const log = (...args: any[]) => console.log(`[BMD]`, ...args);
 
-type Float = number;
-type Int = number;
-type Short = number;
-
 const SIZE_OF_Normal_t = 20;
 // [StructLayout(LayoutKind.Sequential, Pack = 4)]
 class BMDTextureNormal {

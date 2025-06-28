@@ -11,6 +11,7 @@ type Float = number;
 type Int = number;
 type UInt = number;
 type UShort = number;
+type Short = number;
 
 type Disposer = () => void;
 type ExtractPromise<T> = T extends PromiseLike<infer U> ? U : T;
