@@ -132,6 +132,7 @@ async function convertBMDToGLTF(bmd: BMD, outputFilename: string) {
 
   // === Animations conversion ===
   const DEFAULT_FPS = 24;
+
   for (let actionIndex = 0; actionIndex < bmd.Actions.length; actionIndex++) {
     const action = bmd.Actions[actionIndex];
 
@@ -145,9 +146,17 @@ async function convertBMDToGLTF(bmd: BMD, outputFilename: string) {
       (action.PlaySpeed && action.PlaySpeed > 0
         ? action.PlaySpeed * DEFAULT_FPS
         : DEFAULT_FPS);
+
     for (let k = 0; k < action.NumAnimationKeys; k++) {
       times.push(k * dt);
     }
+
+    const isLongAnimation = action.NumAnimationKeys > 1;
+
+    if (isLongAnimation) {
+      times.push(action.NumAnimationKeys * dt);
+    }
+
     const inputAccessor = doc
       .createAccessor(`anim_${actionIndex}_input`)
       .setType('SCALAR')
@@ -183,6 +192,11 @@ async function convertBMDToGLTF(bmd: BMD, outputFilename: string) {
             posArray[i + 1] = posArray[1];
           }
         }
+
+        if (isLongAnimation) {
+          posArray.push(posArray[0], posArray[1], posArray[2]);
+        }
+
         const posAccessor = doc
           .createAccessor(`anim_${actionIndex}_bone_${boneIndex}_T`)
           .setType('VEC3')
@@ -214,6 +228,11 @@ async function convertBMDToGLTF(bmd: BMD, outputFilename: string) {
           const cq = convertQuaternion(q);
           rotArray.push(cq.x, cq.y, cq.z, cq.w);
         });
+
+        if (isLongAnimation) {
+          rotArray.push(rotArray[0], rotArray[1], rotArray[2], rotArray[3]);
+        }
+
         const rotAccessor = doc
           .createAccessor(`anim_${actionIndex}_bone_${boneIndex}_R`)
           .setType('VEC4')

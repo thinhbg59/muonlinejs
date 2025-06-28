@@ -65,12 +65,6 @@ export async function loadGLTF(filePath: string, world: World) {
       task.run(
         world.scene,
         () => {
-          // const meshes = task.loadedMeshes;
-          // for (let i = 1; i < meshes.length; i++) {
-          //   this.prepareMesh(meshes[i]);
-          // }
-          // console.log(task);
-          // task.loadedMeshes[0].dispose();
           task.loadedMeshes[0].name = fileName;
 
           task.loadedMeshes.forEach(mesh => {
@@ -86,6 +80,10 @@ export async function loadGLTF(filePath: string, world: World) {
                 m._albedoTexture.anisotropicFilteringLevel = 1;
                 m._albedoTexture.updateSamplingMode(Texture.NEAREST_NEAREST);
               }
+            }
+
+            if (mesh.skeleton) {
+              mesh.numBoneInfluencers = 1;
             }
           });
 
