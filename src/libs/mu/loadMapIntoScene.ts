@@ -1,30 +1,15 @@
 import { ENUM_WORLD } from '../../common';
-import type { Entity, World } from '../../ecs/world';
+import type { World } from '../../ecs/world';
 import { spawnPlayer } from '../../logic';
 import { Store } from '../../store';
 import { createLorencia } from '../../maps/lorencia';
 import { getTerrainData } from './getTerrainData';
-import { Color3, Vector3 } from '../babylon/exports';
+import { Vector3 } from '../babylon/exports';
 import { toRadians } from '../../common/utils';
-import {
-  MODEL_BRIDGE,
-  MODEL_WATERSPOUT,
-  MODEL_WELL01,
-  MODEL_WELL02,
-  MODEL_STAIR,
-  MODEL_HANGING,
-  MODEL_WELL03,
-  MODEL_WELL04,
-  MODEL_HOUSE01,
-  MODEL_HOUSE_WALL01,
-  MODEL_HOUSE_WALL02,
-  MODEL_HOUSE_WALL03,
-  MonsterActionType,
-} from '../../common/objects/enum';
+import { MonsterActionType } from '../../common/objects/enum';
 import { MapTileObject } from '../../common/mapTileObject';
-import { IVector3Like } from '@babylonjs/core/Maths/math.like';
+import { IVector3Like } from '../babylon/exports';
 import { ItemsDatabase } from '../../common/itemsDatabase';
-import { MonstersDatabase } from '../../common/monstersDatabase';
 import { createAttributeSystem } from '../attributeSystem';
 import { ElfSoldier } from '../../common/npcs/elfSoldier';
 

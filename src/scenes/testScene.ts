@@ -1,4 +1,4 @@
-import { UniversalCamera } from '@babylonjs/core/Cameras/universalCamera';
+import { UniversalCamera, HighlightLayer } from '../libs/babylon/exports';
 import {
   Color3,
   Color4,
@@ -11,7 +11,6 @@ import {
 } from '../libs/babylon/exports';
 import { addInspectorForScene } from '../libs/babylon/utils';
 import { EventBus } from '../libs/eventBus';
-import { HighlightLayer } from '@babylonjs/core/Layers/highlightLayer';
 
 const CLICK_TO_MOVE_MAX_TIME_DELTA = 150;
 

@@ -3,7 +3,7 @@ import {
   Vector3,
   type Scene,
   type TransformNode,
-} from '@babylonjs/core';
+} from '../libs/babylon/exports';
 import { ModelObject } from './modelObject';
 import { PlayerClass } from './types';
 import { Entity, World } from '../ecs/world';

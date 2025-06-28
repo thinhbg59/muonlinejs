@@ -1,8 +1,8 @@
-import { Vector3 } from "@babylonjs/core/Maths/math.vector";
+import { Vector3 } from "../../libs/babylon/exports";
 import { TERRAIN_SIZE } from "./consts";
 import { createTerrainNormal } from "./createTerrainNormal";
 import { TERRAIN_INDEX } from "./utils";
-import { Scalar } from "@babylonjs/core/Maths/math.scalar";
+import { Scalar } from "../../libs/babylon/exports";
 
 function createTerrainLight(normals: Vector3[], lightMap: Vector3[]) {
   const Light = Vector3.Zero();

@@ -1,7 +1,4 @@
-import type {
-  IVector2Like,
-  IVector3Like,
-} from '@babylonjs/core/Maths/math.like';
+import type { IVector2Like, IVector3Like } from '../babylon/exports';
 import type {
   ConnectServerPackets,
   ServerToClientPackets,

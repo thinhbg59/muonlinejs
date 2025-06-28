@@ -1,4 +1,4 @@
-import type { IVector3Like } from '@babylonjs/core/Maths/math.like';
+import type { IVector3Like } from '../babylon/exports';
 import type { With } from 'miniplex';
 import { Vector3 } from '../babylon/exports';
 import { Entity } from '../../ecs/world';

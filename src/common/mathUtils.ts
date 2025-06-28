@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from '@babylonjs/core/Maths/math.vector';
+import { Quaternion, Vector3 } from '../libs/babylon/exports';
 
 export class MathUtils {
   static AngleQuaternion(angles: Vector3): Quaternion {

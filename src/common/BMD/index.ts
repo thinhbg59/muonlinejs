@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from '@babylonjs/core/Maths/math.vector';
+import { Quaternion, Vector3 } from '../../libs/babylon/exports';
 import { MathUtils } from '../mathUtils';
 import { decryptMapFile } from '../terrain/mapFileEncryption';
 import { ArrayCopy } from '../utils';

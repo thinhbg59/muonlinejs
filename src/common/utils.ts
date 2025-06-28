@@ -1,5 +1,4 @@
-import { type Scene } from '@babylonjs/core';
-import { Texture } from '@babylonjs/core/Materials/Textures/texture';
+import { type Scene, Texture } from '../libs/babylon/exports';
 import { resolveUrlToDataFolder } from './resolveUrlToDataFolder';
 
 // like 'C1 04 00 01'

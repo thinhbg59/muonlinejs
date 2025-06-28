@@ -1,13 +1,15 @@
-import { VertexBuffer } from '@babylonjs/core/Buffers/buffer';
-import { Texture } from '@babylonjs/core/Materials/Textures';
-import { Color3 } from '@babylonjs/core/Maths/math.color';
-import { VertexData } from '@babylonjs/core/Meshes/mesh.vertexData';
-import type { Scene } from '@babylonjs/core/scene';
+import {
+  VertexBuffer,
+  Texture,
+  Color3,
+  VertexData,
+  type Scene,
+  StandardMaterial,
+  TransformNode,
+  Mesh,
+} from '../../libs/babylon/exports';
 import { CustomMaterial } from '@babylonjs/materials/custom/customMaterial';
-import { StandardMaterial } from '@babylonjs/core/Materials/standardMaterial';
-import { TransformNode } from '@babylonjs/core/Meshes/transformNode';
 import { BMD } from '.';
-import { Mesh } from '@babylonjs/core/Meshes/mesh';
 import { getEmptyTexture } from '../../libs/babylon/emptyTexture';
 import { resolveUrlToDataFolder } from '../resolveUrlToDataFolder';
 

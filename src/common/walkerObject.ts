@@ -10,7 +10,7 @@ import {
   Scene,
   Vector3,
   Vector2,
-} from '@babylonjs/core';
+} from '../libs/babylon/exports';
 import { Queue } from './queue'; // предполагается, что есть тип Queue
 // import { Constants } from './consts';
 

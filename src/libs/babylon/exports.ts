@@ -95,3 +95,11 @@ export { RenderTargetTexture } from '@babylonjs/core/Materials/Textures/renderTa
 export { Skeleton } from '@babylonjs/core/Bones/skeleton';
 export type { IPointerEvent } from '@babylonjs/core/Events';
 export { Ray } from '@babylonjs/core/Culling/ray';
+export { BoundingBox } from '@babylonjs/core/Culling/boundingBox';
+export { Bone } from '@babylonjs/core/Bones/bone';
+export type { IVector3Like, IVector2Like } from '@babylonjs/core/Maths/math.like';
+
+export { PBRBaseSimpleMaterial } from '@babylonjs/core/Materials/PBR/pbrBaseSimpleMaterial';
+
+export { UniversalCamera } from '@babylonjs/core/Cameras/universalCamera';
+export { HighlightLayer } from '@babylonjs/core/Layers/highlightLayer';

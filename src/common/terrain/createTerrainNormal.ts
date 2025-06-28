@@ -1,4 +1,4 @@
-import { Vector3 } from "@babylonjs/core/Maths/math.vector";
+import { Vector3 } from "../../libs/babylon/exports";
 import { TERRAIN_SCALE, TERRAIN_SIZE } from "./consts";
 import { TERRAIN_INDEX, TERRAIN_INDEX_REPEAT } from "./utils";
 

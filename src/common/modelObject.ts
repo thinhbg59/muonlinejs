@@ -1,5 +1,7 @@
-import { Matrix, Quaternion, Vector3 } from '@babylonjs/core/Maths/math.vector';
 import {
+  Matrix,
+  Quaternion,
+  Vector3,
   BoundingBox,
   Mesh,
   type StandardMaterial,
@@ -9,8 +11,8 @@ import {
   Skeleton,
   AnimationGroup,
   CreateBox,
-} from '@babylonjs/core';
-import type { IVector3Like } from '@babylonjs/core/Maths/math.like';
+} from '../libs/babylon/exports';
+import type { IVector3Like } from '../libs/babylon/exports';
 // import { createMeshesForBMD } from './BMD/createMeshes';
 import type { Entity, World } from '../ecs/world';
 import { ENUM_WORLD } from './types';

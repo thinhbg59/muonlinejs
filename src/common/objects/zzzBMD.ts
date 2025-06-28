@@ -3,10 +3,10 @@ import {
   Vector3,
   Matrix as BJSMatrix,
   Matrix,
-} from '@babylonjs/core/Maths/math.vector';
+} from '../../libs/babylon/exports';
 import { downloadBytesBuffer, downloadDataBytesBuffer } from '../utils';
-import type { Scene } from '@babylonjs/core';
-import { Bone, Skeleton } from '@babylonjs/core/Bones';
+import type { Scene } from '../../libs/babylon/exports';
+import { Bone, Skeleton } from '../../libs/babylon/exports';
 import { BMDReader } from '../BMD';
 import { ModelObject } from '../modelObject';
 

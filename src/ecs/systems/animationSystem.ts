@@ -1,4 +1,4 @@
-import type { IVector2Like } from '@babylonjs/core/Maths/math.like';
+import type { IVector2Like } from '../../libs/babylon/exports';
 import { MonsterActionType, PlayerAction } from '../../common/objects/enum';
 import type { MUAttributeSystem } from '../../libs/attributeSystem';
 import type { ISystemFactory } from '../world';

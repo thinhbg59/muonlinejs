@@ -4,9 +4,8 @@ import {
   PBRBaseSimpleMaterial,
   Skeleton,
   Texture,
-  TransformNode,
   type AbstractMesh,
-} from '@babylonjs/core';
+} from '../libs/babylon/exports';
 import type { World } from '../ecs/world';
 import { BMD, BMDReader } from './BMD';
 import { downloadDataBytesBuffer } from './utils';
@@ -77,7 +76,7 @@ export async function loadGLTF(filePath: string, world: World) {
           task.loadedMeshes.forEach(mesh => {
             mesh.alwaysSelectAsActiveMesh = true;
             mesh.isPickable = false;
-            mesh.doNotSyncBoundingInfo=false;
+            mesh.doNotSyncBoundingInfo = false;
 
             if (mesh.material) {
               const m = mesh.material as PBRBaseSimpleMaterial;
