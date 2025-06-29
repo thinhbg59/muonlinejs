@@ -1,6 +1,6 @@
 # MU Online JS (TypeScript Client)
 
-[Live Demo](https://mujs.pages.dev/offline)
+[Live Demo](https://mujs.asosnovskiy.com/offline)
 
 A modern TypeScript/Babylon.js client for **MU Online** that works out-of-the-box with the [OpenMU](https://github.com/MUnique/OpenMU) server.
 
