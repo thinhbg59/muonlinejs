@@ -1036,3 +1036,11 @@ export enum BlendState {
   ALPHA_INTERPOLAE,
   ALPHA_SCREENMOE,
 }
+
+export const ItemGroups = {
+  Boots: 11,
+  Gloves: 10,
+  Pants: 9,
+  Helm: 7,
+  Armor: 8,
+} as const;

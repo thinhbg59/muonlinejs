@@ -21,6 +21,7 @@ type Item = {
   num: number;
   group: number;
   lvl: number;
+  isExcellent: boolean;
 };
 
 export type Entity = Partial<{

@@ -196,15 +196,7 @@ export class ModelObject {
   getMeshes(recursiveWithChildren = false): Mesh[] {
     if (!this.gltf) return [];
 
-    const meshes = this.gltf.mesh.getChildMeshes(true).slice();
-
-    if (recursiveWithChildren) {
-      for (const child of this.Children) {
-        meshes.push(...child.getMeshes(true));
-      }
-    }
-
-    return meshes as any;
+    return this.gltf.mesh.getChildMeshes(!recursiveWithChildren);
   }
 
   setActionSpeed(actionType: number, speed: number) {
@@ -288,7 +280,7 @@ export class ModelObject {
     this._node.dispose();
     if (this.gltf) {
       this.gltf.mesh.dispose();
-      this.gltf.skeleton.dispose();
+      this.gltf.skeleton?.dispose();
       this.gltf.animationGroups.forEach(group => {
         group.dispose();
       });

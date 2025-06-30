@@ -4,7 +4,12 @@ import type { PlayerObject } from '../../common/playerObject';
 import type { ISystemFactory } from '../world';
 
 function loadPart(
-  part: { group: number; num: number } | null,
+  part: {
+    group: number;
+    num: number;
+    lvl: number;
+    isExcellent: boolean;
+  } | null,
   playerObject: PlayerObject,
   socket: ModelObject
 ) {
@@ -13,7 +18,13 @@ function loadPart(
 
   if (!item) return;
 
-  playerObject.loadPartAsync(item.szModelFolder, socket, item.szModelName);
+  playerObject.loadPartAsync(
+    item.szModelFolder,
+    socket,
+    item.szModelName,
+    part.lvl,
+    part.isExcellent
+  );
 
   return true;
 }

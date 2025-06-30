@@ -1,6 +1,6 @@
-import { Document, Node, NodeIO } from '@gltf-transform/core';
+import { Document, Node, NodeIO, type Skin } from '@gltf-transform/core';
 import { BMD, BMDReader, BMDTextureBone } from '../src/common/BMD';
-import { Glob } from 'bun';
+import { file, Glob } from 'bun';
 import { EXTTextureWebP } from '@gltf-transform/extensions';
 import sharp from 'sharp';
 import { decodeTga } from '@lunapaint/tga-codec';
@@ -89,6 +89,8 @@ function convertQuaternion(q: Quaternion): Quaternion {
   // return res;
 }
 
+const IGNORE_FILES = ['Minimap.bmd', 'skill.bmd', 'item.bmd', 'Itemtest.bmd'];
+
 async function convertBMDToGLTF(bmd: BMD, outputFilename: string) {
   const fileName = outputFilename.split('/').at(-1)!.split('.')[0];
 
@@ -104,165 +106,208 @@ async function convertBMDToGLTF(bmd: BMD, outputFilename: string) {
   const modelRoot = doc.createNode(`model_${fileName}`);
   scene.addChild(modelRoot);
 
-  const skinNodes: Node[] = [];
+  const isSingleFrame =
+    bmd.Bones.length === 1 &&
+    bmd.Actions.length === 1 &&
+    bmd.Actions[0].NumAnimationKeys === 1;
 
-  const skinRoot = doc.createNode(`skin_${fileName}`);
-  const skin = doc.createSkin();
-  skin.setSkeleton(skinRoot);
-  skin.addJoint(skinRoot);
+  let skin: Skin | undefined;
 
-  scene.addChild(skinRoot);
+  const modelPos = { x: 0, y: 0, z: 0 };
+  const modelRot = { x: 0, y: 0, z: 0, w: 1 };
 
-  let boneIndex = 0;
-  for (const bmdBone of bmd.Bones) {
-    const node = doc.createNode(`bone_${boneIndex}_${bmdBone.Name}`);
-    skin.addJoint(node);
-
-    skinNodes.push(node);
-
-    if (bmdBone.Parent === -1) {
-      skinRoot.addChild(node);
-    } else {
-      const parentNode = skinNodes[bmdBone.Parent];
-      parentNode.addChild(node);
-    }
-
-    boneIndex++;
+  const allBonesWithoutParent = bmd.Bones.every(b => b.Parent === -1);
+  if (bmd.Bones.length > 1 && allBonesWithoutParent) {
+    // console.log(`${fileName} has multiple bones`);
   }
 
-  // === Animations conversion ===
-  const DEFAULT_FPS = 24;
+  if (!isSingleFrame) {
+    const skinNodes: Node[] = [];
 
-  for (let actionIndex = 0; actionIndex < bmd.Actions.length; actionIndex++) {
-    const action = bmd.Actions[actionIndex];
+    const skinRoot = doc.createNode(`skin_${fileName}`);
+    skin = doc.createSkin();
+    skin.setSkeleton(skinRoot);
+    skin.addJoint(skinRoot);
 
-    if (action.NumAnimationKeys === 0) continue;
+    scene.addChild(skinRoot);
 
-    const animation = doc.createAnimation(`action_${actionIndex}`);
+    let boneIndex = 0;
+    for (const bmdBone of bmd.Bones) {
+      const node = doc.createNode(`bone_${boneIndex}_${bmdBone.Name}`);
+      skin.addJoint(node);
 
-    const times: number[] = [];
-    const dt =
-      1 /
-      (action.PlaySpeed && action.PlaySpeed > 0
-        ? action.PlaySpeed * DEFAULT_FPS
-        : DEFAULT_FPS);
+      skinNodes.push(node);
 
-    for (let k = 0; k < action.NumAnimationKeys; k++) {
-      times.push(k * dt);
+      if (bmdBone.Parent === -1) {
+        skinRoot.addChild(node);
+      } else {
+        const parentNode = skinNodes[bmdBone.Parent];
+        parentNode.addChild(node);
+      }
+
+      boneIndex++;
     }
 
-    const isLongAnimation = action.NumAnimationKeys > 1;
+    // === Animations conversion ===
+    const DEFAULT_FPS = 24;
 
-    if (isLongAnimation) {
-      times.push(action.NumAnimationKeys * dt);
-    }
+    for (let actionIndex = 0; actionIndex < bmd.Actions.length; actionIndex++) {
+      const action = bmd.Actions[actionIndex];
 
-    const inputAccessor = doc
-      .createAccessor(`anim_${actionIndex}_input`)
-      .setType('SCALAR')
-      .setArray(new Float32Array(times))
-      .setBuffer(buffer);
+      if (action.NumAnimationKeys === 0) continue;
 
-    const lockPositions = action.LockPositions;
+      const animation = doc.createAnimation(
+        `${fileName}_action_${actionIndex}`
+      );
 
-    for (let boneIndex = 0; boneIndex < bmd.Bones.length; boneIndex++) {
-      const bone = bmd.Bones[boneIndex];
-      if (bone === BMDTextureBone.Dummy) continue;
+      const times: number[] = [];
+      const dt =
+        1 /
+        (action.PlaySpeed && action.PlaySpeed > 0
+          ? action.PlaySpeed * DEFAULT_FPS
+          : DEFAULT_FPS);
 
-      const boneMatrix = bone.Matrixes[actionIndex];
+      for (let k = 0; k < action.NumAnimationKeys; k++) {
+        times.push(k * dt);
+      }
 
-      // === Translation ===
-      if (
-        boneMatrix.Position &&
-        boneMatrix.Position.length === action.NumAnimationKeys
-      ) {
-        const posArray: number[] = [];
-        boneMatrix.Position.forEach(p => {
-          const cp = convertVec3(p);
-          posArray.push(
-            cp.x * SCALE_MULTIPLIER,
-            cp.y * SCALE_MULTIPLIER,
-            cp.z * SCALE_MULTIPLIER
-          );
-        });
+      const isLongAnimation = action.NumAnimationKeys > 1;
 
-        if (boneIndex === 0 && lockPositions && posArray.length > 0) {
-          for (let i = 3; i < posArray.length; i += 3) {
-            posArray[i + 0] = posArray[0];
-            posArray[i + 1] = posArray[1];
+      if (isLongAnimation) {
+        times.push(action.NumAnimationKeys * dt);
+      }
+
+      const inputAccessor = doc
+        .createAccessor(`anim_${actionIndex}_input`)
+        .setType('SCALAR')
+        .setArray(new Float32Array(times))
+        .setBuffer(buffer);
+
+      const lockPositions = action.LockPositions;
+
+      for (let boneIndex = 0; boneIndex < bmd.Bones.length; boneIndex++) {
+        const bone = bmd.Bones[boneIndex];
+        if (bone === BMDTextureBone.Dummy) continue;
+
+        const boneMatrix = bone.Matrixes[actionIndex];
+
+        // === Translation ===
+        if (
+          boneMatrix.Position &&
+          boneMatrix.Position.length === action.NumAnimationKeys
+        ) {
+          const posArray: number[] = [];
+          boneMatrix.Position.forEach(p => {
+            const cp = convertVec3(p);
+            posArray.push(
+              cp.x * SCALE_MULTIPLIER,
+              cp.y * SCALE_MULTIPLIER,
+              cp.z * SCALE_MULTIPLIER
+            );
+          });
+
+          if (boneIndex === 0 && lockPositions && posArray.length > 0) {
+            for (let i = 3; i < posArray.length; i += 3) {
+              posArray[i + 0] = posArray[0];
+              posArray[i + 1] = posArray[1];
+            }
           }
+
+          if (isLongAnimation) {
+            posArray.push(posArray[0], posArray[1], posArray[2]);
+          }
+
+          const posAccessor = doc
+            .createAccessor(`anim_${actionIndex}_bone_${boneIndex}_T`)
+            .setType('VEC3')
+            .setArray(new Float32Array(posArray))
+            .setBuffer(buffer);
+
+          const sampler = doc
+            .createAnimationSampler()
+            .setInput(inputAccessor)
+            .setOutput(posAccessor)
+            .setInterpolation('LINEAR');
+
+          const channel = doc
+            .createAnimationChannel()
+            .setTargetNode(skinNodes[boneIndex])
+            .setTargetPath('translation')
+            .setSampler(sampler);
+
+          animation.addSampler(sampler).addChannel(channel);
         }
 
-        if (isLongAnimation) {
-          posArray.push(posArray[0], posArray[1], posArray[2]);
+        // === Rotation ===
+        if (
+          boneMatrix.Quaternion &&
+          boneMatrix.Quaternion.length === action.NumAnimationKeys
+        ) {
+          const rotArray: number[] = [];
+          boneMatrix.Quaternion.forEach(q => {
+            const cq = convertQuaternion(q);
+            rotArray.push(cq.x, cq.y, cq.z, cq.w);
+          });
+
+          if (isLongAnimation) {
+            rotArray.push(rotArray[0], rotArray[1], rotArray[2], rotArray[3]);
+          }
+
+          const rotAccessor = doc
+            .createAccessor(`anim_${actionIndex}_bone_${boneIndex}_R`)
+            .setType('VEC4')
+            .setArray(new Float32Array(rotArray))
+            .setBuffer(buffer);
+
+          const samplerR = doc
+            .createAnimationSampler()
+            .setInput(inputAccessor)
+            .setOutput(rotAccessor)
+            .setInterpolation('LINEAR');
+
+          const channelR = doc
+            .createAnimationChannel()
+            .setTargetNode(skinNodes[boneIndex])
+            .setTargetPath('rotation')
+            .setSampler(samplerR);
+
+          animation.addSampler(samplerR).addChannel(channelR);
         }
-
-        const posAccessor = doc
-          .createAccessor(`anim_${actionIndex}_bone_${boneIndex}_T`)
-          .setType('VEC3')
-          .setArray(new Float32Array(posArray))
-          .setBuffer(buffer);
-
-        const sampler = doc
-          .createAnimationSampler()
-          .setInput(inputAccessor)
-          .setOutput(posAccessor)
-          .setInterpolation('LINEAR');
-
-        const channel = doc
-          .createAnimationChannel()
-          .setTargetNode(skinNodes[boneIndex])
-          .setTargetPath('translation')
-          .setSampler(sampler);
-
-        animation.addSampler(sampler).addChannel(channel);
-      }
-
-      // === Rotation ===
-      if (
-        boneMatrix.Quaternion &&
-        boneMatrix.Quaternion.length === action.NumAnimationKeys
-      ) {
-        const rotArray: number[] = [];
-        boneMatrix.Quaternion.forEach(q => {
-          const cq = convertQuaternion(q);
-          rotArray.push(cq.x, cq.y, cq.z, cq.w);
-        });
-
-        if (isLongAnimation) {
-          rotArray.push(rotArray[0], rotArray[1], rotArray[2], rotArray[3]);
-        }
-
-        const rotAccessor = doc
-          .createAccessor(`anim_${actionIndex}_bone_${boneIndex}_R`)
-          .setType('VEC4')
-          .setArray(new Float32Array(rotArray))
-          .setBuffer(buffer);
-
-        const samplerR = doc
-          .createAnimationSampler()
-          .setInput(inputAccessor)
-          .setOutput(rotAccessor)
-          .setInterpolation('LINEAR');
-
-        const channelR = doc
-          .createAnimationChannel()
-          .setTargetNode(skinNodes[boneIndex])
-          .setTargetPath('rotation')
-          .setSampler(samplerR);
-
-        animation.addSampler(samplerR).addChannel(channelR);
       }
     }
+  } else {
+    const bone = bmd.Bones[0];
+
+    const boneMatrix = bone.Matrixes[0];
+
+    const pos = boneMatrix.Position[0];
+    const rot = boneMatrix.Quaternion[0];
+
+    modelPos.x = pos.x * SCALE_MULTIPLIER;
+    modelPos.y = pos.y * SCALE_MULTIPLIER;
+    modelPos.z = pos.z * SCALE_MULTIPLIER;
+
+    modelRot.x = rot.x;
+    modelRot.y = rot.y;
+    modelRot.z = rot.z;
+    modelRot.w = rot.w;
   }
 
   let meshIndex = 0;
+  const uniqueBonesPerMesh = new Set<number>();
   for (const bmdMesh of bmd.Meshes) {
+    uniqueBonesPerMesh.clear();
+
     const node = doc.createNode(`node_${meshIndex}`);
     meshIndex++;
     modelRoot.addChild(node);
 
-    node.setSkin(skin);
+    if (skin) {
+      node.setSkin(skin);
+    } else {
+      node.setTranslation([modelPos.x, modelPos.y, modelPos.z]);
+      node.setRotation([modelRot.x, modelRot.y, modelRot.z, modelRot.w]);
+    }
 
     const positionArray: number[] = [];
     const indicesArray: number[] = [];
@@ -303,8 +348,13 @@ async function convertBMDToGLTF(bmd: BMD, outputFilename: string) {
         normalsArray.push(convNormal.x, convNormal.y, convNormal.z);
         texcoordArray.push(texCoord.U, texCoord.V);
         colorsArray.push(1, 1, 1, 1);
-        boneIndexArray.push(vertex.Node + 1, 0, 0, 0);
-        weightsArray.push(1, 0, 0, 0);
+
+        uniqueBonesPerMesh.add(vertex.Node + 1);
+
+        if (!isSingleFrame) {
+          boneIndexArray.push(vertex.Node + 1, 0, 0, 0);
+          weightsArray.push(1, 0, 0, 0);
+        }
       }
 
       const vInd0 = pi++;
@@ -347,16 +397,6 @@ async function convertBMDToGLTF(bmd: BMD, outputFilename: string) {
       .setArray(new Float32Array(colorsArray))
       .setType('VEC4')
       .setBuffer(buffer);
-    const boneIndex = doc
-      .createAccessor()
-      .setArray(new Uint8Array(boneIndexArray))
-      .setType('VEC4')
-      .setBuffer(buffer);
-    const weights = doc
-      .createAccessor()
-      .setArray(new Float32Array(weightsArray))
-      .setType('VEC4')
-      .setBuffer(buffer);
 
     const isTransparent = bmdMesh.TexturePath.endsWith('.tga');
     const texPath = DATA_FOLDER + bmd.Dir + bmdMesh.TexturePath;
@@ -377,7 +417,7 @@ async function convertBMDToGLTF(bmd: BMD, outputFilename: string) {
       // texture.setURI(`./game-assets/${texFilePath}`);
       texSuccess = true;
     } catch (e) {
-      console.error(`Error converting ${texPath} to webp:`, e);
+      // console.error(`Error converting ${texPath} to webp:`, e);
     }
 
     const material = doc
@@ -398,11 +438,36 @@ async function convertBMDToGLTF(bmd: BMD, outputFilename: string) {
       .setAttribute('POSITION', position)
       .setAttribute('TEXCOORD_0', texcoord)
       .setAttribute('NORMAL', normal)
-      .setAttribute('COLOR_0', color)
-      .setAttribute('JOINTS_0', boneIndex)
-      .setAttribute('WEIGHTS_0', weights);
+      .setAttribute('COLOR_0', color);
+
+    if (!isSingleFrame) {
+      const boneIndex = doc
+        .createAccessor()
+        .setArray(new Uint8Array(boneIndexArray))
+        .setType('VEC4')
+        .setBuffer(buffer);
+      const weights = doc
+        .createAccessor()
+        .setArray(new Float32Array(weightsArray))
+        .setType('VEC4')
+        .setBuffer(buffer);
+
+      prim
+        .setAttribute('JOINTS_0', boneIndex)
+        .setAttribute('WEIGHTS_0', weights);
+    }
 
     mesh.addPrimitive(prim);
+
+    // if (allBonesWithoutParent && isSingleFrame) {
+    //   if (uniqueBonesPerMesh.size > 1) {
+    //     console.error(
+    //       `${fileName} has multiple bones per mesh: ${Array.from(
+    //         uniqueBonesPerMesh
+    //       ).join(', ')}`
+    //     );
+    //   }
+    // }
   }
 
   const io = new NodeIO();
@@ -413,32 +478,36 @@ async function convertBMDToGLTF(bmd: BMD, outputFilename: string) {
 
 const reader = new BMDReader();
 
-let counter = 0;
-for (const relInputFilePath of glob.scanSync(DATA_FOLDER)) {
+const files = [...glob.scanSync(DATA_FOLDER)];
+
+async function processFile(relInputFilePath: string) {
   const inputFileName = relInputFilePath.split('/').at(-1)!;
 
   const absInputFilePath = DATA_FOLDER + relInputFilePath;
   const inputFolder = relInputFilePath.replace(inputFileName, '');
+  const outputFileName =
+    OUTPUT_FOLDER + relInputFilePath.replace(BMD_EXT, '.glb');
+
+  for (const ignoreFile of IGNORE_FILES) {
+    if (ignoreFile === inputFileName) {
+      return;
+    }
+  }
 
   const buffer = await Bun.file(absInputFilePath).bytes();
 
   try {
     const bmd = reader.read(buffer, inputFolder);
 
-    const outputFileName =
-      OUTPUT_FOLDER + relInputFilePath.replace(BMD_EXT, '.glb');
-
     await convertBMDToGLTF(bmd, outputFileName);
   } catch (e) {
     console.error(`Error converting ${absInputFilePath}:`, e);
-    // console.log(bmd);
-    continue;
   }
-
-  counter++;
 }
 
-console.log(`Processed ${counter} files!`);
+await Promise.all(files.map(processFile));
+
+console.log(`Processed ${files.length} files!`);
 
 // const folder = DATA_FOLDER + 'Object1/';
 // const absFilePath = folder + 'HouseEtc03.bmd';

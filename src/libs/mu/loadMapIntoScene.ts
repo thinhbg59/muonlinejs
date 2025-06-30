@@ -6,7 +6,7 @@ import { createLorencia } from '../../maps/lorencia';
 import { getTerrainData } from './getTerrainData';
 import { Vector3 } from '../babylon/exports';
 import { toRadians } from '../../common/utils';
-import { MonsterActionType } from '../../common/objects/enum';
+import { ItemGroups, MonsterActionType } from '../../common/objects/enum';
 import { MapTileObject } from '../../common/mapTileObject';
 import { IVector3Like } from '../babylon/exports';
 import { ItemsDatabase } from '../../common/itemsDatabase';
@@ -91,18 +91,49 @@ export async function loadMapIntoScene(world: World, map: ENUM_WORLD) {
 
     testPlayer.objectNameInWorld = 'TestPlayer';
 
-    const leatherArmor = ItemsDatabase.getItem(8, 5);
-    testPlayer.charAppearance.armor = {
-      num: leatherArmor.ItemSubIndex,
-      group: leatherArmor.ItemSubGroup,
-      lvl: 0,
+    // const leatherArmor = ItemsDatabase.getItem(8, 5);
+    // testPlayer.charAppearance.armor = {
+    //   num: leatherArmor.ItemSubIndex,
+    //   group: leatherArmor.ItemSubGroup,
+    //   lvl: 4,
+    //   isExcellent: false,
+    // };
+
+    const DragonSetIndex = 1;
+
+    testPlayer.charAppearance.helm = {
+      num: DragonSetIndex,
+      group: ItemGroups.Helm,
+      lvl: 9,
+      isExcellent: false,
     };
 
-    const dragonGloves = ItemsDatabase.getItem(10, 1);
+    testPlayer.charAppearance.armor = {
+      num: DragonSetIndex,
+      group: ItemGroups.Armor,
+      lvl: 7,
+      isExcellent: false,
+    };
+
+    testPlayer.charAppearance.pants = {
+      num: DragonSetIndex,
+      group: ItemGroups.Pants,
+      lvl: 9,
+      isExcellent: false,
+    };
+
     testPlayer.charAppearance.gloves = {
-      num: dragonGloves.ItemSubIndex,
-      group: dragonGloves.ItemSubGroup,
-      lvl: 0,
+      num: DragonSetIndex,
+      group: ItemGroups.Gloves,
+      lvl: 5,
+      isExcellent: false,
+    };
+
+    testPlayer.charAppearance.boots = {
+      num: DragonSetIndex,
+      group: ItemGroups.Boots,
+      lvl: 1,
+      isExcellent: false,
     };
 
     const weapon = ItemsDatabase.getItem(3, 9); // bill spear
@@ -110,7 +141,8 @@ export async function loadMapIntoScene(world: World, map: ENUM_WORLD) {
     testPlayer.charAppearance.leftHand = {
       num: weapon.ItemSubIndex,
       group: weapon.ItemSubGroup,
-      lvl: 0,
+      lvl: 9,
+      isExcellent: false,
     };
 
     //
