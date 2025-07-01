@@ -314,6 +314,7 @@ type GAttributesKeys =
   | 'maxHealth'
   | 'playerNetClass'
   | 'totalMovementSpeed'
+  | 'inSafeZone'
   | 'isSpearEquipped';
 
 type Stats = GAttributesKeys;

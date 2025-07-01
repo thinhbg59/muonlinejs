@@ -1,3 +1,5 @@
+import { TWFlags } from '../../common/terrain/consts';
+import { isFlagInBinaryMask } from '../../common/utils';
 import { Scalar } from '../../libs/babylon/exports';
 import { Store } from '../../store';
 import type { ISystemFactory } from '../world';
@@ -16,6 +18,12 @@ export const MoveAlongPathSystem: ISystemFactory = world => {
       } of query) {
         if (localPlayer) {
           Store.playerData.setPosition(~~transform.pos.x, ~~transform.pos.z);
+
+          const flag = world.getTerrainFlag(
+            ~~transform.pos.x,
+            ~~transform.pos.z
+          );
+          Store.playerData.setTileFlag(flag);
         }
 
         const speed = attributeSystem?.getValue('totalMovementSpeed') ?? 4;
@@ -44,12 +52,12 @@ export const MoveAlongPathSystem: ISystemFactory = world => {
           if (deltaDistance === distance) {
             pathfinding.path.shift();
 
-            if (pathfinding.path.length === 0) {
-              movement.velocity.x = 0;
-              movement.velocity.y = 0;
+            // if (pathfinding.path.length === 0) {
+            //   movement.velocity.x = 0;
+            //   movement.velocity.y = 0;
 
-              break;
-            }
+            //   break;
+            // }
 
             if (distance < 0.00001) continue;
           }
@@ -64,12 +72,39 @@ export const MoveAlongPathSystem: ISystemFactory = world => {
           transform.pos.z += deltaY;
 
           if (world.terrain) {
-            const h1 = world.getTerrainHeight(~~transform.pos.x, ~~transform.pos.z);
-            const h2 = world.getTerrainHeight(~~transform.pos.x, ~~transform.pos.z);
-            const h3 = world.getTerrainHeight(~~transform.pos.x + 1, ~~transform.pos.z);
-            const h4 = world.getTerrainHeight(~~transform.pos.x + 1, ~~transform.pos.z + 1);
-            const h = Scalar.Lerp(Scalar.Lerp(h1, h2, 0.5), Scalar.Lerp(h3, h4, 0.5), 0.5);
+            const h1 = world.getTerrainHeight(
+              ~~transform.pos.x,
+              ~~transform.pos.z
+            );
+            const h2 = world.getTerrainHeight(
+              ~~transform.pos.x,
+              ~~transform.pos.z
+            );
+            const h3 = world.getTerrainHeight(
+              ~~transform.pos.x + 1,
+              ~~transform.pos.z
+            );
+            const h4 = world.getTerrainHeight(
+              ~~transform.pos.x + 1,
+              ~~transform.pos.z + 1
+            );
+            const h = Scalar.Lerp(
+              Scalar.Lerp(h1, h2, 0.5),
+              Scalar.Lerp(h3, h4, 0.5),
+              0.5
+            );
             transform.pos.y = Scalar.Lerp(transform.pos.y, h, 15 * deltaTime);
+
+            if (attributeSystem) {
+              const flag = world.getTerrainFlag(
+                ~~transform.pos.x,
+                ~~transform.pos.z
+              );
+              attributeSystem.setValue(
+                'inSafeZone',
+                isFlagInBinaryMask(flag, TWFlags.SafeZone) ? 1 : 0
+              );
+            }
           }
 
           transform.rot.y =

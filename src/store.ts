@@ -58,6 +58,9 @@ class PlayerData {
   money = 0;
   x = 0;
   y = 0;
+
+  tileFlag = 0;
+
   constructor() {
     makeObservable(this, {
       money: observable,
@@ -70,6 +73,12 @@ class PlayerData {
     runInAction(() => {
       this.x = x;
       this.y = y;
+    });
+  }
+
+  setTileFlag(flag: number) {
+    runInAction(() => {
+      this.tileFlag = flag;
     });
   }
 }
