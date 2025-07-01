@@ -9,6 +9,11 @@ export const RenderSystem: ISystemFactory = world => {
 
   return {
     update: () => {
+      const terrain = world.terrain;
+      if (!terrain) return;
+
+      const extraHeight = terrain.extraHeight;
+
       for (const { transform, modelObject } of query) {
         modelObject.Update(world.gameTime);
 
@@ -19,6 +24,8 @@ export const RenderSystem: ISystemFactory = world => {
         if (transform.posOffset !== undefined) {
           v3Temp2.addInPlace(transform.posOffset as any);
         }
+
+        // v3Temp2.y += extraHeight;
 
         modelObject.updateLocation(v3Temp2, transform.scale, v3Temp);
 

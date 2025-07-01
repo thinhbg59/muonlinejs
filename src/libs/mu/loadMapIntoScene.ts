@@ -4,7 +4,7 @@ import { spawnPlayer } from '../../logic';
 import { Store } from '../../store';
 import { createLorencia } from '../../maps/lorencia';
 import { getTerrainData } from './getTerrainData';
-import { Vector3 } from '../babylon/exports';
+import { Color4, Vector3 } from '../babylon/exports';
 import { toRadians } from '../../common/utils';
 import {
   ItemGroups,
@@ -24,6 +24,8 @@ async function loadWorld(world: World) {
 
   const tiles = world.terrain.MapTileObjects;
   const map = world.terrain.index;
+
+  world.scene.clearColor.set(0, 0, 0, 1);
 
   switch (map) {
     case ENUM_WORLD.WD_0LORENCIA:
@@ -77,6 +79,11 @@ async function loadWorld(world: World) {
     case ENUM_WORLD.WD_7ATLANSE:
       tiles[39] = PoseBoxObject;
       return;
+    case ENUM_WORLD.WD_10ICARUS: {
+      world.terrain.extraHeight = 0.9;
+      world.scene.clearColor = new Color4(3 / 256, 25 / 256, 44 / 256, 1);
+      return;
+    }
   }
 }
 
@@ -153,10 +160,15 @@ export async function loadMapIntoScene(world: World, map: ENUM_WORLD) {
     world.getTerrainFlag = RequestTerrainFlag;
     world.getTerrainTile = GetTerrainTile;
 
+    if (map === ENUM_WORLD.WD_10ICARUS) {
+      terrain.isVisible = false;
+    }
+
     world.terrain = {
       mesh: terrain,
       index: map,
       MapTileObjects: new Array(256).fill(MapTileObject),
+      extraHeight: 0,
     };
 
     await loadWorld(world);

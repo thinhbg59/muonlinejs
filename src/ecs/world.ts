@@ -136,6 +136,7 @@ export class World extends ECSWorld<Entity> {
     mesh: Mesh;
     index: ENUM_WORLD;
     MapTileObjects: (typeof ModelObject)[];
+    extraHeight: number;
   } | null = null;
 
   readonly pathfinder = createPathfinding({

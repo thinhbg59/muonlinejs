@@ -72,12 +72,12 @@ const MAPS_LIST: {
   //   minLvl: 150,
   //   cost: 8500,
   // },
-  // {
-  //   id: ENUM_WORLD.WD_10ICARUS,
-  //   name: 'Icarus',
-  //   minLvl: 170,
-  //   cost: 10000,
-  // },
+  {
+    id: ENUM_WORLD.WD_10ICARUS,
+    name: 'Icarus',
+    minLvl: 170,
+    cost: 10000,
+  },
 ];
 
 const HOT_KEY = 'KeyM';

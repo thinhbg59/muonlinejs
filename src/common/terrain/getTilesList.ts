@@ -116,16 +116,7 @@ export function getTilesList(map: ENUM_WORLD) {
     case ENUM_WORLD.WD_10ICARUS:
       return [
         'TileGrass01',
-        'TileGrass02',
-        'TileGround01',
-        'TileGround02',
-        'TileGround03',
-        'TileWater01',
-        'TileWood01',
-        'TileRock01',
-        'TileRock02',
-        'TileRock03',
-        'TileRock04',
+        //  'TileGrass01'
       ];
     case ENUM_WORLD.WD_51ELBELAND:
       return [

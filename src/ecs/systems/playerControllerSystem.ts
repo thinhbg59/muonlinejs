@@ -60,10 +60,7 @@ export const PlayerControllerSystem: ISystemFactory = world => {
     const x = ~~point.x;
     const z = ~~point.z;
 
-    // TODO replace with world.isWalkable after fixing it
-    const node = world.pathfinder.getNode(x, z);
-
-    if (!node || node.weight < 1) return;
+    if (!world.isWalkable(x, z)) return;
 
     // console.log(JSON.stringify(point), x, y);
 
