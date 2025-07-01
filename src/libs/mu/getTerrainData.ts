@@ -217,7 +217,10 @@ export async function getTerrainData(world: World, map: ENUM_WORLD) {
 
   function IsWalkable(x: number, y: number) {
     const terrainFlag = RequestTerrainFlag(x, y);
-    return !isFlagInBinaryMask(terrainFlag, TWFlags.NoMove);
+    return (
+      !isFlagInBinaryMask(terrainFlag, TWFlags.NoMove) &&
+      !isFlagInBinaryMask(terrainFlag, TWFlags.NoGround)
+    );
   }
 
   return {

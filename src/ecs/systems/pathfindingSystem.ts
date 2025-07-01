@@ -1,6 +1,7 @@
 import {
   CreateBox,
   Matrix,
+  Mesh,
   StandardMaterial,
 } from '../../libs/babylon/exports';
 import type { ISystemFactory, World } from '../world';
@@ -66,13 +67,18 @@ export const PathfindingSystem: ISystemFactory = world => {
   };
 };
 
+let box: Mesh | null = null;
 function createDebugCells(world: World) {
-  const box = CreateBox(
+  if (box) {
+    box.dispose(false, true);
+  }
+
+  box = CreateBox(
     '__pathfinding__',
     { width: 0.95, height: 0.15, depth: 0.95 },
     world.scene
   );
-  box.position.set(0.5, 1.6, 0.5);
+  box.position.set(0.5, world.playerEntity.transform.pos.y + 0.1, 0.5);
   const boxMaterial = new StandardMaterial('__pathfinding__mat', world.scene);
   boxMaterial.alpha = 0.75;
   boxMaterial.disableLighting = true;
