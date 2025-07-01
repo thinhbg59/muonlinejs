@@ -18,6 +18,7 @@ import { PointerInputSystem } from './systems/pointerInputSystem';
 import { KeyboardInputSystem } from './systems/keyboardInputSystem';
 import { BackgroundMusicSystem } from './systems/backgroundMusicSystem';
 import { InteractiveAreaSystem } from './systems/interactiveAreaSystem';
+import { WalkSfxSystem } from './systems/walkSfxSystem';
 
 const factories: ISystemFactory[] = [
   ModelLoaderSystem,
@@ -33,6 +34,7 @@ const factories: ISystemFactory[] = [
   HighlightSystem,
   AnimationSystem,
   AppearanceSystem,
+  WalkSfxSystem,
   CameraFollowSystem,
   OutOfScopeSystem,
   BackgroundMusicSystem,

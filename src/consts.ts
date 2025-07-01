@@ -12,3 +12,5 @@ export const DISABLE_OBJECTS_LOADING = false;
 export const DEBUG_PATHFINDING = false;
 export const DEBUG_SHOW_TERRAIN_ATTRIBUTES = false;
 export const DEBUG_SHOW_BOUNDING_BOXES = false;
+
+export const ENABLE_BG_MUSIC = true;

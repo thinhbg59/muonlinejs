@@ -1,4 +1,5 @@
 import { ENUM_WORLD } from '../../common';
+import { ENABLE_BG_MUSIC } from '../../consts';
 import { EventBus } from '../../libs/eventBus';
 import { Sounds, SoundsManager } from '../../libs/soundsManager';
 import type { ISystemFactory } from '../world';
@@ -59,8 +60,10 @@ export const BackgroundMusicSystem: ISystemFactory = world => {
 
       SoundsManager.loadAndPlaySoundEffect(sound);
 
-      SoundsManager.musicTrack?.setVolume(SoundsManager.musicVolume);
-      SoundsManager.effectsTrack?.setVolume(SoundsManager.effectsVolume);
+      SoundsManager.musicTrack!.setVolume(
+        ENABLE_BG_MUSIC ? SoundsManager.musicVolume : 0
+      );
+      SoundsManager.effectsTrack!.setVolume(SoundsManager.effectsVolume);
     },
   };
 };

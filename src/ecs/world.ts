@@ -175,4 +175,8 @@ export class World extends ECSWorld<Entity> {
   getTerrainFlag(x: number, y: number): number {
     return 0;
   }
+
+  getTerrainTile(x: number, y: number): number {
+    return 0;
+  }
 }

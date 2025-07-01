@@ -26,6 +26,7 @@ export const AnimationSystem: ISystemFactory = world => {
     attributeSystem: MUAttributeSystem,
     velocity: IVector2Like
   ) {
+    const inSafeZone = attributeSystem.isAboveZero('inSafeZone');
     const isFemale = attributeSystem.isAboveZero('isFemale');
     const isFlying = attributeSystem.isAboveZero('isFlying');
     const isSwimming = attributeSystem.isAboveZero('isSwimming');
@@ -35,6 +36,22 @@ export const AnimationSystem: ISystemFactory = world => {
     //
     // Female player animations
     //
+
+    if (inSafeZone) {
+      if (isFemale) {
+        if (isMoving) {
+          return PlayerAction.PLAYER_WALK_FEMALE;
+        }
+
+        return PlayerAction.PLAYER_STOP_FEMALE;
+      }
+
+      if (isMoving) {
+        return PlayerAction.PLAYER_WALK_MALE;
+      }
+
+      return PlayerAction.PLAYER_STOP_MALE;
+    }
 
     if (isSpearEquipped) {
       if (isMoving) {
@@ -128,6 +145,13 @@ export const AnimationSystem: ISystemFactory = world => {
         if (!playerObject.Ready) continue;
 
         if (modelObject.ActionIterationWasFinished) {
+        }
+
+        if (
+          playerAnimation.action >= PlayerAction.PLAYER_WALK_MALE &&
+          playerAnimation.action <= PlayerAction.PLAYER_RUN_SWIM
+        ) {
+          playerObject.AnimationSpeed = 6; // TODO depends on movement speed;
         }
 
         playerObject.playAction(playerAnimation.action, true);

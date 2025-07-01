@@ -145,11 +145,13 @@ export async function loadMapIntoScene(world: World, map: ENUM_WORLD) {
       RequestTerrainHeight,
       IsWalkable,
       RequestTerrainFlag,
+      GetTerrainTile,
     } = await getTerrainData(world, map);
 
     world.getTerrainHeight = RequestTerrainHeight;
     world.isWalkable = IsWalkable;
     world.getTerrainFlag = RequestTerrainFlag;
+    world.getTerrainTile = GetTerrainTile;
 
     world.terrain = {
       mesh: terrain,

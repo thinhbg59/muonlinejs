@@ -37,10 +37,6 @@ const createSound = (
 
   track.addSound(s);
 
-  if (track.soundCollection.length === 1) {
-    track.setVolume(0);
-  }
-
   sounds.set(key, s);
 
   return s;
@@ -90,6 +86,7 @@ export class SoundsManager {
     ) {
       Engine.audioEngine.onAudioUnlockedObservable.addOnce(() => {
         console.log(`sounds inited`);
+
         this.pageInteracted = true;
       });
     }

@@ -161,7 +161,7 @@ export class ModelObject {
     // }
 
     gltf.animationGroups.forEach(group => {
-      group.speedRatio = this.AnimationSpeed / 24;
+      group.speedRatio = this.AnimationSpeed / 14;
     });
 
     gltf.mesh.getChildMeshes(false).forEach(mesh => {

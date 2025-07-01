@@ -223,6 +223,15 @@ export async function getTerrainData(world: World, map: ENUM_WORLD) {
     );
   }
 
+  function GetTerrainTile(x: number, y: number) {
+    if (x < 0 || y < 0) return 0;
+
+    const xi = ~~x;
+    const yi = ~~y;
+
+    return terrainMapping.layer1[GetTerrainIndex(xi, yi)];
+  }
+
   return {
     objects,
     terrain,
@@ -230,5 +239,6 @@ export async function getTerrainData(world: World, map: ENUM_WORLD) {
     RequestTerrainHeight,
     IsWalkable,
     RequestTerrainFlag,
+    GetTerrainTile,
   };
 }
