@@ -97,10 +97,13 @@ export class PlayerObject extends ModelObject {
     await super.init(world, entity);
 
     this.load(await loadGLTF('Player/player.glb', world));
+    this.Ready = false;
     await this.updateBodyPartClassesAsync();
 
     this.setActionSpeed(PlayerAction.PLAYER_WALK_MALE, 2);
     this.setActionSpeed(PlayerAction.PLAYER_WALK_FEMALE, 2);
+
+    this.Ready = true;
   }
 
   async updateBodyPartClassesAsync() {
@@ -114,14 +117,14 @@ export class PlayerObject extends ModelObject {
       this.playerClass
     );
 
-    await this.loadPartAsync('Item/', this.Wings, `Wing04.glb`);
-    const wingMat = this.Wings.getMaterial(0);
-    if (wingMat) {
-      wingMat.alpha = 0.99;
-      wingMat.alphaMode = 1;
-      wingMat.transparencyMode = 2;
-      wingMat.backFaceCulling = false;
-    }
+    // await this.loadPartAsync('Item/', this.Wings, `Wing04.glb`);
+    // const wingMat = this.Wings.getMaterial(0);
+    // if (wingMat) {
+    //   wingMat.alpha = 0.99;
+    //   wingMat.alphaMode = 1;
+    //   wingMat.transparencyMode = 2;
+    //   wingMat.backFaceCulling = false;
+    // }
   }
 
   async setDefaultHelm() {
@@ -239,13 +242,24 @@ export class PlayerObject extends ModelObject {
     ]);
   }
 
-  async loadPartAsync(dir: string, part: ModelObject, modelPath: string) {
+  async loadPartAsync(
+    dir: string,
+    part: ModelObject,
+    modelPath: string,
+    itemLvl?: number,
+    isExcellent?: boolean
+  ) {
     const gltf = await loadGLTF(dir + modelPath, Store.world!);
     part.load(gltf);
 
     gltf.mesh.isPickable = this.IsInteractable;
-    part.getMeshes().forEach(mesh => {
+    const meshes = part.getMeshes(true);
+
+    meshes.forEach(mesh => {
       mesh.isPickable = this.IsInteractable;
+      mesh.metadata ??= {};
+      mesh.metadata.itemLvl = itemLvl ?? 0;
+      mesh.metadata.isExcellent = isExcellent ?? false;
     });
   }
 

@@ -1,8 +1,10 @@
 import {
   AnimationGroup,
   Bone,
+  CustomMaterial,
   PBRBaseSimpleMaterial,
   Skeleton,
+  StandardMaterial,
   Texture,
   type AbstractMesh,
 } from '../libs/babylon/exports';
@@ -10,6 +12,7 @@ import type { World } from '../ecs/world';
 import { BMD, BMDReader } from './BMD';
 import { downloadDataBytesBuffer } from './utils';
 import { resolveUrlToDataFolder } from './resolveUrlToDataFolder';
+import { createItemMaterial } from './itemMaterial';
 
 const reader = new BMDReader();
 const Models: Partial<Record<number, Promise<BMD>>> = {};
@@ -68,18 +71,27 @@ export async function loadGLTF(filePath: string, world: World) {
           task.loadedMeshes[0].name = fileName;
 
           task.loadedMeshes.forEach(mesh => {
+            mesh.metadata ??= {};
+            mesh.metadata.itemLvl = 0;
+            mesh.metadata.isExcellent = false;
             mesh.alwaysSelectAsActiveMesh = true;
             mesh.isPickable = false;
             mesh.doNotSyncBoundingInfo = false;
 
-            if (mesh.material) {
-              const m = mesh.material as PBRBaseSimpleMaterial;
-              m._metallicF0Factor = 0;
+            const m = mesh.material as PBRBaseSimpleMaterial;
+            if (m) {
+              const simpleMaterial = createItemMaterial(
+                world.scene,
+                m,
+                m._albedoTexture as any
+              );
 
               if (m._albedoTexture) {
-                m._albedoTexture.anisotropicFilteringLevel = 1;
-                m._albedoTexture.updateSamplingMode(Texture.NEAREST_NEAREST);
+                m._albedoTexture = null;
               }
+
+              mesh.material = simpleMaterial;
+              m.dispose(true, false);
             }
 
             if (mesh.skeleton) {
@@ -97,18 +109,16 @@ export async function loadGLTF(filePath: string, world: World) {
 
           let skeleton = task.loadedSkeletons[0];
 
-          if (task.loadedSkeletons.length === 0) {
+          if (
+            task.loadedSkeletons.length === 0 &&
+            filePath.includes('player.glb')
+          ) {
             const s = new Skeleton(
               `skeleton_${fileName}`,
               `skeleton_${fileName}_${skelId++}`,
               world.scene
             );
             skeleton = s;
-
-            const root = task.loadedMeshes[0]!;
-            const skinRootNode = root.getChildTransformNodes(true, n =>
-              n.name.startsWith('skin_')
-            )[0]!;
 
             const map = new Map<any, Bone>();
             const str: string[] = [];

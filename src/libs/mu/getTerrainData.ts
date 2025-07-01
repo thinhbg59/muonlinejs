@@ -165,6 +165,7 @@ export async function getTerrainData(world: World, map: ENUM_WORLD) {
 
   const texturesData = textures.map(texture => {
     const t = texture.Texture.clone();
+    t.isBlocking = false;
 
     const size = t.getSize().height;
     let scale = size;

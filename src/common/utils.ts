@@ -190,6 +190,7 @@ export async function readOJZBufferAsJPEGBuffer(
     true
   );
   texture.anisotropicFilteringLevel = 1;
+  texture.isBlocking = false;
 
   return new Promise<{ BufferFloat: Float32Array; Texture: Texture }>(r => {
     texture.onLoadObservable.addOnce(async () => {

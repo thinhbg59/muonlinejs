@@ -39,9 +39,13 @@ import { TreeObject } from './treeObject';
 import { WaterSpoutObject } from './waterSpoutObject';
 import { WellObject } from './wellObject';
 
+const DISABLE = false;
+
 export async function createLorencia(world: World) {
   const terrain = world.terrain;
   if (!terrain) return;
+
+  if (DISABLE) return;
 
   for (let i = 0; i < 13; i++) terrain.MapTileObjects[i] = TreeObject;
 

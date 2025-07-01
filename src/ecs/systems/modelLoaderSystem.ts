@@ -34,7 +34,7 @@ function createModelObject(
   modelObject.updateLocation(v3Temp, transform.scale, transform.rot);
 
   if (
-    entity.modelFactory === PlayerObject &&
+    'playerClass' in modelObject &&
     entity.attributeSystem?.hasAttribute('playerNetClass')
   ) {
     (modelObject as PlayerObject).playerClass = MapPlayerNetClassToModelClass(
