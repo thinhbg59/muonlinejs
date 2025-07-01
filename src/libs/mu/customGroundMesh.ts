@@ -1,5 +1,6 @@
-import { TERRAIN_SIZE } from '../../common/terrain/consts';
+import { TERRAIN_SIZE, TWFlags } from '../../common/terrain/consts';
 import { TERRAIN_INDEX } from '../../common/terrain/utils';
+import { isFlagInBinaryMask } from '../../common/utils';
 import {
   type Scene,
   VertexData,
@@ -29,6 +30,7 @@ export function CreateGroundFromHeightMap(
   layer2: Uint8Array,
   alpha: Uint8Array,
   backTerrainLight: IVector3Like[],
+  terrainFlags: Uint16Array,
   ambientLight: Vector3
 ): Mesh {
   const ground = new Mesh(name, scene);
@@ -58,7 +60,7 @@ export function CreateGroundFromHeightMap(
   }
 
   function applyAlphaToLights(a1: number, a2: number, a3: number, a4: number) {
-    let index = alphaColors.length - 1 - 4 * 4;
+    let index = alphaColors.length - 4 * 4;
 
     a1 = a1 / 255;
     a2 = a2 / 255;
@@ -91,10 +93,13 @@ export function CreateGroundFromHeightMap(
     idx3: number,
     idx4: number
   ) {
-    const h1 = heightBuffer[idx1];
-    const h2 = heightBuffer[idx2];
-    const h3 = heightBuffer[idx3];
-    const h4 = heightBuffer[idx4];
+    const flag = terrainFlags[getTerrainIndex(x, y)];
+    const noGround = isFlagInBinaryMask(flag, TWFlags.NoGround);
+
+    const h1 = noGround ? -10000 : heightBuffer[idx1];
+    const h2 = noGround ? -10000 : heightBuffer[idx2];
+    const h3 = noGround ? -10000 : heightBuffer[idx3];
+    const h4 = noGround ? -10000 : heightBuffer[idx4];
 
     // Add  vertex
     positions.push(x, h1, y);

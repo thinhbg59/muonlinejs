@@ -7,8 +7,6 @@ export function createTerrainMaterial(
   { name }: { name: string },
   config: {
     texturesData: { texture: Texture; scale: number }[];
-    atlas: Texture;
-    alphaMap: Texture;
   }
 ) {
   const finalColorStr = config.texturesData
@@ -41,7 +39,7 @@ export function createTerrainMaterial(
   attribute vec2 uv;
   attribute vec2 uv2;
   attribute vec4 color;
-  attribute vec4 matricesWeights;
+  attribute vec4 matricesWeights; // used for alpha blending
   uniform mat4 viewProjection;
   uniform mat4 view;
   uniform mat4 world;
@@ -92,8 +90,8 @@ export function createTerrainMaterial(
     ${FINAL_COLOR_VAR_NAME} = vec4(opaqueColor, 1.0);
 
     if(alphaRendered){
-      ${FINAL_COLOR_VAR_NAME} *= (1.0 - vAlphaColor.r); // TODO: figure out why rgb doesnt work
-      ${FINAL_COLOR_VAR_NAME} += vec4(alphaColor, 1.0) * vAlphaColor.r;
+      ${FINAL_COLOR_VAR_NAME} *= (1.0 - vAlphaColor.a);
+      ${FINAL_COLOR_VAR_NAME} += vec4(alphaColor, 1.0) * vAlphaColor.a;
     }
 
     ${FINAL_COLOR_VAR_NAME} *= vColor.rgba;
@@ -127,10 +125,22 @@ export function createTerrainMaterial(
 
   const textures = config.texturesData.map(t => t.texture);
 
-  terrainMaterial.onBindObservable.add(() => {
+  terrainMaterial.onBindObservable.add(m => {
+    const effect = m.material?.getEffect();
+
+    if (!effect) return;
+
     const et = (Date.now() - st) / 1000;
-    terrainMaterial.setFloat('time', et);
-    terrainMaterial.setTextureArray('textures', textures);
+    effect.setFloat('time', et);
+    effect.setTextureArray('textures', textures);
+  });
+
+  terrainMaterial.freeze();
+
+  terrainMaterial.onDisposeObservable.addOnce(() => {
+    textures.forEach(t => {
+      t.dispose();
+    });
   });
 
   return terrainMaterial;

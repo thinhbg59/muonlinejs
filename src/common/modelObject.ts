@@ -107,7 +107,7 @@ export class ModelObject {
 
     const animationGroup = this.gltf.animationGroups[actionIndex];
     if (animationGroup) {
-      animationGroup.speedRatio = this.AnimationSpeed / 24;
+      animationGroup.speedRatio = this.AnimationSpeed / 14;
       animationGroup.play(loop);
     }
   }
@@ -127,7 +127,7 @@ export class ModelObject {
       console.log('dispose', oldGltf.mesh.name);
       oldGltf.mesh.dispose();
     }
-    console.log('load', gltf.mesh.name);
+    // console.log('load', gltf.mesh.name);
 
     gltf.mesh.setParent(this._node);
     gltf.mesh.position.setAll(0);
@@ -186,7 +186,7 @@ export class ModelObject {
   }
 
   getMesh(ind: number) {
-    return this.gltf?.mesh.getChildMeshes(true)[ind];
+    return this.gltf?.mesh.getChildMeshes(false)[ind];
   }
 
   getMaterial(ind: number) {
@@ -279,7 +279,7 @@ export class ModelObject {
   dispose(): void {
     this._node.dispose();
     if (this.gltf) {
-      this.gltf.mesh.dispose();
+      this.gltf.mesh.dispose(false, true);
       this.gltf.skeleton?.dispose();
       this.gltf.animationGroups.forEach(group => {
         group.dispose();

@@ -1,7 +1,6 @@
 import {
   CreatePlane,
   RawTexture,
-  Scene,
   StandardMaterial,
   Texture,
   Vector3,
@@ -26,75 +25,8 @@ import {
   TWFlags,
 } from '../../common/terrain/consts';
 import { parseTerrainObjects } from '../../common/terrain/parseTerrainObjects';
-import { Store } from '../../store';
 import { World } from '../../ecs/world';
-
-function createTexturesAtlasFromRects(
-  scene: Scene,
-  data: { map1: Uint8Array; map2: Uint8Array }
-) {
-  const count = data.map1.length;
-
-  const rectsArray = new Uint8Array(TERRAIN_SIZE * TERRAIN_SIZE * 4);
-  data.map1.forEach((m1, i) => {
-    const m2 = data.map2[i];
-
-    rectsArray[i * 4 + 0] = m1;
-    rectsArray[i * 4 + 1] = m2;
-    rectsArray[i * 4 + 2] = 255;
-    rectsArray[i * 4 + 3] = 255;
-  });
-
-  const size = Math.round(Math.sqrt(count));
-
-  const rectsTexture = RawTexture.CreateRGBATexture(
-    rectsArray,
-    size,
-    size,
-    scene,
-    false,
-    false,
-    Texture.NEAREST_NEAREST
-  );
-  rectsTexture.isBlocking = false;
-  rectsTexture.name = '_AtlasTexture';
-  rectsTexture.anisotropicFilteringLevel = 1;
-
-  return rectsTexture;
-}
-
-function createAlphaMapTexture(
-  scene: Scene,
-  data: { alpha: Float32Array; lights: Vector3[] }
-) {
-  const count = data.alpha.length;
-
-  const rectsArray = new Uint8Array(TERRAIN_SIZE * TERRAIN_SIZE * 4);
-  data.alpha.forEach((a, i) => {
-    const l = data.lights[i];
-    rectsArray[i * 4 + 0] = a * 255;
-    rectsArray[i * 4 + 1] = l.x * 255;
-    rectsArray[i * 4 + 2] = l.y * 255;
-    rectsArray[i * 4 + 3] = l.z * 255;
-  });
-
-  const size = Math.round(Math.sqrt(count));
-
-  const rectsTexture = RawTexture.CreateRGBATexture(
-    rectsArray,
-    size,
-    size,
-    scene,
-    false,
-    false,
-    Texture.LINEAR_LINEAR
-  );
-  rectsTexture.isBlocking = false;
-  rectsTexture.name = '_AlphaMap';
-  rectsTexture.anisotropicFilteringLevel = 1;
-
-  return rectsTexture;
-}
+import { DEBUG_SHOW_TERRAIN_ATTRIBUTES } from '../../consts';
 
 function GetTerrainIndex(x: number, y: number) {
   return ~~(~~y * TERRAIN_SIZE + ~~x);
@@ -133,14 +65,22 @@ export async function getTerrainData(world: World, map: ENUM_WORLD) {
     terrainHeight
   );
 
-  const textures = await Promise.all(
-    getTilesList(map).map(async t => {
-      const filePath = `World${worldNum}/${t}.OZJ`;
-      const ozjBytes = await downloadDataBytesBuffer(filePath);
+  const textureNames = getTilesList(map);
 
-      return readOJZBufferAsJPEGBuffer(scene, filePath, ozjBytes);
-    })
-  );
+  const terrainTextures = (
+    await Promise.all(
+      textureNames.map(async (t, i) => {
+        const filePath = `World${worldNum}/${t}.OZJ`;
+        const ozjBytes = await downloadDataBytesBuffer(filePath);
+
+        return readOJZBufferAsJPEGBuffer(
+          scene,
+          filePath.replace('.', `_${i}.`),
+          ozjBytes
+        );
+      })
+    )
+  ).map(t => t.Texture);
 
   const objsBuffer = await downloadDataBytesBuffer(
     `World${worldNum}/EncTerrain${worldNum}.obj`
@@ -155,6 +95,7 @@ export async function getTerrainData(world: World, map: ENUM_WORLD) {
     terrainMapping.layer2,
     terrainMapping.alpha,
     terrainLight,
+    terrainAttrs,
     Vector3.One().setAll(0.25)
   );
   terrain.isPickable = true;
@@ -163,16 +104,13 @@ export async function getTerrainData(world: World, map: ENUM_WORLD) {
     terrain: true,
   };
 
-  const texturesData = textures.map(texture => {
-    const t = texture.Texture.clone();
-    t.isBlocking = false;
-
-    const size = t.getSize().height;
+  const texturesData = terrainTextures.map(texture => {
+    const size = texture.getSize().height;
     let scale = size;
     if (scale === 256) {
       scale /= 4;
     }
-    return { texture: t, scale };
+    return { texture, scale };
   });
 
   terrain.material = createTerrainMaterial(
@@ -180,18 +118,10 @@ export async function getTerrainData(world: World, map: ENUM_WORLD) {
     { name: 'TerrainMaterial' },
     {
       texturesData,
-      atlas: createTexturesAtlasFromRects(scene, {
-        map1: terrainMapping.layer1,
-        map2: terrainMapping.layer2,
-      }),
-      alphaMap: createAlphaMapTexture(scene, {
-        alpha: terrainMapping.alpha,
-        lights: terrainLight,
-      }),
     }
   );
 
-  if (Store.showTerrainAttributes) {
+  if (DEBUG_SHOW_TERRAIN_ATTRIBUTES) {
     const plane = CreatePlane('_terrainPlane', { size: 256 }, scene);
     plane.isPickable = false;
     plane.position.set(128 + 0.5, 128 - 0.5, 1.68);

@@ -1,4 +1,9 @@
+import { ElfSoldier } from '../../common/npcs/elfSoldier';
+import { MonsterActionType } from '../../common/objects/enum';
 import { World } from '../../ecs/world';
+import { createAttributeSystem } from '../../libs/attributeSystem';
+import { Vector3 } from '../../libs/babylon/exports';
+import { Store } from '../../store';
 import { BeerObject } from './beerObject';
 import { BonfireObject } from './bonfireObject';
 import { BridgeObject } from './bridgeObject';
@@ -122,4 +127,56 @@ export async function createLorencia(world: World) {
   terrain.MapTileObjects[150] = CandleObject;
 
   for (var i = 0; i < 3; i++) terrain.MapTileObjects[151 + i] = BeerObject;
+
+  if (Store.isOffline) {
+    //
+    // Test NPC
+    //
+
+    const modelFactory = ElfSoldier;
+
+    const npcEntity = world.add({
+      // netId: id,
+      worldIndex: terrain.index,
+      // npcType: npc.TypeNumber,
+      transform: {
+        pos: new Vector3(133, world.getTerrainHeight(133, 131), 131),
+        rot: new Vector3(0, 0, 0),
+        scale: modelFactory.OverrideScale >= 0 ? modelFactory.OverrideScale : 1,
+        posOffset: new Vector3(0.5, 0, 0.5),
+      },
+      modelFactory,
+      pathfinding: {
+        from: { x: 0, y: 0 },
+        to: { x: 0, y: 0 },
+        path: [],
+        calculated: true,
+      },
+      playerMoveTo: {
+        point: { x: 0, y: 0 },
+        handled: true as boolean,
+      },
+      movement: {
+        velocity: { x: 0, y: 0 },
+      },
+      monsterAnimation: {
+        action: MonsterActionType.Stop1,
+      },
+      attributeSystem: createAttributeSystem(),
+      visibility: {
+        lastChecked: 0,
+        state: 'hidden',
+      },
+      screenPosition: {
+        worldOffsetZ: 2.5,
+        x: 0,
+        y: 0,
+      },
+      objectNameInWorld: 'NPC',
+      interactable: true,
+    });
+
+    npcEntity.attributeSystem.setValue('isFemale', 0);
+    npcEntity.attributeSystem.setValue('isFlying', 0);
+  }
 }

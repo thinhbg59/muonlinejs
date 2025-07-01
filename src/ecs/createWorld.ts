@@ -15,10 +15,15 @@ import { DrawDebugSystem } from './systems/drawDebugSystem';
 import { HighlightSystem } from './systems/highlightSystem';
 import type { TestScene } from '../scenes/testScene';
 import { PointerInputSystem } from './systems/pointerInputSystem';
+import { KeyboardInputSystem } from './systems/keyboardInputSystem';
+import { BackgroundMusicSystem } from './systems/backgroundMusicSystem';
+import { InteractiveAreaSystem } from './systems/interactiveAreaSystem';
 
 const factories: ISystemFactory[] = [
   ModelLoaderSystem,
   PointerInputSystem,
+  KeyboardInputSystem,
+  InteractiveAreaSystem,
   PlayerControllerSystem,
   PathfindingSystem,
   CalculateVisibilitySystem,
@@ -30,6 +35,7 @@ const factories: ISystemFactory[] = [
   AppearanceSystem,
   CameraFollowSystem,
   OutOfScopeSystem,
+  BackgroundMusicSystem,
   DrawDebugSystem,
   RenderSystem,
 ];

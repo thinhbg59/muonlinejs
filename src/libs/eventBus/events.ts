@@ -1,6 +1,7 @@
 import type { IVector2Like, IVector3Like } from '../babylon/exports';
 import type {
   ConnectServerPackets,
+  ENUM_WORLD,
   ServerToClientPackets,
 } from '../../common';
 import type { Entity } from '../../ecs/world';
@@ -22,4 +23,9 @@ export type Events = CSEvents &
       entity: With<Entity, 'transform' | 'screenPosition'>;
       screenPosition: IVector2Like;
     };
+    requestWarp: { map: ENUM_WORLD };
+    warpCompleted: { map: ENUM_WORLD };
+    keyPressed: string;
+    keyReleased: string;
+    pageVisibilityChanged: boolean;
   };

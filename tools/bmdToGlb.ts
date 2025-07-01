@@ -1,10 +1,11 @@
 import { Document, Node, NodeIO, type Skin } from '@gltf-transform/core';
 import { BMD, BMDReader, BMDTextureBone } from '../src/common/BMD';
-import { file, Glob } from 'bun';
+import { Glob } from 'bun';
 import { EXTTextureWebP } from '@gltf-transform/extensions';
 import sharp from 'sharp';
 import { decodeTga } from '@lunapaint/tga-codec';
 import { PNG } from 'pngjs';
+import { BMD_EXT, DATA_FOLDER, OUTPUT_FOLDER } from './shared';
 
 async function tga2png(file: Buffer) {
   const tga = await decodeTga(new Uint8Array(file));
@@ -41,13 +42,6 @@ async function convertImageToWebP(image: Uint8Array): Promise<Uint8Array> {
 
   return new Uint8Array(buffer);
 }
-
-const BMD_EXT = '.bmd';
-
-const PROJECT_ROOT = __dirname + `/../`;
-
-const DATA_FOLDER = PROJECT_ROOT + `Data/`;
-const OUTPUT_FOLDER = PROJECT_ROOT + `public/game-assets/`;
 
 const SCALE_MULTIPLIER = 0.01;
 
@@ -473,12 +467,22 @@ async function convertBMDToGLTF(bmd: BMD, outputFilename: string) {
   const io = new NodeIO();
   io.registerExtensions([EXTTextureWebP as any]);
   await Bun.write(outputFilename, '', { createPath: true });
+  // await Bun.write(
+  //   outputFilename.replace('.glb', '.json'),
+  //   JSON.stringify(bmd, null, 2),
+  //   {
+  //     createPath: true,
+  //   }
+  // );
   await io.write(outputFilename, doc);
 }
 
 const reader = new BMDReader();
 
 const files = [...glob.scanSync(DATA_FOLDER)];
+
+// await Bun.write('files.txt', files.join('\n'));
+// console.log(`${files.length} files to process`);
 
 async function processFile(relInputFilePath: string) {
   const inputFileName = relInputFilePath.split('/').at(-1)!;

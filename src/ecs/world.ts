@@ -88,6 +88,17 @@ export type Entity = Partial<{
     layer: HighlightLayer | null;
   };
   interactable: true;
+  keyboardInput: {
+    pressedKeys: Set<string>;
+  };
+  interactiveArea: {
+    min: IVector2Like;
+    max: IVector2Like;
+    inside?: boolean;
+    onEnter?: () => void;
+    onLeave?: () => void;
+  };
+  onDispose?: () => void;
 }>;
 
 export class World extends ECSWorld<Entity> {
@@ -115,6 +126,12 @@ export class World extends ECSWorld<Entity> {
     return this.#localPlayerQuery.entities[0];
   }
 
+  #keyboardInputQuery = this.with('keyboardInput');
+
+  get keyboardInput() {
+    return this.#keyboardInputQuery.entities[0].keyboardInput;
+  }
+
   terrain: {
     mesh: Mesh;
     index: ENUM_WORLD;
@@ -130,8 +147,16 @@ export class World extends ECSWorld<Entity> {
 
   currentPointerTarget: Entity | null = null;
 
+  pointerPressed = false;
+
   constructor(readonly scene: TestScene) {
     super();
+
+    this.add({
+      keyboardInput: {
+        pressedKeys: new Set(),
+      },
+    });
 
     this.assetsManager = new AssetsManager(this.scene);
     this.assetsManager.useDefaultLoadingScreen = false;

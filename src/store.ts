@@ -117,10 +117,6 @@ export const Store = new (class _Store {
 
   readonly isOffline = location.href.includes('offline');
 
-  debugPathfinding = false;
-  showTerrainAttributes = false;
-  debugBoundingBoxes = false;
-
   constructor() {
     makeObservable(this, {
       username: observable,
@@ -138,9 +134,6 @@ export const Store = new (class _Store {
       playerData: observable,
       notifications: observable,
       world: observable,
-      debugPathfinding: observable,
-      showTerrainAttributes: observable,
-      debugBoundingBoxes: observable,
     });
     this.loadConfig();
   }

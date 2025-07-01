@@ -26,6 +26,7 @@ export type Pathfinding<TValue> = {
   indexToId: (i: number, j: number) => number;
   applyOpenedPatch: (ids: number[]) => void;
   applyClosedPatch: (ids: number[]) => void;
+  clear: () => void;
 };
 
 export function createPathfinding<TValue = number>(
@@ -145,6 +146,13 @@ export function createPathfinding<TValue = number>(
         if (col == null) return;
 
         col.weight = 0;
+      });
+    },
+    clear: () => {
+      graph.grid.forEach(row => {
+        row.forEach(node => {
+          node.weight = 1;
+        });
       });
     },
   };

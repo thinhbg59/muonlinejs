@@ -10,6 +10,8 @@ import { TestScene } from './scenes/testScene';
 import { loadMapIntoScene } from './libs/mu/loadMapIntoScene';
 import { createWorld } from './ecs/createWorld';
 import { ENUM_WORLD } from './common';
+import { EventBus } from './libs/eventBus';
+import { SoundsManager } from './libs/soundsManager';
 
 if (APP_STAGE === 'dev' || QA_ENABLED) {
   import('@babylonjs/core/Legacy/legacy');
@@ -55,14 +57,46 @@ window.addEventListener(
   { passive: false }
 );
 
+let _hiddenAttr = '';
+const onVisibilityChanged = () => {
+  const hidden = !!document[_hiddenAttr as 'hidden'];
+
+  EventBus.emit('pageVisibilityChanged', !hidden);
+};
+
+if (document.hidden !== undefined) {
+  _hiddenAttr = 'hidden';
+  document.addEventListener('visibilitychange', onVisibilityChanged, false);
+}
+//@ts-ignore
+else if (document.mozHidden !== undefined) {
+  _hiddenAttr = 'mozHidden';
+  document.addEventListener('mozvisibilitychange', onVisibilityChanged, false);
+}
+//@ts-ignore
+else if (document.msHidden !== undefined) {
+  _hiddenAttr = 'msHidden';
+  document.addEventListener('msvisibilitychange', onVisibilityChanged, false);
+}
+//@ts-ignore
+else if (document.webkitHidden !== undefined) {
+  _hiddenAttr = 'webkitHidden';
+  document.addEventListener(
+    'webkitvisibilitychange',
+    onVisibilityChanged,
+    false
+  );
+}
+
 const scene = new TestScene(engine);
+
+SoundsManager.initializeSounds(scene);
 
 const { world, updateSystems } = createWorld(scene);
 Store.world = world;
 
 (window as any).__scene = scene;
 (window as any).__world = world;
-loadMapIntoScene(world, ENUM_WORLD.WD_0LORENCIA);
 
 let lastTime = performance.now();
 engine.runRenderLoop(() => {
@@ -93,3 +127,9 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
 if (!Store.isOffline) {
   Store.connectToConnectServer();
 }
+
+EventBus.on('requestWarp', ({ map }) => {
+  loadMapIntoScene(world, map);
+});
+
+EventBus.emit('requestWarp', { map: ENUM_WORLD.WD_0LORENCIA });

@@ -64,8 +64,12 @@ export const MoveAlongPathSystem: ISystemFactory = world => {
           transform.pos.z += deltaY;
 
           if (world.terrain) {
-            const h = world.getTerrainHeight(transform.pos.x, transform.pos.z);
-            transform.pos.y = Scalar.Lerp(transform.pos.y, h, 5 * deltaTime);
+            const h1 = world.getTerrainHeight(~~transform.pos.x, ~~transform.pos.z);
+            const h2 = world.getTerrainHeight(~~transform.pos.x, ~~transform.pos.z);
+            const h3 = world.getTerrainHeight(~~transform.pos.x + 1, ~~transform.pos.z);
+            const h4 = world.getTerrainHeight(~~transform.pos.x + 1, ~~transform.pos.z + 1);
+            const h = Scalar.Lerp(Scalar.Lerp(h1, h2, 0.5), Scalar.Lerp(h3, h4, 0.5), 0.5);
+            transform.pos.y = Scalar.Lerp(transform.pos.y, h, 15 * deltaTime);
           }
 
           transform.rot.y =

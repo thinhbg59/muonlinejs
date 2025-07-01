@@ -2,11 +2,16 @@ import './style.less';
 import { observer } from 'mobx-react-lite';
 import { Store } from '../../../store';
 import { WorldObjects } from '../../components/worldObjects';
+import { MapsList } from './components/mapsList';
 
 const HUD = observer(() => {
   const playerData = Store.playerData;
 
-  return <div className="hud"></div>;
+  return (
+    <div className="hud">
+      <MapsList />
+    </div>
+  );
 });
 
 export const WorldPage = observer(() => {

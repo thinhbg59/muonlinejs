@@ -4,23 +4,29 @@ import {
   StandardMaterial,
 } from '../../libs/babylon/exports';
 import type { ISystemFactory, World } from '../world';
-import { Store } from '../../store';
 import { TERRAIN_SIZE } from '../../common/terrain/consts';
+import { DEBUG_PATHFINDING } from '../../consts';
+import { EventBus } from '../../libs/eventBus';
 
 export const PathfindingSystem: ISystemFactory = world => {
   const query = world.with('pathfinding');
 
   let init = false;
 
+  EventBus.on('warpCompleted', () => {
+    init = false;
+  });
+
   return {
     update: () => {
       if (!world.terrain) {
-        init = false;
         return;
       }
 
       if (!init) {
         init = true;
+
+        world.pathfinder.clear();
 
         const ids: number[] = [];
 
@@ -36,7 +42,7 @@ export const PathfindingSystem: ISystemFactory = world => {
 
         world.pathfinder.applyClosedPatch(ids);
 
-        if (Store.debugPathfinding) {
+        if (DEBUG_PATHFINDING) {
           createDebugCells(world);
         }
       }
@@ -50,7 +56,11 @@ export const PathfindingSystem: ISystemFactory = world => {
         );
 
         pathfinding.calculated = true;
-        // console.log(JSON.stringify(pathfinding.path, null, 2));
+
+        if (pathfinding.path.length > 0) {
+          pathfinding.path[0].x = pathfinding.from.x;
+          pathfinding.path[0].y = pathfinding.from.y;
+        }
       }
     },
   };

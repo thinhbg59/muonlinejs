@@ -1,3 +1,4 @@
+import { DEBUG_SHOW_BOUNDING_BOXES } from '../../consts';
 import {
   CreateBox,
   Matrix,
@@ -6,11 +7,9 @@ import {
   StandardMaterial,
   Vector3,
 } from '../../libs/babylon/exports';
-import { Store } from '../../store';
 import type { ISystemFactory } from '../world';
 
 const vec3Tmp = new Vector3();
-const vec3Tmp2 = new Vector3();
 const qTmp = Quaternion.Identity();
 
 export const DrawDebugSystem: ISystemFactory = world => {
@@ -85,7 +84,6 @@ export const DrawDebugSystem: ISystemFactory = world => {
 
   return {
     update: dt => {
-     
       delay -= dt;
       if (delay > 0) return;
       delay = 0.1;
@@ -121,7 +119,7 @@ export const DrawDebugSystem: ISystemFactory = world => {
 
         const m = Matrix.Compose(size, qTmp, pos);
 
-        if (Store.debugBoundingBoxes) {
+        if (DEBUG_SHOW_BOUNDING_BOXES) {
           if (cache.has(transform)) {
             box.thinInstanceSetMatrixAt(cache.get(transform)!, m, false);
           } else {
@@ -131,7 +129,7 @@ export const DrawDebugSystem: ISystemFactory = world => {
         }
       }
 
-      Store.debugBoundingBoxes && box!.thinInstanceBufferUpdated('matrix');
+      DEBUG_SHOW_BOUNDING_BOXES && box!.thinInstanceBufferUpdated('matrix');
     },
   };
 };
