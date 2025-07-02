@@ -1,3 +1,4 @@
+import { getMaterial } from '../../common/modelLoader';
 import { ModelObject } from '../../common/modelObject';
 import { BlendState, MODEL_HOUSE_WALL01 } from '../../common/objects/enum';
 import { Rand } from '../../common/rand';
@@ -12,7 +13,7 @@ export class HouseWallObject extends ModelObject {
   _flickerDur = 0;
   _flickerElapsed = 0;
 
-  async init() {
+  async init(world: World) {
     // LightEnabled = true;
 
     await this.loadSpecificModelWithDynamicID(MODEL_HOUSE_WALL01, 'HouseWall');
@@ -26,12 +27,9 @@ export class HouseWallObject extends ModelObject {
       this._flickerDur = Rand.nextFloat(0.1, 0.2); // 0.10–0.20s
       this._flickerElapsed = 0;
 
-      const m = this.getMaterial(4);
+      const m = this.getMesh(4);
       if (m) {
-        m.alphaMode = BlendState.ALPHA_ADD;
-        m.alpha = 0.99;
-        m.transparencyMode = 2;
-        m.backFaceCulling = false;
+        m.material = getMaterial(world.scene, false, 2, BlendState.ALPHA_ADD);
       }
     }
   }
@@ -66,9 +64,9 @@ export class HouseWallObject extends ModelObject {
 
     // Apply flicker effect to the material
     if (this._flickerEnabled && mesh === 4) {
-      const m = this.getMaterial(mesh);
+      const m = this.getMesh(mesh);
       if (m) {
-        m.alpha = 0.99 * this._flickerAlpha;
+        m.visibility = this._flickerAlpha;
       }
     }
   }
