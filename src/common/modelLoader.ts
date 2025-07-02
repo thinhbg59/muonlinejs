@@ -71,9 +71,24 @@ export function getMaterial(
   material.diffuseTexture = getEmptyTexture(scene);
   material.alphaMode = alphaMode;
 
+  material.freeze();
+
   materialsCache.set(name, material);
 
   return material;
+}
+
+const texturesCache: Map<string, Texture> = new Map();
+
+function getTexture(key: string, fallback: Texture) {
+  if (texturesCache.has(key)) return texturesCache.get(key)!;
+
+  fallback.isBlocking = false;
+  fallback.updateSamplingMode(Texture.NEAREST_NEAREST);
+
+  texturesCache.set(key, fallback);
+
+  return fallback;
 }
 
 export async function loadGLTF(filePath: string, world: World) {
@@ -109,10 +124,11 @@ export async function loadGLTF(filePath: string, world: World) {
 
             const m = mesh.material as PBRBaseSimpleMaterial;
             if (m && !!m._albedoTexture) {
-              const diffuseTexture = m._albedoTexture as Texture;
-
-              diffuseTexture.isBlocking = false;
-              diffuseTexture.updateSamplingMode(Texture.NEAREST_NEAREST);
+              const cached = getTexture(
+                fileName + m._albedoTexture.name,
+                m._albedoTexture as Texture
+              );
+              const diffuseTexture = cached;
 
               const clonedMaterial = getMaterial(
                 world.scene,
@@ -123,6 +139,9 @@ export async function loadGLTF(filePath: string, world: World) {
               mesh.visibility = m.alpha;
               mesh.metadata.diffuseTexture = diffuseTexture;
 
+              if (m._albedoTexture !== cached) {
+                m._albedoTexture.dispose();
+              }
               m._albedoTexture = null;
 
               mesh.material = clonedMaterial;
