@@ -1,4 +1,4 @@
-import { ISystemFactory } from '../world';
+import type { ISystemFactory } from '../world';
 
 export const CalculateVisibilitySystem: ISystemFactory = world => {
   const query = world.with('transform', 'visibility');

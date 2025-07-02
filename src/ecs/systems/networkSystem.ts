@@ -6,8 +6,8 @@ import { Store } from '../../store';
 // W=0, SW=1, S=2, SE=3, E=4, NE=5, N=6, NW=7
 
 function GetClientDirectionCode(from: IVector2Like, to: IVector2Like): number {
-  const dx = ~~(to.x - from.x); // Horizontal (X): left / right – works correctly
-  const dy = ~~(to.y - from.y); // Vertical (Y): up / down – correction here
+  const dx = ~~(Math.round(to.x) - Math.round(from.x)); // Horizontal (X): left / right – works correctly
+  const dy = ~~(Math.round(to.y) - Math.round(from.y)); // Vertical (Y): up / down – correction here
 
   if (dx === -1 && dy === -1) return 0; // West
   if (dx === 0 && dy === -1) return 1; // South-West

@@ -1,6 +1,11 @@
-import { CreateBox } from '../../libs/babylon/exports';
-import { EventBus } from '../../libs/eventBus';
+import {
+  CreateBox,
+  PointerEventTypes,
+  StandardMaterial,
+} from '../../libs/babylon/exports';
 import type { ISystemFactory } from '../world';
+
+const MOVE_DELAY = 0.25;
 
 export const PlayerControllerSystem: ISystemFactory = world => {
   const query = world.with('playerMoveTo', 'transform', 'pathfinding');
@@ -14,18 +19,48 @@ export const PlayerControllerSystem: ISystemFactory = world => {
   box.setParent(world.mapParent);
   box.isPickable = false;
   box.alwaysSelectAsActiveMesh = true;
+  box.material = new StandardMaterial(
+    'playerControllerBoxMaterial',
+    world.scene
+  );
+  box.material.alpha = 0.25;
 
-  EventBus.on('groundPointClicked', ({ point }) => {
+  const scene = world.scene;
+
+  let lastClientX = 0;
+  let lastClientY = 0;
+
+  scene.onPointerObservable.add(ev => {
+    if (ev.type === PointerEventTypes.POINTERMOVE) {
+      lastClientX = ev.event.clientX;
+      lastClientY = ev.event.clientY;
+    }
+  });
+
+  let delay = MOVE_DELAY;
+  function tryMove() {
     const playerEntity = world.playerEntity;
     if (!playerEntity) return;
+
+    const pickInfo = scene.pick(
+      lastClientX,
+      lastClientY,
+      m => m === world.terrain?.mesh,
+      true
+    );
+
+    if (!pickInfo) return;
+
+    const point = pickInfo.pickedPoint;
+
+    if (!point) return;
+
+    if (point.lengthSquared() < 0.01) return;
 
     const x = ~~point.x;
     const z = ~~point.z;
 
-    // TODO replace with world.isWalkable after fixing it
-    const node = world.pathfinder.getNode(x, z);
-
-    if (!node || node.weight < 1) return;
+    if (!world.isWalkable(x, z)) return;
 
     // console.log(JSON.stringify(point), x, y);
 
@@ -33,10 +68,19 @@ export const PlayerControllerSystem: ISystemFactory = world => {
     playerEntity.playerMoveTo.point.y = point.z;
     playerEntity.playerMoveTo.handled = false;
     playerEntity.playerMoveTo.sendToServer = true;
-  });
+  }
 
   return {
-    update: () => {
+    update: dt => {
+      delay -= dt;
+
+      if (world.pointerPressed) {
+        if (delay <= 0) {
+          delay = MOVE_DELAY;
+          tryMove();
+        }
+      }
+
       for (const {
         playerMoveTo,
         transform,

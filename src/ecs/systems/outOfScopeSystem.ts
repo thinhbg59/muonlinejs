@@ -7,6 +7,7 @@ export const OutOfScopeSystem: ISystemFactory = world => {
     update: () => {
       for (const e of query) {
         world.remove(e);
+        e.onDispose?.();
 
         if (e.modelObject) {
           e.modelObject.dispose();

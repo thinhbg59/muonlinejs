@@ -1,26 +1,33 @@
 import {
   CreateBox,
   Matrix,
+  Mesh,
   StandardMaterial,
 } from '../../libs/babylon/exports';
 import type { ISystemFactory, World } from '../world';
-import { Store } from '../../store';
 import { TERRAIN_SIZE } from '../../common/terrain/consts';
+import { DEBUG_PATHFINDING } from '../../consts';
+import { EventBus } from '../../libs/eventBus';
 
 export const PathfindingSystem: ISystemFactory = world => {
   const query = world.with('pathfinding');
 
   let init = false;
 
+  EventBus.on('warpCompleted', () => {
+    init = false;
+  });
+
   return {
     update: () => {
       if (!world.terrain) {
-        init = false;
         return;
       }
 
       if (!init) {
         init = true;
+
+        world.pathfinder.clear();
 
         const ids: number[] = [];
 
@@ -36,7 +43,7 @@ export const PathfindingSystem: ISystemFactory = world => {
 
         world.pathfinder.applyClosedPatch(ids);
 
-        if (Store.debugPathfinding) {
+        if (DEBUG_PATHFINDING) {
           createDebugCells(world);
         }
       }
@@ -50,19 +57,28 @@ export const PathfindingSystem: ISystemFactory = world => {
         );
 
         pathfinding.calculated = true;
-        // console.log(JSON.stringify(pathfinding.path, null, 2));
+
+        if (pathfinding.path.length > 0) {
+          pathfinding.path[0].x = pathfinding.from.x;
+          pathfinding.path[0].y = pathfinding.from.y;
+        }
       }
     },
   };
 };
 
+let box: Mesh | null = null;
 function createDebugCells(world: World) {
-  const box = CreateBox(
+  if (box) {
+    box.dispose(false, true);
+  }
+
+  box = CreateBox(
     '__pathfinding__',
     { width: 0.95, height: 0.15, depth: 0.95 },
     world.scene
   );
-  box.position.set(0.5, 1.6, 0.5);
+  box.position.set(0.5, world.playerEntity.transform.pos.y + 0.1, 0.5);
   const boxMaterial = new StandardMaterial('__pathfinding__mat', world.scene);
   boxMaterial.alpha = 0.75;
   boxMaterial.disableLighting = true;

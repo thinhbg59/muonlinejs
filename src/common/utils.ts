@@ -177,9 +177,12 @@ export async function readOJZBufferAsJPEGBuffer(
   // let jpegSubsamp = TJSAMP_444;
   // let jpegColorspace = TJCS_RGB;
 
+  filename.split('/').slice(0, -1).join('_');
   const fName = filename.split('/').at(-1)?.split('.')[0];
+  const tName = filename.split('/').slice(0, -1).join('_') + '-' + fName;
+
   const texture = new Texture(
-    `data:${fName}.jpg`,
+    `data:${tName}.jpg`,
     scene.getEngine()!,
     true,
     false,
@@ -191,9 +194,10 @@ export async function readOJZBufferAsJPEGBuffer(
   );
   texture.anisotropicFilteringLevel = 1;
   texture.isBlocking = false;
+  texture.name = tName;
 
   return new Promise<{ BufferFloat: Float32Array; Texture: Texture }>(r => {
-    texture.onLoadObservable.addOnce(async () => {
+    texture.onLoadObservable.addOnce(async texture => {
       const size = texture.getSize();
       let jpegWidth = size.width;
       let jpegHeight = size.height;
@@ -238,3 +242,13 @@ export const removeFlagFromMask = (mask: Bitmask, flag: number) =>
   mask - (mask & flag);
 
 export const toggleFlagInMask = (mask: Bitmask, flag: number) => mask ^ flag;
+
+export const mapNumber = (
+  value: number,
+  min: number,
+  max: number,
+  minOut: number,
+  maxOut: number
+) => {
+  return ((value - min) / (max - min)) * (maxOut - minOut) + minOut;
+};

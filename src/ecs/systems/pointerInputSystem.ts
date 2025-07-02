@@ -1,4 +1,9 @@
-import { Color3, Ray, Vector3 } from '../../libs/babylon/exports';
+import {
+  Color3,
+  PointerEventTypes,
+  Ray,
+  Vector3,
+} from '../../libs/babylon/exports';
 import type { EntityTypeFromQuery, ISystemFactory } from '../world';
 
 const COLOR_RED = new Color3(1, 0, 0);
@@ -27,6 +32,12 @@ export const PointerInputSystem: ISystemFactory = world => {
       tmpCameraRay.direction.set(0, 0, 1);
       tmpCameraRay.origin.set(0, 0, 0);
       tmpCameraRay.length = 0.01;
+    }
+
+    if (ev.type === PointerEventTypes.POINTERDOWN) {
+      world.pointerPressed = true;
+    } else if (ev.type === PointerEventTypes.POINTERUP) {
+      world.pointerPressed = false;
     }
   });
 

@@ -4,21 +4,86 @@ import { spawnPlayer } from '../../logic';
 import { Store } from '../../store';
 import { createLorencia } from '../../maps/lorencia';
 import { getTerrainData } from './getTerrainData';
-import { Vector3 } from '../babylon/exports';
+import { Color4, Vector3 } from '../babylon/exports';
 import { toRadians } from '../../common/utils';
-import { ItemGroups, MonsterActionType } from '../../common/objects/enum';
+import {
+  ItemGroups,
+  MODEL_HOUSE_WALL05,
+  MODEL_HOUSE_WALL06,
+} from '../../common/objects/enum';
 import { MapTileObject } from '../../common/mapTileObject';
 import { IVector3Like } from '../babylon/exports';
 import { ItemsDatabase } from '../../common/itemsDatabase';
-import { createAttributeSystem } from '../attributeSystem';
-import { ElfSoldier } from '../../common/npcs/elfSoldier';
+import { EventBus } from '../eventBus';
+import { DISABLE_OBJECTS_LOADING } from '../../consts';
+import { PoseBoxObject } from '../../maps/lorencia/poseBoxObject';
+import { SoundsManager } from '../soundsManager';
 
 async function loadWorld(world: World) {
   if (!world.terrain) return;
 
-  switch (world.terrain.index) {
+  const tiles = world.terrain.MapTileObjects;
+  const map = world.terrain.index;
+
+  world.scene.clearColor.set(0, 0, 0, 1);
+
+  switch (map) {
     case ENUM_WORLD.WD_0LORENCIA:
+      world.add({
+        worldIndex: map,
+        interactiveArea: {
+          min: { x: 120, y: 120 },
+          max: { x: 129, y: 136 },
+          onEnter: () => {
+            SoundsManager.stopAllMusic();
+            SoundsManager.loadAndPlaySoundEffect('Music/Pub');
+
+            const models = [MODEL_HOUSE_WALL05, MODEL_HOUSE_WALL06];
+            const query = world.with('transform', 'modelId', 'worldIndex');
+            models.forEach(id => {
+              for (const e of query) {
+                if (e.worldIndex !== map) continue;
+                if (e.modelId === id) {
+                  e.transform.posOffset = { x: 0, y: 100, z: 0 };
+                }
+              }
+            });
+          },
+          onLeave: () => {
+            SoundsManager.stopAllMusic();
+            SoundsManager.loadAndPlaySoundEffect('Music/main_theme');
+
+            const models = [MODEL_HOUSE_WALL05, MODEL_HOUSE_WALL06];
+            const query = world.with('transform', 'modelId', 'worldIndex');
+            models.forEach(id => {
+              for (const e of query) {
+                if (e.worldIndex !== map) continue;
+                if (e.modelId === id) {
+                  e.transform.posOffset = undefined;
+                }
+              }
+            });
+          },
+        },
+        onDispose: () => {
+          SoundsManager.stopSoundEffect('Music/Pub');
+        },
+      });
       return createLorencia(world);
+    case ENUM_WORLD.WD_2DEVIAS:
+      tiles[91] = PoseBoxObject;
+      return;
+    case ENUM_WORLD.WD_3NORIA:
+      tiles[38] = PoseBoxObject;
+      return;
+    case ENUM_WORLD.WD_7ATLANSE:
+      tiles[39] = PoseBoxObject;
+      return;
+    case ENUM_WORLD.WD_10ICARUS: {
+      world.terrain.extraHeight = 0.9;
+      world.scene.clearColor = new Color4(3 / 256, 25 / 256, 44 / 256, 1);
+      return;
+    }
   }
 }
 
@@ -56,32 +121,64 @@ function createObjects(
   }
 }
 
+async function unloadMap(world: World) {
+  if (!world.terrain) return;
+
+  const oldMap = world.terrain.index;
+
+  const query = world.with('worldIndex');
+
+  for (const e of query) {
+    if (e === world.playerEntity) continue;
+    if (e.worldIndex === oldMap) {
+      world.remove(e);
+      e.onDispose?.();
+      e.modelObject?.dispose();
+    }
+  }
+
+  world.terrain.mesh.material?.dispose(true, true);
+  world.terrain.mesh.dispose(false, true);
+}
+
 export async function loadMapIntoScene(world: World, map: ENUM_WORLD) {
-  const {
-    objects,
-    terrain,
-    RequestTerrainHeight,
-    IsWalkable,
-    RequestTerrainFlag,
-  } = await getTerrainData(world, ENUM_WORLD.WD_0LORENCIA);
+  const oldMap = world.terrain?.index;
+  if (oldMap !== map) {
+    await unloadMap(world);
 
-  world.getTerrainHeight = RequestTerrainHeight;
-  world.isWalkable = IsWalkable;
-  world.getTerrainFlag = RequestTerrainFlag;
+    const {
+      objects,
+      terrain,
+      RequestTerrainHeight,
+      IsWalkable,
+      RequestTerrainFlag,
+      GetTerrainTile,
+    } = await getTerrainData(world, map);
 
-  world.terrain = {
-    mesh: terrain,
-    index: map,
-    MapTileObjects: new Array(256).fill(MapTileObject),
-  };
+    world.getTerrainHeight = RequestTerrainHeight;
+    world.isWalkable = IsWalkable;
+    world.getTerrainFlag = RequestTerrainFlag;
+    world.getTerrainTile = GetTerrainTile;
 
-  await loadWorld(world);
+    if (map === ENUM_WORLD.WD_10ICARUS) {
+      terrain.isVisible = false;
+    }
 
-  const filteredObjects = objects; //filter(o => TYPES.includes(o.id));
+    world.terrain = {
+      mesh: terrain,
+      index: map,
+      MapTileObjects: new Array(256).fill(MapTileObject),
+      extraHeight: 0,
+    };
 
-  createObjects(world, filteredObjects);
+    await loadWorld(world);
 
-  if (Store.isOffline) {
+    const filteredObjects = objects; //filter(o => TYPES.includes(o.id));
+
+    !DISABLE_OBJECTS_LOADING && createObjects(world, filteredObjects);
+  }
+
+  if (Store.isOffline && !world.playerEntity) {
     const testPlayer = spawnPlayer(world);
     testPlayer.transform.pos.x = 135;
     testPlayer.transform.pos.y = 1.7;
@@ -90,14 +187,6 @@ export async function loadMapIntoScene(world: World, map: ENUM_WORLD) {
     world.addComponent(testPlayer, 'worldIndex', map);
 
     testPlayer.objectNameInWorld = 'TestPlayer';
-
-    // const leatherArmor = ItemsDatabase.getItem(8, 5);
-    // testPlayer.charAppearance.armor = {
-    //   num: leatherArmor.ItemSubIndex,
-    //   group: leatherArmor.ItemSubGroup,
-    //   lvl: 4,
-    //   isExcellent: false,
-    // };
 
     const DragonSetIndex = 1;
 
@@ -144,55 +233,61 @@ export async function loadMapIntoScene(world: World, map: ENUM_WORLD) {
       lvl: 9,
       isExcellent: false,
     };
-
-    //
-    // Test NPC
-    //
-
-    const modelFactory = ElfSoldier;
-
-    const npcEntity = world.add({
-      // netId: id,
-      worldIndex: testPlayer.worldIndex,
-      // npcType: npc.TypeNumber,
-      transform: {
-        pos: new Vector3(133, world.getTerrainHeight(133, 131), 131),
-        rot: new Vector3(0, 0, 0),
-        scale: modelFactory.OverrideScale >= 0 ? modelFactory.OverrideScale : 1,
-        posOffset: new Vector3(0.5, 0, 0.5),
-      },
-      modelFactory,
-      pathfinding: {
-        from: { x: 0, y: 0 },
-        to: { x: 0, y: 0 },
-        path: [],
-        calculated: true,
-      },
-      playerMoveTo: {
-        point: { x: 0, y: 0 },
-        handled: true as boolean,
-      },
-      movement: {
-        velocity: { x: 0, y: 0 },
-      },
-      monsterAnimation: {
-        action: MonsterActionType.Stop1,
-      },
-      attributeSystem: createAttributeSystem(),
-      visibility: {
-        lastChecked: 0,
-        state: 'hidden',
-      },
-      screenPosition: {
-        worldOffsetZ: 2.5,
-        x: 0,
-        y: 0,
-      },
-      objectNameInWorld: 'NPC',
-      interactable: true,
-    });
-
-    npcEntity.attributeSystem.setValue('isFemale', 0);
-    npcEntity.attributeSystem.setValue('isFlying', 0);
   }
+
+  if (world.playerEntity) {
+    world.playerEntity.worldIndex = map;
+    const pos = world.playerEntity.transform.pos;
+
+    switch (map) {
+      case ENUM_WORLD.WD_0LORENCIA:
+        pos.x = 135;
+        pos.z = 131;
+        break;
+      case ENUM_WORLD.WD_1DUNGEON:
+        pos.x = 232;
+        pos.z = 126;
+        break;
+      case ENUM_WORLD.WD_3NORIA:
+        pos.x = 174;
+        pos.z = 123;
+        break;
+      case ENUM_WORLD.WD_4LOSTTOWER:
+        pos.x = 208;
+        pos.z = 81;
+        break;
+      case ENUM_WORLD.WD_6STADIUM:
+        pos.x = 56;
+        pos.z = 85;
+        break;
+      case ENUM_WORLD.WD_7ATLANSE:
+        pos.x = 20;
+        pos.z = 20;
+        break;
+      case ENUM_WORLD.WD_8TARKAN:
+        pos.x = 200;
+        pos.z = 58;
+        break;
+      case ENUM_WORLD.WD_10ICARUS:
+        pos.x = 14;
+        pos.z = 12;
+        break;
+      case ENUM_WORLD.WD_33AIDA:
+        pos.x = 85;
+        pos.z = 10;
+        break;
+      case ENUM_WORLD.WD_51ELBELAND:
+        pos.x = 61;
+        pos.z = 201;
+        break;
+      case ENUM_WORLD.WD_2DEVIAS:
+        pos.x = 219;
+        pos.z = 24;
+        break;
+    }
+
+    pos.y = world.getTerrainHeight(pos.x, pos.z);
+  }
+
+  EventBus.emit('warpCompleted', { map });
 }

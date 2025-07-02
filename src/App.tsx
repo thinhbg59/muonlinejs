@@ -6,19 +6,7 @@ import { CharactersPage } from './ui/pages/charactersPage';
 import { WorldPage } from './ui/pages/worldPage';
 import { Notification } from './ui/components/notification';
 import { useEventBus } from './hooks/useEventBus';
-
-const Debug = observer(() => {
-  const playerData = Store.playerData;
-
-  return (
-    <div className="debug">
-      <span className="money">Zen: {playerData.money}</span>
-      <span className="coords">
-        XY: {playerData.x} {playerData.y}
-      </span>
-    </div>
-  );
-});
+import { Debug } from './ui/components/debug';
 
 const CurrentPage = observer(() => {
   const state = Store.uiState;

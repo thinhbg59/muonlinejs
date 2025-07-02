@@ -58,6 +58,9 @@ class PlayerData {
   money = 0;
   x = 0;
   y = 0;
+
+  tileFlag = 0;
+
   constructor() {
     makeObservable(this, {
       money: observable,
@@ -70,6 +73,12 @@ class PlayerData {
     runInAction(() => {
       this.x = x;
       this.y = y;
+    });
+  }
+
+  setTileFlag(flag: number) {
+    runInAction(() => {
+      this.tileFlag = flag;
     });
   }
 }
@@ -117,10 +126,6 @@ export const Store = new (class _Store {
 
   readonly isOffline = location.href.includes('offline');
 
-  debugPathfinding = false;
-  showTerrainAttributes = false;
-  debugBoundingBoxes = false;
-
   constructor() {
     makeObservable(this, {
       username: observable,
@@ -138,9 +143,6 @@ export const Store = new (class _Store {
       playerData: observable,
       notifications: observable,
       world: observable,
-      debugPathfinding: observable,
-      showTerrainAttributes: observable,
-      debugBoundingBoxes: observable,
     });
     this.loadConfig();
   }
