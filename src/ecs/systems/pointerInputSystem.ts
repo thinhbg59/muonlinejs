@@ -41,6 +41,10 @@ export const PointerInputSystem: ISystemFactory = world => {
     }
   });
 
+  window.addEventListener('lostpointercapture', ev => {
+    world.pointerPressed = false;
+  });
+
   let delay = 0;
 
   const possibleTargets: EntityTypeFromQuery<typeof query>[] = [];
