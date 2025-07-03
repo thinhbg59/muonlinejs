@@ -96,6 +96,7 @@ export function createEngine(
       premultipliedAlpha: false,
       alpha: false,
       preserveDrawingBuffer: false,
+      forceSRGBBufferSupportState: false,
     },
     shouldScale
   );
