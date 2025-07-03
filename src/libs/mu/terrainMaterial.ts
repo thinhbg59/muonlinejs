@@ -44,8 +44,8 @@ export function createTerrainMaterial(
   uniform mat4 view;
   uniform mat4 world;
   varying vec2 vUV;
-  varying float vOpaqueTexture;
-  varying float vAlphaTexture;
+  flat varying float vOpaqueTexture;
+  flat varying float vAlphaTexture;
   varying vec4 vColor;
   varying vec4 vAlphaColor;
 
@@ -65,8 +65,8 @@ export function createTerrainMaterial(
   uniform float time;
   uniform sampler2D textures[${config.texturesData.length}];
   varying vec2 vUV;
-  varying float vOpaqueTexture;
-  varying float vAlphaTexture;
+  flat varying float vOpaqueTexture;
+  flat varying float vAlphaTexture;
   varying vec4 vColor;
   varying vec4 vAlphaColor;
 
