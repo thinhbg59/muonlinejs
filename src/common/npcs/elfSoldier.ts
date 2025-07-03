@@ -1,7 +1,7 @@
 import type { Entity, World } from '../../ecs/world';
 import { Scene, TransformNode } from '../../libs/babylon/exports';
-import { loadGLTF } from '../modelLoader';
-import { ItemGroups, PlayerAction } from '../objects/enum';
+import { getMaterial, loadGLTF } from '../modelLoader';
+import { BlendState, ItemGroups, PlayerAction } from '../objects/enum';
 import { PlayerObject } from '../playerObject';
 import { CharacterClassNumber, PlayerClass } from '../types';
 
@@ -62,11 +62,14 @@ export class ElfSoldier extends PlayerObject {
 
     await this.loadPartAsync('Item/', this.Wings, `Wing04.glb`);
 
-    const wingsMaterial = this.Wings.getMaterial(0);
-    if (wingsMaterial) {
-      wingsMaterial.transparencyMode = 2;
-      wingsMaterial.alphaMode = 1;
-      wingsMaterial.alpha = 0.99;
+    const wingsMesh = this.Wings.getMesh(0);
+    if (wingsMesh) {
+      wingsMesh.material = getMaterial(
+        world.scene,
+        false,
+        2,
+        BlendState.ALPHA_ADD
+      );
     }
 
     // const pantsMaterial = this.Pants.getMaterial(3);

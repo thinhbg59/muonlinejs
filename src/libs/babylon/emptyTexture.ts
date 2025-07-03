@@ -19,7 +19,7 @@ export function getEmptyTexture(scene: Scene): Texture {
     tempTexture.hasAlpha = true;
     tempTexture.isBlocking = false;
     tempTexture.anisotropicFilteringLevel = 1;
-    tempTexture.coordinatesIndex = 1;
+    tempTexture.coordinatesIndex = 0;
     _cachedTexture = tempTexture;
   }
 

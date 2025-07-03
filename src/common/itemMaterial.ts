@@ -1,9 +1,4 @@
-import {
-  CustomMaterial,
-  type Scene,
-  Texture,
-  type Material,
-} from '../libs/babylon/exports';
+import { CustomMaterial, type Scene } from '../libs/babylon/exports';
 
 /**
  * Is used as mask for item options
@@ -12,31 +7,12 @@ import {
  */
 const ITEM_OPTIONS_UNIFORM_NAME = `itemOptions`;
 
-export function createItemMaterial(
-  scene: Scene,
-  basedOn?: Material,
-  diffuseTexture?: Texture
-) {
+export function createItemMaterial(scene: Scene) {
   const simpleMaterial = new CustomMaterial('itemMaterial', scene);
 
   simpleMaterial.diffuseColor.setAll(1);
-  if (basedOn) {
-    simpleMaterial.alpha = basedOn.alpha;
-    simpleMaterial.transparencyMode = basedOn.transparencyMode;
-    simpleMaterial.backFaceCulling = basedOn.backFaceCulling;
-  }
 
   simpleMaterial.specularColor.setAll(0);
-
-  if (diffuseTexture) {
-    diffuseTexture.isBlocking = false;
-    diffuseTexture.updateSamplingMode(Texture.NEAREST_NEAREST);
-
-    simpleMaterial.diffuseTexture = diffuseTexture;
-    simpleMaterial.useAlphaFromDiffuseTexture = true;
-  } else {
-    return simpleMaterial;
-  }
 
   simpleMaterial.AddUniform(ITEM_OPTIONS_UNIFORM_NAME, 'int', 0);
   simpleMaterial.AddUniform('time', 'float', 0);
@@ -117,7 +93,7 @@ export function createItemMaterial(
     simpleMaterial.onBindObservable.add(mesh => {
       const effect = simpleMaterial.getEffect();
       if (!effect) return;
-      effect.setFloat('time', time);
+      effect.setFloat('time', time + (mesh.metadata?.timeOffset ?? 0));
 
       let itemOptions = 0;
 
@@ -131,8 +107,14 @@ export function createItemMaterial(
 
       effect.setInt(ITEM_OPTIONS_UNIFORM_NAME, itemOptions);
 
-      if (diffuseTexture) {
-        effect.setTexture('diffuseSampler', diffuseTexture);
+      effect.setTexture('diffuseSampler', mesh.metadata!.diffuseTexture);
+
+      if (mesh.metadata?.diffuseColor) {
+        effect.setColor4(
+          'vDiffuseColor',
+          mesh.metadata.diffuseColor,
+          mesh.metadata.diffuseColor.a
+        );
       }
     });
   });

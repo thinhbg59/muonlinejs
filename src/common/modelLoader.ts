@@ -3,8 +3,8 @@ import {
   Bone,
   CustomMaterial,
   PBRBaseSimpleMaterial,
+  Scene,
   Skeleton,
-  StandardMaterial,
   Texture,
   type AbstractMesh,
 } from '../libs/babylon/exports';
@@ -13,6 +13,8 @@ import { BMD, BMDReader } from './BMD';
 import { downloadDataBytesBuffer } from './utils';
 import { resolveUrlToDataFolder } from './resolveUrlToDataFolder';
 import { createItemMaterial } from './itemMaterial';
+import { getEmptyTexture } from '../libs/babylon/emptyTexture';
+import { BlendState } from './objects/enum';
 
 const reader = new BMDReader();
 const Models: Partial<Record<number, Promise<BMD>>> = {};
@@ -48,6 +50,47 @@ export async function loadBMD(filePath: string): Promise<BMD> {
 }
 
 let skelId = 100;
+
+const materialsCache: Map<string, CustomMaterial> = new Map();
+
+export function getMaterial(
+  scene: Scene,
+  backFaceCulling: boolean,
+  transparencyMode: number,
+  alphaMode: BlendState
+) {
+  const name = `${backFaceCulling}_${transparencyMode}_${BlendState[alphaMode]}`;
+
+  if (materialsCache.has(name)) return materialsCache.get(name)!;
+
+  const material = createItemMaterial(scene);
+  material.name = name;
+  material.backFaceCulling = backFaceCulling;
+  material.transparencyMode = transparencyMode;
+  material.useAlphaFromDiffuseTexture = true;
+  material.diffuseTexture = getEmptyTexture(scene);
+  material.alphaMode = alphaMode;
+
+  material.freeze();
+
+  materialsCache.set(name, material);
+
+  return material;
+}
+
+const texturesCache: Map<string, Texture> = new Map();
+
+function getTexture(key: string, fallback: Texture) {
+  if (texturesCache.has(key)) return texturesCache.get(key)!;
+
+  fallback.isBlocking = false;
+  fallback.updateSamplingMode(Texture.NEAREST_NEAREST);
+
+  texturesCache.set(key, fallback);
+
+  return fallback;
+}
+
 export async function loadGLTF(filePath: string, world: World) {
   filePath = resolveUrlToDataFolder(filePath);
   const fileName = filePath.split('/').at(-1)!;
@@ -74,23 +117,34 @@ export async function loadGLTF(filePath: string, world: World) {
             mesh.metadata ??= {};
             mesh.metadata.itemLvl = 0;
             mesh.metadata.isExcellent = false;
+            mesh.metadata.timeOffset = 0;
             mesh.alwaysSelectAsActiveMesh = true;
             mesh.isPickable = false;
             mesh.doNotSyncBoundingInfo = false;
 
             const m = mesh.material as PBRBaseSimpleMaterial;
-            if (m) {
-              const simpleMaterial = createItemMaterial(
-                world.scene,
-                m,
-                m._albedoTexture as any
+            if (m && !!m._albedoTexture) {
+              const cached = getTexture(
+                fileName + m._albedoTexture.name,
+                m._albedoTexture as Texture
               );
+              const diffuseTexture = cached;
 
-              if (m._albedoTexture) {
-                m._albedoTexture = null;
+              const clonedMaterial = getMaterial(
+                world.scene,
+                m.backFaceCulling,
+                m.transparencyMode ?? 0,
+                m.alphaMode ?? BlendState.ALPHA_DISABLE
+              );
+              mesh.visibility = m.alpha;
+              mesh.metadata.diffuseTexture = diffuseTexture;
+
+              if (m._albedoTexture !== cached) {
+                m._albedoTexture.dispose();
               }
+              m._albedoTexture = null;
 
-              mesh.material = simpleMaterial;
+              mesh.material = clonedMaterial;
               m.dispose(true, false);
             }
 
