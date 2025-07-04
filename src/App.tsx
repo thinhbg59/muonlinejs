@@ -7,15 +7,14 @@ import { WorldPage } from './ui/pages/worldPage';
 import { Notification } from './ui/components/notification';
 import { useEventBus } from './hooks/useEventBus';
 import { Debug } from './ui/components/debug';
+import { PreloaderPage } from './ui/pages/preloaderPage';
 
 const CurrentPage = observer(() => {
   const state = Store.uiState;
 
-  if (Store.isOffline) {
-    return <WorldPage />;
-  }
-
   switch (state) {
+    case UIState.Preloader:
+      return <PreloaderPage />;
     case UIState.Servers:
       return <ServersPage />;
     case UIState.Login:

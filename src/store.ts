@@ -1,5 +1,6 @@
 import {
   CharacterClassNumber,
+  ENUM_WORLD,
   SimpleModulusEncryptor,
   Xor32Encryptor,
   Xor3Byte,
@@ -32,6 +33,7 @@ import { LocalStorage } from './libs/localStorage';
 import { createSocket } from './libs/sockets/createSocket';
 import { makeObservable, observable, action, remove, runInAction } from 'mobx';
 import { World } from './ecs/world';
+import { EventBus } from './libs/eventBus';
 
 const CONFIG_KEY = '_mu_key';
 
@@ -47,6 +49,7 @@ type ConfigType = {
 };
 
 export enum UIState {
+  Preloader,
   Servers,
   Login,
   Characters,
@@ -100,7 +103,7 @@ export const Store = new (class _Store {
   password = '';
   serverList: ReturnType<ServerListResponsePacket['getServers']> = [];
   charactersList: ReturnType<CharacterListPacket['getCharacters']> = [];
-  uiState = UIState.Servers;
+  uiState = UIState.Preloader;
   playerId?: number;
 
   loginProcessing = false;
@@ -124,7 +127,7 @@ export const Store = new (class _Store {
 
   world: World | null = null;
 
-  readonly isOffline = location.href.includes('offline');
+  isOffline = location.href.includes('offline');
 
   constructor() {
     makeObservable(this, {
@@ -145,6 +148,19 @@ export const Store = new (class _Store {
       world: observable,
     });
     this.loadConfig();
+  }
+
+  playOffline() {
+    history.replaceState(null, '', '/offline');
+    this.isOffline = true;
+    this.uiState = UIState.World;
+    EventBus.emit('requestWarp', { map: ENUM_WORLD.WD_0LORENCIA });
+  }
+
+  playOnline() {
+    this.uiState = UIState.Servers;
+
+    this.connectToConnectServer();
   }
 
   private loadConfig(): void {

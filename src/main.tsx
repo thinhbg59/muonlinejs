@@ -118,18 +118,16 @@ window.addEventListener('resize', onResize);
 
 onResize();
 
+EventBus.on('requestWarp', ({ map }) => {
+  loadMapIntoScene(world, map);
+});
+
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <App />
   </React.StrictMode>
 );
 
-if (!Store.isOffline) {
-  Store.connectToConnectServer();
+if (Store.isOffline) {
+  Store.playOffline();
 }
-
-EventBus.on('requestWarp', ({ map }) => {
-  loadMapIntoScene(world, map);
-});
-
-EventBus.emit('requestWarp', { map: ENUM_WORLD.WD_0LORENCIA });
