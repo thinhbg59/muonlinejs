@@ -7,6 +7,18 @@ export default defineConfig({
     target: 'es2022',
     assetsInlineLimit: 0, //disable
     cssTarget: 'chrome100',
+    emptyOutDir: true,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          bjs: [
+            '@babylonjs/core',
+            '@babylonjs/loaders',
+            '@babylonjs/materials',
+          ],
+        },
+      },
+    },
   },
   define: {
     APP_VERSION: JSON.stringify(process.env.npm_package_version),
@@ -15,5 +27,8 @@ export default defineConfig({
     'import.meta.env.QA_ENABLED': JSON.stringify(
       process.env.QA ? 'TEST MODE ENABLED' : ''
     ),
+  },
+  optimizeDeps: {
+    force: true,
   },
 });

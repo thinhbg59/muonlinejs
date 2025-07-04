@@ -1,4 +1,14 @@
-import { Engine, Scene, type Node, Animation, Color3, Vector3, Matrix, Quaternion, type Viewport } from './exports';
+import {
+  Engine,
+  Scene,
+  type Node,
+  Animation,
+  Color3,
+  Vector3,
+  Matrix,
+  Quaternion,
+  type Viewport,
+} from './exports';
 
 export function findInChildren(children: Node[], name: string): Node | null {
   for (const child of children) {
@@ -34,7 +44,8 @@ export async function addInspectorForScene(scene: Scene) {
         console.log(`Start loading inspector...`);
         const s = document.createElement('script');
         s.setAttribute('inspector', 'true');
-        s.src = 'https://cdn.babylonjs.com/inspector/babylon.inspector.bundle.js';
+        s.src =
+          'https://cdn.babylonjs.com/inspector/babylon.inspector.bundle.js';
 
         s.onload = () => {
           console.log(`Inspector loaded!`);
@@ -62,7 +73,10 @@ function createCanvas() {
   return canvas;
 }
 
-export function createEngine(baseCanvas?: HTMLCanvasElement, enableAntialiasing?: boolean) {
+export function createEngine(
+  baseCanvas?: HTMLCanvasElement,
+  enableAntialiasing?: boolean
+) {
   // create the canvas html element and attach it to the webpage
   const canvas = baseCanvas || createCanvas();
 
@@ -82,17 +96,32 @@ export function createEngine(baseCanvas?: HTMLCanvasElement, enableAntialiasing?
       premultipliedAlpha: false,
       alpha: false,
       preserveDrawingBuffer: false,
+      forceSRGBBufferSupportState: false,
     },
     shouldScale
   );
+
   if (Engine.audioEngine) {
     Engine.audioEngine.useCustomUnlockedButton = true;
+  }
+
+  // WebGL: to support 'flat' varying
+  const gl = engine._gl;
+  const pvk = gl.getExtension('WEBGL_provoking_vertex');
+  if (pvk) {
+    pvk.provokingVertexWEBGL(pvk.FIRST_VERTEX_CONVENTION_WEBGL);
   }
 
   return { engine, canvas };
 }
 
-export function animateInterpolate(scene: Scene, target: any, property: string, value: any, duration: number) {
+export function animateInterpolate(
+  scene: Scene,
+  target: any,
+  property: string,
+  value: any,
+  duration: number
+) {
   const keys = [
     {
       frame: 0,
@@ -130,10 +159,21 @@ export function animateInterpolate(scene: Scene, target: any, property: string, 
 
   animation.setKeys(keys);
 
-  return scene.beginDirectAnimation(target, [animation], 0, 60, false, 1.0 / duration);
+  return scene.beginDirectAnimation(
+    target,
+    [animation],
+    0,
+    60,
+    false,
+    1.0 / duration
+  );
 }
 
-export const transformCoordinatesWithClippingToRef = (v: Vector3, transformation: Matrix, ref: Vector3) => {
+export const transformCoordinatesWithClippingToRef = (
+  v: Vector3,
+  transformation: Matrix,
+  ref: Vector3
+) => {
   const m = transformation.m;
   let rx = v.x * m[0] + v.y * m[4] + v.z * m[8] + m[12];
   let ry = v.x * m[1] + v.y * m[5] + v.z * m[9] + m[13];
@@ -148,7 +188,6 @@ export const transformCoordinatesWithClippingToRef = (v: Vector3, transformation
   if (rz > rw) rz = rw;
   if (rw < 0) {
     rw = 0;
-
   }
 
   ref.x = rx / rw;
@@ -160,7 +199,12 @@ export const transformCoordinatesWithClippingToRef = (v: Vector3, transformation
 
 const TmpMatrix = Matrix.Identity();
 
-export function projectWorldPositionToScreenRef(scene: Scene, pos: Vector3, viewport: Viewport, ref: Vector3) {
+export function projectWorldPositionToScreenRef(
+  scene: Scene,
+  pos: Vector3,
+  viewport: Viewport,
+  ref: Vector3
+) {
   const projMatrix = scene.getTransformMatrix();
   const projected = transformCoordinatesWithClippingToRef(pos, projMatrix, ref);
   const viewportMatrix = TmpMatrix;

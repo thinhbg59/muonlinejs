@@ -14,12 +14,12 @@ export function createTerrainMaterial(
       const textureData = config.texturesData[i];
       const isWater = i === 5; // || (Texture == 11 && (gMapManager.IsPKField() || IsDoppelGanger2()) //TODO
       return `
-  if (m1 >= ${i}.0 && m1 < ${i}.1) {
+  if (m1 >= ${i}.0 && m1 < ${i}.5) {
       opaqueColor = texture2D(textures[${i}], vUV * ${textureData.scale.toFixed(
         1
       )}${isWater ? ` + vec2(WaterMove,GrassWind)` : ''}).rgb;
   }
-  if (m2 >= ${i}.0 && m2 < ${i}.1) {
+  if (m2 >= ${i}.0 && m2 < ${i}.5) {
       alphaColor = texture2D(textures[${i}], vUV * ${textureData.scale.toFixed(
         1
       )}${isWater ? ` + vec2(WaterMove,GrassWind)` : ''}).rgb;
@@ -44,8 +44,8 @@ export function createTerrainMaterial(
   uniform mat4 view;
   uniform mat4 world;
   varying vec2 vUV;
-  varying float vOpaqueTexture;
-  varying float vAlphaTexture;
+  flat varying float vOpaqueTexture;
+  flat varying float vAlphaTexture;
   varying vec4 vColor;
   varying vec4 vAlphaColor;
 
@@ -65,20 +65,20 @@ export function createTerrainMaterial(
   uniform float time;
   uniform sampler2D textures[${config.texturesData.length}];
   varying vec2 vUV;
-  varying float vOpaqueTexture;
-  varying float vAlphaTexture;
+  flat varying float vOpaqueTexture;
+  flat varying float vAlphaTexture;
   varying vec4 vColor;
   varying vec4 vAlphaColor;
 
   void main() 
   {
-    float m1 = vOpaqueTexture;
-    float m2 = vAlphaTexture;
+    float m1 = vOpaqueTexture + 0.1;
+    float m2 = vAlphaTexture + 0.1;
     bool alphaRendered = false;
 
     float WaterMove = float(int(time*50.0) % 20000) * 0.0005;
     float WindSpeed = float(int(time*200.0) % 72000) * 0.004;
-    float GrassWind = 0.0;//sin(WindSpeed + vXf * 2.0) * 0.1;
+    float GrassWind = 0.0;
   
     vec4 ${FINAL_COLOR_VAR_NAME} = vec4(0.0);
 
@@ -94,9 +94,9 @@ export function createTerrainMaterial(
       ${FINAL_COLOR_VAR_NAME} += vec4(alphaColor, 1.0) * vAlphaColor.a;
     }
 
-    ${FINAL_COLOR_VAR_NAME} *= vColor.rgba;
+    vec3 f = clamp(${FINAL_COLOR_VAR_NAME}.rgb * vColor.rgb, 0.0, 1.0);
   
-    gl_FragColor = clamp(${FINAL_COLOR_VAR_NAME}, 0.0, 1.0);
+    gl_FragColor = vec4(f, 1.0);
   }
   `,
     },
@@ -113,13 +113,13 @@ export function createTerrainMaterial(
       samplers: ['textures'],
       defines: [],
       needAlphaBlending: false,
-      needAlphaTesting: true,
+      needAlphaTesting: false,
     }
   ) as ShaderMaterial;
 
   terrainMaterial.fogEnabled = false;
   terrainMaterial.backFaceCulling = true;
-  terrainMaterial.transparencyMode = 1;
+  terrainMaterial.transparencyMode = 0;
 
   const st = Date.now();
 
