@@ -3,12 +3,14 @@ import { observer } from 'mobx-react-lite';
 import { Store } from '../../../store';
 import { WorldObjects } from '../../components/worldObjects';
 import { MapsList } from './components/mapsList';
+import { BottomBar } from './components/bottomBar';
 
 const HUD = observer(() => {
   const playerData = Store.playerData;
 
   return (
     <div className="hud">
+      <BottomBar />
       <MapsList />
     </div>
   );
