@@ -270,6 +270,8 @@ EventBus.on('AddCharactersToScope', packet => {
     if (Store.playerId === maskedId) {
       world.addComponent(playerEntity, 'localPlayer', true);
       console.log(`Local player spawned: ${maskedId} - ${char.Name}`);
+
+      EventBus.emit('requestWarp', { map: ENUM_WORLD.WD_0LORENCIA });
     }
 
     const cApp = playerEntity.charAppearance;

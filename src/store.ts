@@ -1,5 +1,6 @@
 import {
   CharacterClassNumber,
+  ENUM_WORLD,
   SimpleModulusEncryptor,
   Xor32Encryptor,
   Xor3Byte,
@@ -30,8 +31,17 @@ import {
 } from './consts';
 import { LocalStorage } from './libs/localStorage';
 import { createSocket } from './libs/sockets/createSocket';
-import { makeObservable, observable, action, remove, runInAction } from 'mobx';
+import {
+  makeObservable,
+  observable,
+  action,
+  remove,
+  runInAction,
+  computed,
+} from 'mobx';
 import { World } from './ecs/world';
+import { EventBus } from './libs/eventBus';
+import { Scalar } from './libs/babylon/exports';
 
 const CONFIG_KEY = '_mu_key';
 
@@ -47,11 +57,47 @@ type ConfigType = {
 };
 
 export enum UIState {
+  Preloader,
   Servers,
   Login,
   Characters,
   LoadingWorld,
   World,
+}
+
+class ActionBarSlot {
+  itemId = 0;
+  count = 0;
+}
+
+class ActionBar {
+  q: ActionBarSlot | null = null;
+  w: ActionBarSlot | null = null;
+  e: ActionBarSlot | null = null;
+  r: ActionBarSlot | null = null;
+
+  num6: ActionBarSlot | null = null;
+  num7: ActionBarSlot | null = null;
+  num8: ActionBarSlot | null = null;
+  num9: ActionBarSlot | null = null;
+  num0: ActionBarSlot | null = null;
+
+  selectedSkill = -1;
+
+  constructor() {
+    makeObservable(this, {
+      q: observable,
+      w: observable,
+      e: observable,
+      r: observable,
+      num6: observable,
+      num7: observable,
+      num8: observable,
+      num9: observable,
+      num0: observable,
+      selectedSkill: observable,
+    });
+  }
 }
 
 class PlayerData {
@@ -61,11 +107,69 @@ class PlayerData {
 
   tileFlag = 0;
 
+  actionBar = new ActionBar();
+
+  currentHP = 25;
+  maxHP = 40;
+  currentMP = 80;
+  maxMP = 100;
+  currentSD = 10;
+  maxSD = 12;
+  currentAG = 10;
+  maxAG = 12;
+
+  exp = 50;
+  currentLvlExp = 0;
+  expToNextLvl = 100;
+
+  get hpPercent() {
+    return Scalar.Clamp(this.currentHP / Math.max(this.maxHP, 1), 0, 1);
+  }
+
+  get mpPercent() {
+    return Scalar.Clamp(this.currentMP / Math.max(this.maxMP, 1), 0, 1);
+  }
+
+  get sdPercent() {
+    return Scalar.Clamp(this.currentSD / Math.max(this.maxSD, 1), 0, 1);
+  }
+
+  get agPercent() {
+    return Scalar.Clamp(this.currentAG / Math.max(this.maxAG, 1), 0, 1);
+  }
+
+  get expPercent() {
+    return Scalar.Clamp(
+      (this.exp - this.currentLvlExp) /
+        Math.max(this.expToNextLvl - this.currentLvlExp, 1),
+      0,
+      1
+    );
+  }
+
   constructor() {
     makeObservable(this, {
       money: observable,
       x: observable,
       y: observable,
+      tileFlag: observable,
+      actionBar: observable,
+      currentHP: observable,
+      maxHP: observable,
+      currentMP: observable,
+      maxMP: observable,
+      currentSD: observable,
+      maxSD: observable,
+      currentAG: observable,
+      maxAG: observable,
+      exp: observable,
+      currentLvlExp: observable,
+      expToNextLvl: observable,
+      expPercent: computed,
+      hpPercent: computed,
+      mpPercent: computed,
+      sdPercent: computed,
+      agPercent: computed,
     });
   }
 
@@ -100,7 +204,7 @@ export const Store = new (class _Store {
   password = '';
   serverList: ReturnType<ServerListResponsePacket['getServers']> = [];
   charactersList: ReturnType<CharacterListPacket['getCharacters']> = [];
-  uiState = UIState.Servers;
+  uiState = UIState.Preloader;
   playerId?: number;
 
   loginProcessing = false;
@@ -124,7 +228,7 @@ export const Store = new (class _Store {
 
   world: World | null = null;
 
-  readonly isOffline = location.href.includes('offline');
+  isOffline = location.href.includes('offline');
 
   constructor() {
     makeObservable(this, {
@@ -145,6 +249,19 @@ export const Store = new (class _Store {
       world: observable,
     });
     this.loadConfig();
+  }
+
+  playOffline() {
+    history.replaceState(null, '', '/offline');
+    this.isOffline = true;
+    this.uiState = UIState.World;
+    EventBus.emit('requestWarp', { map: ENUM_WORLD.WD_0LORENCIA });
+  }
+
+  playOnline() {
+    this.uiState = UIState.Servers;
+
+    this.connectToConnectServer();
   }
 
   private loadConfig(): void {
