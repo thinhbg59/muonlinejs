@@ -137,5 +137,6 @@ export function getTilesList(map: ENUM_WORLD) {
       ];
   }
 
-  throw new Error(`Not implemented for ${ENUM_WORLD[map]}`);
+  console.error(`Not implemented for ${ENUM_WORLD[map]}`);
+  return [];
 }

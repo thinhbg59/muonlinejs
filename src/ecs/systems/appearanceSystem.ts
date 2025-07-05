@@ -1,15 +1,10 @@
 import { ItemsDatabase } from '../../common/itemsDatabase';
 import type { ModelObject } from '../../common/modelObject';
 import type { PlayerObject } from '../../common/playerObject';
-import type { ISystemFactory } from '../world';
+import type { ISystemFactory, Item } from '../world';
 
 function loadPart(
-  part: {
-    group: number;
-    num: number;
-    lvl: number;
-    isExcellent: boolean;
-  } | null,
+  part: Item | null,
   playerObject: PlayerObject,
   socket: ModelObject
 ) {

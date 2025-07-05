@@ -118,8 +118,8 @@ window.addEventListener('resize', onResize);
 
 onResize();
 
-EventBus.on('requestWarp', ({ map }) => {
-  loadMapIntoScene(world, map);
+EventBus.on('requestWarp', ({ map, pos }) => {
+  loadMapIntoScene(world, map, pos);
 });
 
 ReactDOM.createRoot(document.getElementById('root')!).render(

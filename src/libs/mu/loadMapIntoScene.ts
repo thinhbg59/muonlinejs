@@ -1,19 +1,16 @@
 import { ENUM_WORLD } from '../../common';
 import type { World } from '../../ecs/world';
-import { spawnPlayer } from '../../logic';
 import { Store } from '../../store';
 import { createLorencia } from '../../maps/lorencia';
 import { getTerrainData } from './getTerrainData';
 import { Color4, Vector3 } from '../babylon/exports';
 import { toRadians } from '../../common/utils';
 import {
-  ItemGroups,
   MODEL_HOUSE_WALL05,
   MODEL_HOUSE_WALL06,
 } from '../../common/objects/enum';
 import { MapTileObject } from '../../common/mapTileObject';
 import { IVector3Like } from '../babylon/exports';
-import { ItemsDatabase } from '../../common/itemsDatabase';
 import { EventBus } from '../eventBus';
 import { DISABLE_OBJECTS_LOADING } from '../../consts';
 import { PoseBoxObject } from '../../maps/lorencia/poseBoxObject';
@@ -23,7 +20,7 @@ async function loadWorld(world: World) {
   if (!world.terrain) return;
 
   const tiles = world.terrain.MapTileObjects;
-  const map = world.terrain.index;
+  const map = world.mapIndex;
 
   world.scene.clearColor.set(0, 0, 0, 1);
 
@@ -105,7 +102,7 @@ function createObjects(
     );
 
     world.add({
-      worldIndex: world.terrain!.index,
+      worldIndex: world.mapIndex,
       transform: {
         pos,
         rot: angles,
@@ -121,11 +118,7 @@ function createObjects(
   }
 }
 
-async function unloadMap(world: World) {
-  if (!world.terrain) return;
-
-  const oldMap = world.terrain.index;
-
+function unloadMap(world: World, oldMap: ENUM_WORLD) {
   const query = world.with('worldIndex');
 
   for (const e of query) {
@@ -137,14 +130,22 @@ async function unloadMap(world: World) {
     }
   }
 
-  world.terrain.mesh.material?.dispose(true, true);
-  world.terrain.mesh.dispose(false, true);
+  if (world.terrain) {
+    world.terrain.mesh.material?.dispose(true, true);
+    world.terrain.mesh.dispose(false, true);
+  }
 }
 
-export async function loadMapIntoScene(world: World, map: ENUM_WORLD) {
-  const oldMap = world.terrain?.index;
+export async function loadMapIntoScene(
+  world: World,
+  map: ENUM_WORLD,
+  pos?: { x: number; y: number }
+) {
+  const oldMap = world.mapIndex;
+  world.mapIndex = map;
+
   if (oldMap !== map) {
-    await unloadMap(world);
+    unloadMap(world, oldMap);
 
     const {
       objects,
@@ -166,7 +167,6 @@ export async function loadMapIntoScene(world: World, map: ENUM_WORLD) {
 
     world.terrain = {
       mesh: terrain,
-      index: map,
       MapTileObjects: new Array(256).fill(MapTileObject),
       extraHeight: 0,
     };
@@ -178,115 +178,65 @@ export async function loadMapIntoScene(world: World, map: ENUM_WORLD) {
     !DISABLE_OBJECTS_LOADING && createObjects(world, filteredObjects);
   }
 
-  if (Store.isOffline && !world.playerEntity) {
-    const testPlayer = spawnPlayer(world);
-    testPlayer.transform.pos.x = 135;
-    testPlayer.transform.pos.y = 1.7;
-    testPlayer.transform.pos.z = 131;
-    world.addComponent(testPlayer, 'localPlayer', true);
-    world.addComponent(testPlayer, 'worldIndex', map);
-
-    testPlayer.objectNameInWorld = 'TestPlayer';
-
-    const DragonSetIndex = 1;
-
-    testPlayer.charAppearance.helm = {
-      num: DragonSetIndex,
-      group: ItemGroups.Helm,
-      lvl: 9,
-      isExcellent: false,
-    };
-
-    testPlayer.charAppearance.armor = {
-      num: DragonSetIndex,
-      group: ItemGroups.Armor,
-      lvl: 7,
-      isExcellent: false,
-    };
-
-    testPlayer.charAppearance.pants = {
-      num: DragonSetIndex,
-      group: ItemGroups.Pants,
-      lvl: 9,
-      isExcellent: false,
-    };
-
-    testPlayer.charAppearance.gloves = {
-      num: DragonSetIndex,
-      group: ItemGroups.Gloves,
-      lvl: 5,
-      isExcellent: false,
-    };
-
-    testPlayer.charAppearance.boots = {
-      num: DragonSetIndex,
-      group: ItemGroups.Boots,
-      lvl: 1,
-      isExcellent: false,
-    };
-
-    const weapon = ItemsDatabase.getItem(3, 9); // bill spear
-    // const weapon = ItemsDatabase.getItem(1, 1); // small axe
-    testPlayer.charAppearance.leftHand = {
-      num: weapon.ItemSubIndex,
-      group: weapon.ItemSubGroup,
-      lvl: 9,
-      isExcellent: false,
-    };
-  }
-
   if (world.playerEntity) {
     world.playerEntity.worldIndex = map;
-    const pos = world.playerEntity.transform.pos;
+    const playerPos = world.playerEntity.transform.pos;
 
     switch (map) {
       case ENUM_WORLD.WD_0LORENCIA:
-        pos.x = 135;
-        pos.z = 131;
+        playerPos.x = 135;
+        playerPos.z = 131;
         break;
       case ENUM_WORLD.WD_1DUNGEON:
-        pos.x = 232;
-        pos.z = 126;
+        playerPos.x = 232;
+        playerPos.z = 126;
         break;
       case ENUM_WORLD.WD_3NORIA:
-        pos.x = 174;
-        pos.z = 123;
+        playerPos.x = 174;
+        playerPos.z = 123;
         break;
       case ENUM_WORLD.WD_4LOSTTOWER:
-        pos.x = 208;
-        pos.z = 81;
+        playerPos.x = 208;
+        playerPos.z = 81;
         break;
       case ENUM_WORLD.WD_6STADIUM:
-        pos.x = 56;
-        pos.z = 85;
+        playerPos.x = 56;
+        playerPos.z = 85;
         break;
       case ENUM_WORLD.WD_7ATLANSE:
-        pos.x = 20;
-        pos.z = 20;
+        playerPos.x = 20;
+        playerPos.z = 20;
         break;
       case ENUM_WORLD.WD_8TARKAN:
-        pos.x = 200;
-        pos.z = 58;
+        playerPos.x = 200;
+        playerPos.z = 58;
         break;
       case ENUM_WORLD.WD_10ICARUS:
-        pos.x = 14;
-        pos.z = 12;
+        playerPos.x = 14;
+        playerPos.z = 12;
         break;
       case ENUM_WORLD.WD_33AIDA:
-        pos.x = 85;
-        pos.z = 10;
+        playerPos.x = 85;
+        playerPos.z = 10;
         break;
       case ENUM_WORLD.WD_51ELBELAND:
-        pos.x = 61;
-        pos.z = 201;
+        playerPos.x = 61;
+        playerPos.z = 201;
         break;
       case ENUM_WORLD.WD_2DEVIAS:
-        pos.x = 219;
-        pos.z = 24;
+        playerPos.x = 219;
+        playerPos.z = 24;
         break;
     }
 
-    pos.y = world.getTerrainHeight(pos.x, pos.z);
+    if (pos) {
+      playerPos.x = pos.x;
+      playerPos.z = pos.y;
+    }
+
+    playerPos.y = world.getTerrainHeight(playerPos.x, playerPos.z);
+
+    Store.syncPlayerAppearance();
   }
 
   EventBus.emit('warpCompleted', { map });

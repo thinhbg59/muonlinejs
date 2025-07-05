@@ -1,41 +1,8 @@
-import { Store } from '../../../../../store';
 import './style.less';
 import { observer } from 'mobx-react-lite';
-
-function normalizeLvl(lvl: number) {
-  if (lvl < 3) return 0;
-  if (lvl < 5) return 3;
-  if (lvl < 7) return 5;
-  if (lvl < 9) return 7;
-  if (lvl < 11) return 9;
-  if (lvl < 13) return 11;
-  if (lvl < 15) return 13;
-  return 15;
-}
-
-const ItemIcon = ({
-  group,
-  num,
-  lvl,
-  excellent,
-}: {
-  group: number;
-  num: number;
-  lvl?: number;
-  excellent?: boolean;
-}) => {
-  const normalizedLvl = normalizeLvl(lvl ?? 0);
-
-  return (
-    <img
-      src={`/items/item_${group}_${num}_${normalizedLvl}${
-        excellent ? '_e' : ''
-      }.png`}
-      className="item-icon"
-      alt="icon"
-    />
-  );
-};
+import { Store } from '../../../../../store';
+import { ItemIcon } from '../../../../components/itemIcon';
+import { Item } from '../../../../../ecs/world';
 
 const ConsumableItem = ({
   hotKey,
@@ -43,18 +10,13 @@ const ConsumableItem = ({
   count,
 }: {
   hotKey: string;
-  icon: {
-    group: number;
-    num: number;
-    lvl?: number;
-    excellent?: boolean;
-  };
+  icon: Item | null;
   count: number;
 }) => {
   return (
     <div className="consumable-item">
       <span className="hot-key">{hotKey}</span>
-      <ItemIcon {...icon} />
+      {!!icon && <ItemIcon {...icon} />}
       <span className="count">{count}</span>
     </div>
   );
@@ -124,7 +86,7 @@ export const BottomBar = observer(() => {
           <button className="skill-7">7</button>
           <button className="skill-8">8</button>
           <button className="skill-9">9</button>
-          <button className="skill-0">5</button>
+          <button className="skill-0">0</button>
           <button className="skill-current">Current</button>
         </div>
         <VerticalBar
@@ -140,11 +102,25 @@ export const BottomBar = observer(() => {
           fillAmount={playerData.mpPercent}
         />
         <div className="buttons">
-          <button className="item-shop">Shop</button>
-          <button className="character">Char</button>
-          <button className="inventory">Inv</button>
-          <button className="friend">Friend</button>
-          <button className="menu">Menu</button>
+          <button className="item-shop-btn">Shop</button>
+          <button
+            className="character-btn"
+            onClick={() => {
+              Store.characterInfoEnabled = !Store.characterInfoEnabled;
+            }}
+          >
+            Char
+          </button>
+          <button
+            className="inventory-btn"
+            onClick={() => {
+              Store.inventoryEnabled = !Store.inventoryEnabled;
+            }}
+          >
+            Inv
+          </button>
+          <button className="friend-btn">Friend</button>
+          <button className="menu-btn">Menu</button>
         </div>
       </div>
       <ExpBar />

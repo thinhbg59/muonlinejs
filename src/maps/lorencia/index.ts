@@ -137,7 +137,7 @@ export async function createLorencia(world: World) {
 
     const npcEntity = world.add({
       // netId: id,
-      worldIndex: terrain.index,
+      worldIndex: world.mapIndex,
       // npcType: npc.TypeNumber,
       transform: {
         pos: new Vector3(133, world.getTerrainHeight(133, 131), 131),

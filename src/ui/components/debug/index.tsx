@@ -45,14 +45,13 @@ export const Debug = observer(() => {
   const attack7Flag = isFlagInBinaryMask(playerData.tileFlag, TWFlags.Att7);
 
   const tile = world.getTerrainTile(playerData.x, playerData.y);
-  const tiles = getTilesList(world.terrain?.index ?? ENUM_WORLD.WD_0LORENCIA);
+  const tiles = getTilesList(world.mapIndex);
 
   const attributeSystem = world.playerEntity?.attributeSystem;
   const inSafeZone = !!attributeSystem?.isAboveZero('inSafeZone');
 
   return (
     <div className="debug">
-      <span className="money">Zen: {playerData.money}</span>
       <span className="coords">
         XY: {playerData.x} {playerData.y}
       </span>

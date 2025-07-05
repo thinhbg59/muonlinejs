@@ -23,7 +23,7 @@ export type Events = CSEvents &
       entity: With<Entity, 'transform' | 'screenPosition'>;
       screenPosition: IVector2Like;
     };
-    requestWarp: { map: ENUM_WORLD };
+    requestWarp: { map: ENUM_WORLD; pos?: { x: number; y: number } };
     warpCompleted: { map: ENUM_WORLD };
     keyPressed: string;
     keyReleased: string;

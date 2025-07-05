@@ -1,16 +1,19 @@
 import './style.less';
 import { observer } from 'mobx-react-lite';
-import { Store } from '../../../store';
 import { WorldObjects } from '../../components/worldObjects';
 import { MapsList } from './components/mapsList';
 import { BottomBar } from './components/bottomBar';
+import { CharacterInfo } from './components/characterInfo';
+import { Inventory } from './components/inventory';
 
 const HUD = observer(() => {
-  const playerData = Store.playerData;
-
   return (
     <div className="hud">
       <BottomBar />
+      <div className="panels-stack">
+        <Inventory />
+        <CharacterInfo />
+      </div>
       <MapsList />
     </div>
   );
