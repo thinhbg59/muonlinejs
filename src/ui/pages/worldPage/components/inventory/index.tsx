@@ -42,7 +42,7 @@ const ItemTooltip = ({
       {children}
       {!!config && isVisible && (
         <div className="tooltip-content" style={{ left: 0, top: 0 }}>
-          <div className="tooltip-content-name">{config.szItemName}</div>
+          <div className="tooltip-content-name">{config.ItemName}</div>
         </div>
       )}
     </div>
@@ -51,8 +51,8 @@ const ItemTooltip = ({
 
 const InventoryItem = ({ item }: { item: Item | null }) => {
   const config = item ? ItemsDatabase.getItem(item.group, item.num) : null;
-  const w = config?.Width ?? 1;
-  const h = config?.Height ?? 1;
+  const w = config?.X ?? 1;
+  const h = config?.Y ?? 1;
 
   return (
     <div className={`inventory-item w-${w} h-${h}${!item ? '' : ' used'}`}>

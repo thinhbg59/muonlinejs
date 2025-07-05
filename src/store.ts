@@ -413,16 +413,16 @@ export const Store = new (class _Store {
     // const weapon = ItemsDatabase.getItem(1, 1); // small axe
 
     Store.playerData.items[InventoryConstants.LeftHandSlot] = {
-      group: weapon.ItemSubGroup,
-      num: weapon.ItemSubIndex,
+      group: weapon.Group,
+      num: weapon.Index,
       lvl: 9,
       isExcellent: false,
     };
 
     Store.playerData.items[InventoryConstants.LastEquippableItemSlotIndex + 1] =
       {
-        group: weapon.ItemSubGroup,
-        num: weapon.ItemSubIndex,
+        group: weapon.Group,
+        num: weapon.Index,
         lvl: 9,
         isExcellent: true,
       };

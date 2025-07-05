@@ -338,9 +338,7 @@ EventBus.on('AddCharactersToScope', packet => {
       if (typeof item !== 'object' || item === null) return;
 
       const itemConfig = ItemsDatabase.getItem(item.group, item.num);
-      console.log(
-        `Item: ${itemConfig?.szItemName} (${item.group}, ${item.num})`
-      );
+      console.log(`Item: ${itemConfig?.ItemName} (${item.group}, ${item.num})`);
     });
 
     cApp.changed = true;

@@ -5,10 +5,10 @@ export const ItemsDatabase = new (class _ItemsDatabase {
 
   constructor() {
     for (const item of items) {
-      if (!this.cache[item.ItemSubGroup]) {
-        this.cache[item.ItemSubGroup] = {};
+      if (!this.cache[item.Group]) {
+        this.cache[item.Group] = {};
       }
-      this.cache[item.ItemSubGroup][item.ItemSubIndex] = item;
+      this.cache[item.Group][item.Index] = item;
     }
   }
 
