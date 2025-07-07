@@ -20,17 +20,16 @@ export const BackgroundMusicSystem: ISystemFactory = world => {
 
   return {
     update: dt => {
-      if (!world.terrain) return;
-
       delay -= dt;
 
       if (delay > 0) return;
 
       if (!SoundsManager.pageInteracted) return;
+      if (!world.terrain) return;
 
       delay = Infinity;
 
-      const map = world.terrain.index;
+      const map = world.mapIndex;
 
       let sound: Sounds = 'Music/MuTheme';
 

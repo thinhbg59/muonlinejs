@@ -30,6 +30,8 @@ const CurrentPage = observer(() => {
 });
 
 export const App = observer(() => {
+  const state = Store.uiState;
+
   useEventBus('wsError', () => {
     Store.addNotification('WebSocket connection error', 'error');
   });
@@ -38,7 +40,7 @@ export const App = observer(() => {
     <div className="app">
       <CurrentPage />
       <Notification />
-      <Debug />
+      {state === UIState.World && <Debug />}
     </div>
   );
 });

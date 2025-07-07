@@ -5,7 +5,7 @@ import type { MonsterActionType, PlayerAction } from '../common/objects/enum';
 import type { MUAttributeSystem } from '../libs/attributeSystem';
 import { TransformNode } from '../libs/babylon/exports';
 import { createPathfinding } from '../libs/pathfinding';
-import type { CharacterClassNumber, ENUM_WORLD } from '../common';
+import { CharacterClassNumber, ENUM_WORLD } from '../common';
 import { AssetsManager, Color3, Viewport } from '../libs/babylon/exports';
 import type { HighlightLayer } from '../libs/babylon/exports';
 import type { TestScene } from '../scenes/testScene';
@@ -17,11 +17,12 @@ export type ISystemFactory = (world: World) => {
   update?: (deltaTime: number) => void;
 };
 
-type Item = {
+export type Item = {
   num: number;
   group: number;
-  lvl: number;
-  isExcellent: boolean;
+  lvl?: number;
+  isExcellent?: boolean;
+  hasSkill?: boolean;
 };
 
 export type Entity = Partial<{
@@ -132,9 +133,10 @@ export class World extends ECSWorld<Entity> {
     return this.#keyboardInputQuery.entities[0].keyboardInput;
   }
 
+  mapIndex = ENUM_WORLD.WD_55LOGINSCENE;
+
   terrain: {
     mesh: Mesh;
-    index: ENUM_WORLD;
     MapTileObjects: (typeof ModelObject)[];
     extraHeight: number;
   } | null = null;

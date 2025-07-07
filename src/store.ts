@@ -39,9 +39,13 @@ import {
   runInAction,
   computed,
 } from 'mobx';
-import { World } from './ecs/world';
+import { Item, World } from './ecs/world';
 import { EventBus } from './libs/eventBus';
 import { Scalar } from './libs/babylon/exports';
+import { InventoryConstants } from './common/inventoryConstants';
+import { ItemGroups } from './common/objects/enum';
+import { ItemsDatabase } from './common/itemsDatabase';
+import { spawnPlayer } from './logic';
 
 const CONFIG_KEY = '_mu_key';
 
@@ -118,9 +122,79 @@ class PlayerData {
   currentAG = 10;
   maxAG = 12;
 
+  level = 1;
+  points = 5;
+
   exp = 50;
   currentLvlExp = 0;
   expToNextLvl = 100;
+
+  str = 10;
+  agi = 10;
+  sta = 10;
+  eng = 10;
+
+  items: Item[] = new Array(
+    InventoryConstants.InventoryRows * InventoryConstants.RowSize +
+      InventoryConstants.EquippableSlotsCount
+  ).fill(null);
+
+  get leftHandSlot() {
+    return this.items[InventoryConstants.LeftHandSlot];
+  }
+
+  get rightHandSlot() {
+    return this.items[InventoryConstants.RightHandSlot];
+  }
+
+  get helmetSlot() {
+    return this.items[InventoryConstants.HelmSlot];
+  }
+
+  get glovesSlot() {
+    return this.items[InventoryConstants.GlovesSlot];
+  }
+
+  get bootsSlot() {
+    return this.items[InventoryConstants.BootsSlot];
+  }
+
+  get pantsSlot() {
+    return this.items[InventoryConstants.PantsSlot];
+  }
+
+  get armorSlot() {
+    return this.items[InventoryConstants.ArmorSlot];
+  }
+
+  get wingsSlot() {
+    return this.items[InventoryConstants.WingsSlot];
+  }
+
+  get pendantSlot() {
+    return this.items[InventoryConstants.PendantSlot];
+  }
+
+  get ring1Slot() {
+    return this.items[InventoryConstants.Ring1Slot];
+  }
+
+  get ring2Slot() {
+    return this.items[InventoryConstants.Ring2Slot];
+  }
+
+  get petSlot() {
+    return this.items[InventoryConstants.PetSlot];
+  }
+
+  get inventoryItems() {
+    return this.items.slice(
+      InventoryConstants.LastEquippableItemSlotIndex + 1,
+      InventoryConstants.LastEquippableItemSlotIndex +
+        1 +
+        InventoryConstants.InventoryRows * InventoryConstants.RowSize
+    );
+  }
 
   get hpPercent() {
     return Scalar.Clamp(this.currentHP / Math.max(this.maxHP, 1), 0, 1);
@@ -170,6 +244,26 @@ class PlayerData {
       mpPercent: computed,
       sdPercent: computed,
       agPercent: computed,
+      str: observable,
+      agi: observable,
+      sta: observable,
+      eng: observable,
+      level: observable,
+      points: observable,
+      items: observable,
+      leftHandSlot: computed,
+      rightHandSlot: computed,
+      helmetSlot: computed,
+      glovesSlot: computed,
+      bootsSlot: computed,
+      pantsSlot: computed,
+      armorSlot: computed,
+      wingsSlot: computed,
+      pendantSlot: computed,
+      ring1Slot: computed,
+      ring2Slot: computed,
+      petSlot: computed,
+      inventoryItems: computed,
     });
   }
 
@@ -217,6 +311,9 @@ export const Store = new (class _Store {
 
   playerData = new PlayerData();
 
+  characterInfoEnabled = false;
+  inventoryEnabled = false;
+
   config: ConfigType = {
     csIp: CS_HOST,
     csPort: CS_PORT,
@@ -247,14 +344,24 @@ export const Store = new (class _Store {
       playerData: observable,
       notifications: observable,
       world: observable,
+      characterInfoEnabled: observable,
+      inventoryEnabled: observable,
     });
     this.loadConfig();
   }
 
   playOffline() {
+    if (!this.world) return;
+
     history.replaceState(null, '', '/offline');
     this.isOffline = true;
     this.uiState = UIState.World;
+    this.setTestItems();
+
+    const testPlayer = spawnPlayer(this.world);
+    this.world.addComponent(testPlayer, 'localPlayer', true);
+    this.world.addComponent(testPlayer, 'worldIndex', ENUM_WORLD.WD_0LORENCIA);
+    testPlayer.objectNameInWorld = 'TestPlayer';
     EventBus.emit('requestWarp', { map: ENUM_WORLD.WD_0LORENCIA });
   }
 
@@ -262,6 +369,82 @@ export const Store = new (class _Store {
     this.uiState = UIState.Servers;
 
     this.connectToConnectServer();
+  }
+
+  setTestItems() {
+    const DragonSetIndex = 1;
+
+    Store.playerData.items[InventoryConstants.HelmSlot] = {
+      num: DragonSetIndex,
+      group: ItemGroups.Helm,
+      lvl: 9,
+      isExcellent: false,
+    };
+
+    Store.playerData.items[InventoryConstants.ArmorSlot] = {
+      num: DragonSetIndex,
+      group: ItemGroups.Armor,
+      lvl: 7,
+      isExcellent: false,
+    };
+
+    Store.playerData.items[InventoryConstants.PantsSlot] = {
+      num: DragonSetIndex,
+      group: ItemGroups.Pants,
+      lvl: 9,
+      isExcellent: false,
+    };
+
+    Store.playerData.items[InventoryConstants.GlovesSlot] = {
+      num: DragonSetIndex,
+      group: ItemGroups.Gloves,
+      lvl: 5,
+      isExcellent: false,
+    };
+
+    Store.playerData.items[InventoryConstants.BootsSlot] = {
+      num: DragonSetIndex,
+      group: ItemGroups.Boots,
+      lvl: 1,
+      isExcellent: false,
+    };
+
+    const weapon = ItemsDatabase.getItem(3, 9); // bill spear
+    // const weapon = ItemsDatabase.getItem(1, 1); // small axe
+
+    Store.playerData.items[InventoryConstants.LeftHandSlot] = {
+      group: weapon.Group,
+      num: weapon.Index,
+      lvl: 9,
+      isExcellent: false,
+    };
+
+    Store.playerData.items[InventoryConstants.LastEquippableItemSlotIndex + 1] =
+      {
+        group: weapon.Group,
+        num: weapon.Index,
+        lvl: 9,
+        isExcellent: true,
+      };
+
+    this.syncPlayerAppearance();
+  }
+
+  syncPlayerAppearance() {
+    const playerData = this.playerData;
+    const playerEntity = this.world?.playerEntity;
+
+    if (!playerEntity || !playerEntity.charAppearance) return;
+
+    playerEntity.charAppearance.helm = playerData.helmetSlot || null;
+    playerEntity.charAppearance.armor = playerData.armorSlot || null;
+    playerEntity.charAppearance.pants = playerData.pantsSlot || null;
+    playerEntity.charAppearance.gloves = playerData.glovesSlot || null;
+    playerEntity.charAppearance.boots = playerData.bootsSlot || null;
+    playerEntity.charAppearance.leftHand = playerData.leftHandSlot || null;
+    playerEntity.charAppearance.rightHand = playerData.rightHandSlot || null;
+    playerEntity.charAppearance.wings = playerData.wingsSlot || null;
+    playerEntity.charAppearance.changed = true;
   }
 
   private loadConfig(): void {

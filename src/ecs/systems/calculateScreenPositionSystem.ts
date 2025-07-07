@@ -58,7 +58,7 @@ export const CalculateScreenPositionSystem: ISystemFactory = world => {
       tmp1.z = playerEntity.transform.pos.z;
 
       query.entities.forEach(entity => {
-        if (terrain.index !== entity.worldIndex) {
+        if (world.mapIndex !== entity.worldIndex) {
           if (!hiddenEntities.has(entity)) {
             hiddenEntities.add(entity);
             result.entity = entity;

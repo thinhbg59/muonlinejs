@@ -1,6 +1,8 @@
+import { runInAction } from 'mobx';
 import { CharacterClassNumber, ENUM_WORLD } from './common';
 import { deserializeAppearance } from './common/deserializeAppearance';
 import { ItemsDatabase } from './common/itemsDatabase';
+import { ItemSerializer } from './common/itemSerializer';
 import { ModelFactoryPerId } from './common/modelFactoryPerId';
 import { ModelObject } from './common/modelObject';
 import { MonstersDatabase } from './common/monstersDatabase';
@@ -14,6 +16,7 @@ import {
   AddCharactersToScopePacket,
   AddNpcsToScopePacket,
   CharacterInformationPacket,
+  CharacterInventoryPacket,
   ChatMessagePacket,
   CurrentHealthAndShieldPacket,
   CurrentManaAndAbilityPacket,
@@ -24,6 +27,7 @@ import {
   ObjectAnimationPacket,
   ObjectGotKilledPacket,
   ObjectWalkedPacket,
+  ServerMessagePacket,
 } from './common/packets/ServerToClientPackets';
 import { ServerToClientActionMap } from './common/playerActionMapper';
 import { PlayerObject } from './common/playerObject';
@@ -132,11 +136,37 @@ EventBus.on('CharacterInformation', packet => {
   const p = new CharacterInformationPacket(packet);
 
   const playerData = Store.playerData;
-  playerData.money = p.Money;
-  playerData.x = p.X;
-  playerData.y = p.Y;
 
-  Store.uiState = UIState.World;
+  runInAction(() => {
+    playerData.money = p.Money;
+    playerData.x = p.X;
+    playerData.y = p.Y;
+
+    playerData.exp = Number(p.CurrentExperience);
+    playerData.expToNextLvl = Number(p.ExperienceForNextLevel);
+    playerData.points = p.LevelUpPoints;
+
+    playerData.str = p.Strength;
+    playerData.agi = p.Agility;
+    playerData.sta = p.Vitality;
+    playerData.eng = p.Energy;
+
+    playerData.currentHP = p.CurrentHealth;
+    playerData.maxHP = p.MaximumHealth;
+
+    playerData.currentMP = p.CurrentMana;
+    playerData.maxMP = p.MaximumMana;
+
+    playerData.currentSD = p.CurrentShield;
+    playerData.maxSD = p.MaximumShield;
+
+    playerData.currentAG = p.CurrentAbility;
+    playerData.maxAG = p.MaximumAbility;
+
+    Store.uiState = UIState.World;
+
+    EventBus.emit('requestWarp', { map: p.MapId, pos: { x: p.X, y: p.Y } });
+  });
 });
 
 // EventBus.on('ServerMessage', packet => {
@@ -153,12 +183,32 @@ EventBus.on('CharacterInformation', packet => {
 //   console.log(`MessengerInitialization, friends: ${p.FriendCount} letters: ${p.LetterCount}/${p.MaximumLetterCount}`);
 // });
 
+EventBus.on('CharacterInventory', packet => {
+  const items = Store.playerData.items;
+  const p = new CharacterInventoryPacket(packet);
+
+  p.getItems(p.ItemCount).forEach(item => {
+    const itemSlot = item.ItemSlot;
+    const data = item.ItemData;
+
+    const itemData = ItemSerializer.DeserializeItem(
+      new Uint8Array(data.buffer)
+    );
+
+    items[itemSlot] = itemData;
+  });
+
+  Store.syncPlayerAppearance();
+});
+
 EventBus.on('CurrentHealthAndShield', packet => {
   const p = new CurrentHealthAndShieldPacket(packet);
 
   const playerEntity = Store.world?.playerEntity;
   if (!playerEntity) return;
   playerEntity.attributeSystem.setValue('currentHealth', p.Health);
+  Store.playerData.currentHP = Math.floor(p.Health);
+  Store.playerData.currentSD = Math.floor(p.Shield);
 });
 
 EventBus.on('CurrentManaAndAbility', packet => {
@@ -168,6 +218,8 @@ EventBus.on('CurrentManaAndAbility', packet => {
   if (!playerEntity) return;
 
   playerEntity.attributeSystem.setValue('currentMana', p.Mana);
+  Store.playerData.currentMP = Math.floor(p.Mana);
+  Store.playerData.currentAG = Math.floor(p.Ability);
 });
 
 EventBus.on('AddNpcsToScope', packet => {
@@ -176,9 +228,9 @@ EventBus.on('AddNpcsToScope', packet => {
   console.log(p, npcs);
 
   const world = Store.world;
-  if (!world || !world.terrain) return;
+  if (!world) return;
 
-  const worldIndex = world.terrain.index;
+  const worldIndex = world.mapIndex;
 
   npcs.forEach(npc => {
     const id = npc.Id & 0x7fff;
@@ -246,9 +298,9 @@ EventBus.on('AddCharactersToScope', packet => {
   console.log(p, chars);
 
   const world = Store.world;
-  if (!world || !world.terrain) return;
+  if (!world) return;
 
-  const worldIndex = world.terrain.index;
+  const worldIndex = world.mapIndex;
 
   chars.forEach(char => {
     const maskedId = char.Id & 0x7fff;
@@ -270,8 +322,6 @@ EventBus.on('AddCharactersToScope', packet => {
     if (Store.playerId === maskedId) {
       world.addComponent(playerEntity, 'localPlayer', true);
       console.log(`Local player spawned: ${maskedId} - ${char.Name}`);
-
-      EventBus.emit('requestWarp', { map: ENUM_WORLD.WD_0LORENCIA });
     }
 
     const cApp = playerEntity.charAppearance;
@@ -288,9 +338,7 @@ EventBus.on('AddCharactersToScope', packet => {
       if (typeof item !== 'object' || item === null) return;
 
       const itemConfig = ItemsDatabase.getItem(item.group, item.num);
-      console.log(
-        `Item: ${itemConfig?.szItemName} (${item.group}, ${item.num})`
-      );
+      console.log(`Item: ${itemConfig?.ItemName} (${item.group}, ${item.num})`);
     });
 
     cApp.changed = true;
@@ -540,4 +588,28 @@ EventBus.on('ItemDropRemoved', packet => {
       console.warn(`Item entity with netId ${maskedId} not found.`);
     }
   });
+});
+
+EventBus.on('ServerMessage', packet => {
+  const p = new ServerMessagePacket(packet);
+  console.log(p);
+
+  let color = '#fff';
+
+  switch (p.Type) {
+    case 0: // golden center text
+      color = '#ffd700';
+      break;
+    case 1: //blue normal text
+      color = '#0000ff';
+      break;
+    case 2: //guild notice
+      color = '#00ff00';
+      break;
+  }
+
+  console.log(
+    `%cServerMessage: ${p.Message}`,
+    `color: ${color}; font-weight: bold; font-size: 1em;`
+  ); // print message with color
 });
